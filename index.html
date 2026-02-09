@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="Indrajit Sarkar - Microsoft Certified Azure AI Engineer & Full-Stack Developer. Portfolio showcasing professional experience, projects, and achievements.">
+    <meta name="keywords"
+        content="Azure AI Engineer, Full-Stack Developer, Java, Python, Microsoft Certified, DXC Technology">
+    <meta name="author" content="Indrajit Sarkar">
+    <meta property="og:title" content="Indrajit Sarkar | Azure AI Engineer & Full-Stack Developer">
+    <meta property="og:description"
+        content="Microsoft Certified Azure AI Engineer with expertise in Java, Python, and cloud technologies.">
+    <meta property="og:type" content="website">
+    <meta name="twitter:card" content="summary_large_image">
+    <title>Indrajit Sarkar | Azure AI Engineer & Full-Stack Developer</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <!-- Scroll Progress Bar -->
+    <div class="scroll-progress" id="scrollProgress"></div>
+
+    <!-- Dynamic Background (iPad Pro Style) -->
+    <div class="dynamic-bg">
+        <div class="gradient-orb orb-1"></div>
+        <div class="gradient-orb orb-2"></div>
+        <div class="gradient-orb orb-3"></div>
+        <div class="noise-overlay"></div>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="nav glass-card" id="navbar">
+        <div class="nav-container">
+            <a href="#home" class="nav-logo" id="navLogoLink" aria-label="View Logo">
+                <img src="Images/logo.JPG" alt="Indrajit Sarkar Logo">
+            </a>
+            <button class="nav-toggle" id="navToggle" aria-label="Toggle navigation">
+                <span></span><span></span><span></span>
+            </button>
+            <ul class="nav-menu" id="navMenu">
+                <li><a href="#hero" class="nav-link active">Home</a></li>
+                <li><a href="#education" class="nav-link">Education</a></li>
+                <li><a href="#experience" class="nav-link">Experience</a></li>
+                <li><a href="#projects" class="nav-link">Projects</a></li>
+                <li><a href="#skills" class="nav-link">Skills</a></li>
+                <li><a href="#certifications" class="nav-link">Certifications</a></li>
+                <li><a href="#achievements" class="nav-link">Achievements</a></li>
+                <li><a href="#contact" class="nav-link">Contact</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="hero">
+        <canvas id="particleCanvas"></canvas>
+        <div class="hero-content">
+            <div class="hero-image-container">
+                <div class="hero-image-wrapper" id="heroImage">
+                    <img src="Images/Profile photo 3.jpg" alt="Indrajit Sarkar" class="hero-image" loading="eager">
+                    <div class="hero-image-glow"></div>
+                </div>
+            </div>
+            <div class="hero-text">
+                <h1 class="hero-name gradient-text">INDRAJIT SARKAR</h1>
+                <div class="hero-title">
+                    <span class="typing-text" id="typingText"></span>
+                    <span class="typing-cursor">|</span>
+                </div>
+                <p class="hero-summary">Results-driven IT professional with almost 2 years of experience in
+                    infrastructural management and Azure technologies.</p>
+                <div class="hero-badges">
+                    <span class="badge badge-blue pulse-blue" style="--i: 1;">Azure AI</span>
+                    <span class="badge badge-green pulse-green" style="--i: 2;">Java</span>
+                    <span class="badge badge-green pulse-green" style="--i: 3;">Python</span>
+                </div>
+                <div class="hero-cta">
+                    <a href="#contact" class="btn btn-primary light-sweep">Get In Touch</a>
+                    <a href="#projects" class="btn btn-secondary light-sweep">View Projects</a>
+                </div>
+            </div>
+        </div>
+        <div class="scroll-indicator">
+            <span>Scroll Down</span>
+            <div class="scroll-arrow"></div>
+        </div>
+    </section>
+
+    <!-- Education Section -->
+    <section class="education" id="education">
+        <div class="section-header">
+            <h2 class="section-title">Education</h2>
+            <p class="section-subtitle">Academic Journey & Achievements</p>
+        </div>
+        <div class="education-carousel" id="educationCarousel">
+            <div class="carousel-track">
+                <!-- Slide 1: MCA -->
+                <div class="carousel-slide" data-color="blue">
+                    <div class="slide-bg" style="background-image: url('Images/Atria institute of technology.jpeg')">
+                    </div>
+                    <div class="slide-overlay overlay-blue"></div>
+                    <div class="slide-content">
+                        <div class="slide-logo glass-card glow-blue">
+                            <img src="Images/Atria logo.png" alt="Atria Institute Logo" loading="lazy">
+                        </div>
+                        <div class="slide-info glass-card border-blue">
+                            <span class="edu-badge"
+                                style="background: rgba(16, 185, 129, 0.15); border-color: rgba(16, 185, 129, 0.3); color: var(--green-light);">✓
+                                Completed</span>
+                            <h3 class="edu-degree text-blue">Master of Computer Applications (MCA)</h3>
+                            <p class="edu-college">Atria Institute of Technology, Bengaluru</p>
+                            <p class="edu-duration">February 2024 – November 2025</p>
+                        </div>
+                        <div class="slide-photo glass-card border-green">
+                            <img src="Images/Atria Graduation.jpeg" alt="Atria Graduation" loading="lazy">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 2: BCA -->
+                <div class="carousel-slide" data-color="green">
+                    <div class="slide-bg"
+                        style="background-image: url('Images/Indian Academy Degree College Autonomous.jpg')"></div>
+                    <div class="slide-overlay overlay-green"></div>
+                    <div class="slide-content">
+                        <div class="slide-logo glass-card glow-green">
+                            <img src="Images/Indian Academy Degree College Logo.png" alt="Indian Academy Logo"
+                                loading="lazy">
+                        </div>
+                        <div class="slide-info glass-card border-green">
+                            <h3 class="edu-degree text-green">Bachelor of Computer Applications (BCA)</h3>
+                            <p class="edu-college">Indian Academy Degree College Autonomous, Bengaluru</p>
+                            <p class="edu-duration">August 2020 – November 2023</p>
+                        </div>
+                        <div class="slide-photo glass-card border-blue polaroid">
+                            <img src="Images/Indian Academy Graduation Photo.jpg" alt="Indian Academy Graduation"
+                                loading="lazy">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 3: Pre-University -->
+                <div class="carousel-slide" data-color="orange">
+                    <div class="slide-bg" style="background-image: url('Images/UAS Campus and VC PU college.jpg')">
+                    </div>
+                    <div class="slide-content timeline-content">
+                        <div class="timeline">
+                            <div class="timeline-item glass-card">
+                                <div class="timeline-marker marker-blue"></div>
+                                <h4>Pre-University (CEBA)</h4>
+                                <p>UAS and VC PU College, Bengaluru</p>
+                                <span class="timeline-date">2018 - 2020</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Slide 4: Schooling -->
+                <div class="carousel-slide" data-color="green">
+                    <div class="slide-bg aurora-bg"></div>
+                    <div class="slide-content timeline-content">
+                        <div class="timeline">
+                            <div class="timeline-item glass-card">
+                                <div class="timeline-marker marker-green"></div>
+                                <h4>Schooling</h4>
+                                <p>Allwin Public School, Bengaluru</p>
+                                <span class="timeline-date">Passout 2018</span>
+                                <div class="school-achievements">
+                                    <span class="mini-badge badge-blue">School Captain</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="carousel-dots" id="carouselDots">
+                <button class="dot active" data-slide="0" aria-label="Slide 1"></button>
+                <button class="dot" data-slide="1" aria-label="Slide 2"></button>
+                <button class="dot" data-slide="2" aria-label="Slide 3"></button>
+                <button class="dot" data-slide="3" aria-label="Slide 4"></button>
+            </div>
+            <button class="carousel-btn prev" id="carouselPrev" aria-label="Previous slide">❮</button>
+            <button class="carousel-btn next" id="carouselNext" aria-label="Next slide">❯</button>
+        </div>
+    </section>
+
+    <!-- Experience Section -->
+    <section class="experience" id="experience">
+        <div class="section-header">
+            <h2 class="section-title">Professional Experience</h2>
+            <p class="section-subtitle">Building Solutions That Matter</p>
+        </div>
+        <div class="experience-grid">
+            <!-- DXC Technology -->
+            <div class="exp-card glass-card border-blue" data-aos="fade-up"
+                style="background-image: url('Images/DXC Technology.JPG'); background-size: cover; background-position: center top;">
+                <div class="exp-full-overlay"></div>
+                <div class="exp-header relative-z" style="position: relative; display: block !important;">
+                    <div class="exp-title-group" style="padding-right: 90px; text-align: left;">
+                        <h3 class="exp-role text-white">Analyst 3 - Infrastructural Management</h3>
+                        <p class="exp-company text-white-70">DXC Technology, Bengaluru</p>
+                        <span class="exp-duration text-white-50">January 2024 – <span
+                                class="text-orange pulse-text">Present</span></span>
+                    </div>
+                    <div class="exp-logo-fixed glow-blue"
+                        style="position: absolute !important; top: 2rem !important; right: 2rem !important; left: auto !important; z-index: 100 !important;">
+                        <img src="Images/DXC Tcehnology Logo.png" alt="DXC Technology" loading="lazy">
+                    </div>
+                </div>
+                <div class="exp-content-body relative-z">
+                    <div class="exp-metrics">
+                        <div class="metric" data-value="40" data-suffix="%">
+                            <span class="metric-value counter text-green">0</span>
+                            <span class="metric-label">Automation Improvement</span>
+                        </div>
+                        <div class="metric" data-value="200" data-suffix="+">
+                            <span class="metric-value counter text-blue">0</span>
+                            <span class="metric-label">Incidents/Month</span>
+                        </div>
+                        <div class="metric" data-value="98" data-suffix="%">
+                            <div class="metric-ring" data-progress="98">
+                                <svg viewBox="0 0 36 36">
+                                    <path class="ring-bg"
+                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                    <path class="ring-fill"
+                                        d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831" />
+                                </svg>
+                                <span class="metric-value text-orange">98%</span>
+                            </div>
+                            <span class="metric-label">SLA Compliance</span>
+                        </div>
+                    </div>
+                    <div class="exp-tech">
+                        <span class="tech-badge tech-blue">Azure</span>
+                        <span class="tech-badge tech-green">ServiceNow</span>
+                        <span class="tech-badge tech-orange">PowerShell</span>
+                        <span class="tech-badge text-white">ITIL</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Talent Brainy -->
+            <div class="exp-card glass-card border-green" data-aos="fade-up" data-aos-delay="200"
+                style="background-image: url('Images/Talent.JPG'); background-size: cover; background-position: center top;">
+                <div class="exp-full-overlay"></div>
+                <div class="exp-header relative-z" style="position: relative; display: block !important;">
+                    <div class="exp-title-group" style="padding-right: 90px; text-align: left;">
+                        <h3 class="exp-role text-white">Full-Stack Web Development Intern</h3>
+                        <p class="exp-company text-white-70">Talent Brainy</p>
+                        <span class="exp-duration text-white-50">2023</span>
+                    </div>
+                    <div class="exp-logo-fixed glow-green"
+                        style="position: absolute !important; top: 2rem !important; right: 2rem !important; left: auto !important; z-index: 100 !important;">
+                        <img src="Images/Talent Brainy.jpg" alt="Talent Brainy" loading="lazy">
+                    </div>
+                </div>
+                <div class="exp-content-body relative-z">
+                    <div class="exp-metrics">
+                        <div class="metric" data-value="40" data-suffix="%">
+                            <span class="metric-value counter text-green">0</span>
+                            <span class="metric-label">Traffic Growth</span>
+                        </div>
+                        <div class="metric" data-value="15" data-suffix="%">
+                            <span class="metric-value counter text-blue">0</span>
+                            <span class="metric-label">Bounce Rate Reduction</span>
+                        </div>
+                        <div class="metric" data-value="100" data-suffix="%">
+                            <span class="metric-value counter text-orange">0</span>
+                            <span class="metric-label">Project Completion</span>
+                        </div>
+                    </div>
+                    <div class="exp-tech">
+                        <span class="tech-badge tech-blue">React</span>
+                        <span class="tech-badge tech-green">Node.js</span>
+                        <span class="tech-badge tech-orange">MongoDB</span>
+                        <span class="tech-badge text-white">Web Design</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section class="projects" id="projects">
+        <div class="section-header">
+            <h2 class="section-title">Projects</h2>
+            <p class="section-subtitle">From Concept to Creation</p>
+        </div>
+        <div class="projects-grid bento-grid">
+            <!-- Money Manager -->
+            <div class="project-card bento-item span-2-1 glass-card" data-category="fullstack">
+                <div class="project-glow glow-green"></div>
+                <div class="project-icon">💰</div>
+                <h3 class="project-title text-green">Money Manager</h3>
+                <p class="project-desc">Full-stack financial tracking application with secure auth and role-based
+                    access.</p>
+                <div class="project-tech">
+                    <span>JavaScript</span><span>PHP</span><span>MySQL</span>
+                </div>
+            </div>
+
+            <!-- NAS Solution -->
+            <div class="project-card bento-item span-1-2 glass-card" data-category="infrastructure">
+                <div class="project-glow glow-blue"></div>
+                <div class="project-icon">🖥️</div>
+                <h3 class="project-title text-blue">NAS Solution</h3>
+                <p class="project-desc">Cost-effective NAS infrastructure using TrueNAS OS on Raspberry Pi with 2TB
+                    shared storage.</p>
+                <div class="project-tech">
+                    <span>Raspberry Pi</span><span>TrueNAS</span><span>Networking</span>
+                </div>
+            </div>
+
+            <!-- Heritage City -->
+            <div class="project-card bento-item span-1 glass-card" data-category="web">
+                <div class="project-glow glow-orange"></div>
+                <div class="project-icon">🗼</div>
+                <h3 class="project-title text-orange">Heritage City</h3>
+                <div class="project-tech">
+                    <span>HTML5</span><span>CSS3</span>
+                </div>
+            </div>
+
+            <!-- ScienceGen Club -->
+            <div class="project-card glass-card" data-category="web">
+                <div class="project-glow glow-gradient"></div>
+                <div class="project-icon">🧬</div>
+                <h3 class="project-title gradient-text">ScienceGen Club</h3>
+                <p class="project-desc">Dynamic club website with modern design and optimized performance.</p>
+                <div class="project-tech">
+                    <span>HTML5</span><span>CSS3</span><span>JavaScript</span>
+                </div>
+            </div>
+
+            <!-- GitHub: AI & Image Recognition -->
+            <div class="project-card bento-item span-4-2 glass-card" data-category="ai">
+                <div class="project-glow glow-blue"></div>
+                <div class="project-icon">🤖</div>
+                <div style="display: flex; gap: 3rem; align-items: center; height: 100%;">
+                    <div style="flex: 1;">
+                        <h3 class="project-title text-blue">AI Document Processing</h3>
+                        <p class="project-desc">Advanced document analysis and computer vision tools built with Python
+                            and AI/ML models.</p>
+                        <div class="project-tech" style="margin-top: 1.5rem;">
+                            <span>Python</span><span>OpenCV</span><span>AI/ML</span><span>NLP</span>
+                        </div>
+                    </div>
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <a href="https://github.com/Indrajit-sarkar/AI-Data-extraction-and-PDF-split" target="_blank"
+                            rel="noopener" class="btn btn-secondary"
+                            style="padding: 0.75rem 1.5rem; font-size: 0.85rem;">
+                            AI Data Extraction
+                        </a>
+                        <a href="https://github.com/Indrajit-sarkar/Image-Recognition" target="_blank" rel="noopener"
+                            class="btn btn-secondary" style="padding: 0.75rem 1.5rem; font-size: 0.85rem;">
+                            Image Recognition
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- GitHub: ARCADE -->
+            <div class="project-card bento-item span-1 glass-card" data-category="gaming">
+                <div class="project-glow glow-orange"></div>
+                <div class="project-icon">🎮</div>
+                <h3 class="project-title text-orange">ARCADE</h3>
+                <a href="https://github.com/Indrajit-sarkar/ARCADE" target="_blank" rel="noopener"
+                    class="btn btn-secondary"
+                    style="padding: 0.5rem; width: 100%; font-size: 0.75rem; margin-top: 1rem;">
+                    GitHub
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Skills Section -->
+    <section class="skills" id="skills">
+        <div class="section-header">
+            <h2 class="section-title">Technical Skills</h2>
+            <p class="section-subtitle">Technologies I Work With</p>
+        </div>
+        <div class="skills-container bento-grid">
+            <div class="skill-category bento-item glass-card">
+                <h3 class="category-title text-green">Programming</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag tag-green">Java</span>
+                    <span class="skill-tag tag-green">Python</span>
+                    <span class="skill-tag tag-green">C++</span>
+                    <span class="skill-tag tag-green">C#</span>
+                    <span class="skill-tag tag-green">JavaScript</span>
+                    <span class="skill-tag tag-green">PHP</span>
+                    <span class="skill-tag tag-green">Shell Scripting</span>
+                </div>
+            </div>
+            <div class="skill-category bento-item span-1-2 glass-card">
+                <h3 class="category-title text-blue">Cloud & AI</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag tag-blue">Microsoft Azure</span>
+                    <span class="skill-tag tag-blue">Azure AI Services</span>
+                    <span class="skill-tag tag-blue">Cloud Platform</span>
+                </div>
+            </div>
+            <div class="skill-category bento-item span-1-2 glass-card">
+                <h3 class="category-title text-orange">Methodologies</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag tag-orange">Agile</span>
+                    <span class="skill-tag tag-orange">FMEA</span>
+                    <span class="skill-tag tag-orange">Six Sigma</span>
+                    <span class="skill-tag tag-orange">DMAIC</span>
+                </div>
+            </div>
+            <div class="skill-category bento-item span-2-1 glass-card">
+                <h3 class="category-title">Tools & Web</h3>
+                <div class="skill-tags">
+                    <span class="skill-tag">HTML5</span>
+                    <span class="skill-tag">CSS3</span>
+                    <span class="skill-tag tag-blue">MySQL</span>
+                    <span class="skill-tag tag-blue">Power BI</span>
+                    <span class="skill-tag">Git</span>
+                    <span class="skill-tag">VMware</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Certifications Section -->
+    <!-- Certifications Section -->
+    <section class="certifications" id="certifications">
+        <div class="section-header">
+            <h2 class="section-title">Certifications</h2>
+            <p class="section-subtitle">Professional Credentials</p>
+        </div>
+        <div class="certs-grid">
+            <!-- Microsoft Certs -->
+            <a href="Certificates/AI-102.pdf" target="_blank" class="cert-card glass-card cert-blue">
+                <div class="cert-icon">☁️</div>
+                <h4>Azure AI Engineer Associate</h4>
+                <p>Microsoft Certified</p>
+            </a>
+            <a href="Certificates/PowerBi PL-300.pdf" target="_blank" class="cert-card glass-card cert-blue">
+                <div class="cert-icon">📊</div>
+                <h4>Power BI Data Analyst Associate</h4>
+                <p>Microsoft Certified</p>
+            </a>
+            <a href="Certificates/AZ-900.pdf" target="_blank" class="cert-card glass-card cert-blue">
+                <div class="cert-icon">☁️</div>
+                <h4>Azure Fundamentals (AZ-900)</h4>
+                <p>Microsoft Certified</p>
+            </a>
+
+            <!-- Lean Six Sigma -->
+            <a href="Certificates/Lean Six sigma Black Belt.pdf" target="_blank"
+                class="cert-card glass-card cert-green">
+                <div class="cert-icon">🥋</div>
+                <h4>Lean Six Sigma Black Belt</h4>
+                <p>Council for Six Sigma Certification</p>
+            </a>
+            <a href="Certificates/Lean Six sigma Green Belt.pdf" target="_blank"
+                class="cert-card glass-card cert-green">
+                <div class="cert-icon">🟢</div>
+                <h4>Lean Six Sigma Green Belt</h4>
+                <p>Council for Six Sigma Certification</p>
+            </a>
+            <a href="Certificates/Lean SIx sigma Yellow Belt.pdf" target="_blank"
+                class="cert-card glass-card cert-green">
+                <div class="cert-icon">🟡</div>
+                <h4>Lean Six Sigma Yellow Belt</h4>
+                <p>Council for Six Sigma Certification</p>
+            </a>
+            <a href="Certificates/Lean Six sigma White Belt.pdf" target="_blank"
+                class="cert-card glass-card cert-green">
+                <div class="cert-icon">⚪</div>
+                <h4>Lean Six Sigma White Belt</h4>
+                <p>Council for Six Sigma Certification</p>
+            </a>
+
+            <!-- Quality Certs -->
+            <a href="Certificates/AIGPE FEMA.pdf" target="_blank" class="cert-card glass-card cert-orange">
+                <div class="cert-icon">🛡️</div>
+                <h4>FMEA Specialist</h4>
+                <p>AIGPE Certified</p>
+            </a>
+            <a href="Certificates/AIGPE FIVE FORCE.pdf" target="_blank" class="cert-card glass-card cert-orange">
+                <div class="cert-icon">⚡</div>
+                <h4>Five Forces Analysis</h4>
+                <p>AIGPE Certified</p>
+            </a>
+            <a href="Certificates/AIGPE Mini Tab Beginner.pdf" target="_blank" class="cert-card glass-card cert-orange">
+                <div class="cert-icon">📉</div>
+                <h4>Minitab Beginner</h4>
+                <p>AIGPE Certified</p>
+            </a>
+            <a href="Certificates/AIGPE PARENTO .pdf" target="_blank" class="cert-card glass-card cert-orange">
+                <div class="cert-icon">📊</div>
+                <h4>Pareto Analysis Specialist</h4>
+                <p>AIGPE Certified</p>
+            </a>
+            <a href="Certificates/AIGPE QUALITY Function.pdf" target="_blank" class="cert-card glass-card cert-orange">
+                <div class="cert-icon">⚙️</div>
+                <h4>Quality Function Deployment</h4>
+                <p>AIGPE Certified</p>
+            </a>
+            <a href="Certificates/Just In time.pdf" target="_blank" class="cert-card glass-card cert-orange">
+                <div class="cert-icon">⏱️</div>
+                <h4>Just-in-Time Management</h4>
+                <p>AIGPE Certified</p>
+            </a>
+        </div>
+    </section>
+
+    <!-- Achievements Section -->
+    <section class="achievements" id="achievements">
+        <div class="section-header">
+            <h2 class="section-title">Achievements</h2>
+            <p class="section-subtitle">Moments of Glory</p>
+        </div>
+        <div class="achievements-container">
+            <!-- Main Highlight -->
+            <div class="achievement-featured glass-card glow-orange" data-aos="fade-up">
+                <div class="featured-content">
+                    <div class="featured-badge">🏆 State Level Champion</div>
+                    <h3>1st Prize - SHRISTI</h3>
+                    <p class="featured-desc">Awarded by <strong>Dr. S. Somanath (ISRO Chairman)</strong> at the State
+                        Level Coding Championship.</p>
+                </div>
+                <div class="featured-image">
+                    <img src="Images/1st Prize– State Level Coding Championship SHRISTI, awarded by Dr. S. Somanath (ISRO Chairman).jpg"
+                        alt="Awarded by ISRO Chairman">
+                </div>
+            </div>
+
+            <!-- Achievement Grid -->
+            <div class="achievements-grid">
+                <div class="achievement-card glass-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="ach-icon">🎖️</div>
+                    <h4>School Captain</h4>
+                    <p>Led student council & organized events</p>
+                </div>
+                <div class="achievement-card glass-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="ach-icon">🤼</div>
+                    <h4>Kabaddi Champion</h4>
+                    <p>Inter-college Tournament Winner</p>
+                </div>
+                <div class="achievement-card glass-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="ach-icon">⚽</div>
+                    <h4>Football Champion</h4>
+                    <p>Regional League Winner & Captain</p>
+                </div>
+                <div class="achievement-card glass-card img-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="ach-img">
+                        <img src="Images/Champion– Intra-college Quiz, Debate, and Poster Designing competitions.jpg"
+                            alt="Intra-college Champion">
+                    </div>
+                    <div class="ach-info">
+                        <h4>Multi-Talent Champion</h4>
+                        <p>1st Prize: Quiz, Debate & Poster Design</p>
+                    </div>
+                </div>
+                <div class="achievement-card glass-card img-card" data-aos="fade-up" data-aos-delay="500">
+                    <div class="ach-img">
+                        <img src="Images/Achievements.jpg" alt="Achievements">
+                    </div>
+                    <div class="ach-info">
+                        <h4>Academic Excellence</h4>
+                        <p>Special Recognition & Awards</p>
+                    </div>
+                </div>
+                <div class="achievement-card glass-card" data-aos="fade-up" data-aos-delay="600">
+                    <div class="ach-icon">🥈</div>
+                    <h4>Technobinge</h4>
+                    <p>2nd Prize National Level Fest</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="section-header">
+            <h2 class="section-title">Get In Touch</h2>
+            <p class="section-subtitle">Let's Build Something Amazing Together</p>
+        </div>
+        <div class="contact-container">
+            <div class="contact-card glass-card">
+                <div class="contact-info">
+                    <div class="contact-item" data-copy="sarkar.sarkar.indrajit01@gmail.com">
+                        <span class="contact-icon icon-blue">✉️</span>
+                        <div>
+                            <span class="contact-label">Email</span>
+                            <a href="mailto:sarkar.sarkar.indrajit01@gmail.com"
+                                class="contact-value">sarkar.sarkar.indrajit01@gmail.com</a>
+                        </div>
+                        <button class="copy-btn" aria-label="Copy email">📋</button>
+                    </div>
+                    <div class="contact-item" data-copy="+91 8618835953">
+                        <span class="contact-icon icon-green">📱</span>
+                        <div>
+                            <span class="contact-label">Phone</span>
+                            <a href="tel:+918618835953" class="contact-value">+91 8618835953 / 7899818522</a>
+                        </div>
+                        <button class="copy-btn" aria-label="Copy phone">📋</button>
+                    </div>
+                    <div class="contact-item">
+                        <span class="contact-icon icon-orange">📍</span>
+                        <div>
+                            <span class="contact-label">Location</span>
+                            <span class="contact-value">Bengaluru, Karnataka 560032, India</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="social-links">
+                    <a href="https://linkedin.com/in/indrajit-sarkar01" target="_blank" rel="noopener"
+                        class="social-link linkedin" aria-label="LinkedIn">
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                            <path fill="currentColor"
+                                d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                        </svg>
+                    </a>
+                    <a href="https://github.com/Indrajit-sarkar" target="_blank" rel="noopener"
+                        class="social-link github" aria-label="GitHub">
+                        <svg viewBox="0 0 24 24" width="24" height="24">
+                            <path fill="currentColor"
+                                d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+                        </svg>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Floating Resume Button -->
+    <a href="resume.pdf" download class="floating-resume-btn glass-card" data-aos="fade-left" data-aos-offset="0">
+        <span class="resume-icon">📄</span>
+        <span class="resume-text">Download Resume</span>
+    </a>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-content">
+            <p>© 2024 Indrajit Sarkar. All rights reserved.</p>
+            <button class="back-to-top" id="backToTop" aria-label="Back to top">↑</button>
+        </div>
+    </footer>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">Copied to clipboard!</div>
+
+    <!-- Logo Modal -->
+    <div class="logo-modal" id="logoModal">
+        <button class="logo-modal-close" id="logoModalClose" aria-label="Close modal">×</button>
+        <div class="logo-modal-content">
+            <img src="Images/logo.JPG" alt="Indrajit Sarkar Logo Full" class="logo-full-img">
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+
+</html>
