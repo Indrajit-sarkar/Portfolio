@@ -39,32 +39,36 @@
 /* ========== LIGHT THEME ========== */
 [data-theme="light"] {
     --bg-primary: #ffffff;
-    --bg-secondary: #f5f5f7;
-    --bg-tertiary: #e8e8ed;
-    --bg-card: rgba(255, 255, 255, 0.9);
+    --bg-secondary: #fefafa;
+    --bg-tertiary: #f8f0ea;
+    --bg-card: rgba(255, 255, 255, 0.3);
+    /* Lower opacity for clearer glass effect */
     --text-primary: #1d1d1f;
-    --text-secondary: rgba(29, 29, 31, 0.8);
-    --text-muted: rgba(29, 29, 31, 0.5);
-    --glass-bg: rgba(255, 255, 255, 0.7);
-    --glass-border: rgba(0, 0, 0, 0.1);
-    --glass-highlight: rgba(0, 0, 0, 0.05);
-    --shadow-color: rgba(0, 0, 0, 0.12);
-    --nav-bg: rgba(255, 255, 255, 0.8);
-    --overlay-bg: rgba(255, 255, 255, 0.95);
+    --text-secondary: rgba(29, 29, 31, 0.85);
+    --text-muted: rgba(29, 29, 31, 0.6);
+
+    /* Clearer Liquid Glass Settings */
+    --glass-bg: rgba(255, 255, 255, 0.2);
+    --glass-border: rgba(255, 255, 255, 0.6);
+    --glass-highlight: rgba(255, 255, 255, 0.9);
+    --shadow-color: rgba(255, 149, 0, 0.15);
+    /* Warm shadow */
+    --nav-bg: rgba(255, 255, 255, 0.4);
+    --overlay-bg: rgba(255, 255, 255, 0.8);
 
     /* Vibrant light mode colors */
-    --primary-blue: #007aff;
-    --blue-light: #0a84ff;
+    --primary-blue: #0A66C2;
+    --blue-light: #4499ff;
     --primary-green: #34c759;
-    --green-light: #30d158;
+    --green-light: #5cd67c;
     --primary-orange: #ff9500;
-    --orange-light: #ff9f0a;
+    --orange-light: #ffb84d;
 
-    /* Mesh gradient background */
-    --mesh-gradient-1: radial-gradient(at 40% 20%, rgba(255, 149, 0, 0.15) 0px, transparent 50%);
-    --mesh-gradient-2: radial-gradient(at 80% 0%, rgba(0, 122, 255, 0.15) 0px, transparent 50%);
-    --mesh-gradient-3: radial-gradient(at 0% 50%, rgba(52, 199, 89, 0.15) 0px, transparent 50%);
-    --mesh-gradient-4: radial-gradient(at 80% 80%, rgba(175, 82, 222, 0.15) 0px, transparent 50%);
+    /* Rising Sun gradient background elements */
+    --mesh-gradient-1: radial-gradient(circle at 50% 120%, rgba(255, 149, 0, 0.55) 0%, rgba(255, 215, 0, 0.35) 40%, transparent 70%);
+    --mesh-gradient-2: radial-gradient(circle at 10% 90%, rgba(255, 59, 48, 0.25) 0%, transparent 60%);
+    --mesh-gradient-3: radial-gradient(circle at 90% 85%, rgba(0, 122, 255, 0.15) 0%, transparent 50%);
+    --mesh-gradient-4: radial-gradient(circle at 50% 10%, rgba(52, 199, 89, 0.08) 0%, transparent 60%);
 }
 
 [data-theme="light"] .gradient-orb {
@@ -81,8 +85,37 @@
     position: absolute;
     inset: 0;
     background: var(--mesh-gradient-1), var(--mesh-gradient-2), var(--mesh-gradient-3), var(--mesh-gradient-4);
-    z-index: 0;
+    z-index: -2;
     animation: meshMove 20s ease-in-out infinite;
+    filter: blur(80px);
+    /* Massive blur for the soft rising sun effect */
+    opacity: 0.9;
+}
+
+[data-theme="light"] .dynamic-bg::after {
+    content: '';
+    position: absolute;
+    bottom: -20vh;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 60vw;
+    height: 60vh;
+    background: radial-gradient(circle, rgba(255, 170, 0, 0.6) 0%, rgba(255, 100, 0, 0.4) 40%, transparent 70%);
+    filter: blur(100px);
+    z-index: -1;
+    animation: sunPulse 10s alternate infinite ease-in-out;
+}
+
+@keyframes sunPulse {
+    0% {
+        transform: translateX(-50%) scale(1);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translateX(-50%) scale(1.1);
+        opacity: 1;
+    }
 }
 
 @keyframes meshMove {
@@ -113,6 +146,20 @@
 [data-theme="light"] .exp-company,
 [data-theme="light"] .exp-duration {
     color: var(--text-primary) !important;
+}
+
+[data-theme="light"] .nav-link {
+    color: var(--text-secondary);
+}
+
+[data-theme="light"] .nav-link:hover,
+[data-theme="light"] .nav-link.active {
+    color: var(--text-primary);
+}
+
+[data-theme="light"] .nav-link.active {
+    background: rgba(0, 0, 0, 0.08);
+    /* Darker translucent background for active pill */
 }
 
 [data-theme="light"] .text-white {
@@ -378,7 +425,7 @@ body {
 
 [data-theme="light"] .gradient-orb {
     mix-blend-mode: multiply;
-    opacity: 0.08;
+    opacity: 0.15;
 }
 
 .orb-1 {
@@ -438,7 +485,6 @@ body {
     pointer-events: none;
 }
 
-/* ========== LIQUID GLASS ========== */
 .glass-card {
     background: var(--glass-bg);
     backdrop-filter: blur(60px) saturate(200%) brightness(1.1);
@@ -452,6 +498,31 @@ body {
         0 8px 32px rgba(0, 0, 0, 0.12),
         inset 0 1px 0 rgba(255, 255, 255, 0.2),
         inset 0 -1px 0 rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .glass-card {
+    /* Clearer background, stronger blur */
+    backdrop-filter: blur(80px) saturate(180%) brightness(1.15);
+    -webkit-backdrop-filter: blur(80px) saturate(180%) brightness(1.15);
+    /* Animated liquid glass reflection */
+    background-image: linear-gradient(105deg,
+            transparent 20%,
+            rgba(255, 255, 255, 0.4) 45%,
+            rgba(255, 255, 255, 0.7) 50%,
+            rgba(255, 255, 255, 0.4) 55%,
+            transparent 80%);
+    background-size: 300% 300%;
+    animation: liquid-glass-shimmer 8s infinite linear;
+}
+
+@keyframes liquid-glass-shimmer {
+    0% {
+        background-position: 200% 0;
+    }
+
+    100% {
+        background-position: -100% 0;
+    }
 }
 
 .glass-card::before {
@@ -759,6 +830,11 @@ body {
         transform: translateX(-50%) translateY(0);
         opacity: 1;
     }
+}
+
+/* Explicitly restore nav float-in animation that gets overridden by the glass-card shimmer in light mode */
+[data-theme="light"] .nav.glass-card {
+    animation: floatInFromTop 1s cubic-bezier(0.16, 1, 0.3, 1) 0.3s forwards, liquid-glass-shimmer 8s infinite linear !important;
 }
 
 .nav.scrolled {
@@ -3891,6 +3967,11 @@ section.section-hidden {
     flex-direction: column;
 }
 
+/* Explicitly restore certFadeIn in light mode alongside the new liquid glass shimmer */
+[data-theme="light"] .cert-card-preview {
+    animation: certFadeIn 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards, liquid-glass-shimmer 8s infinite linear;
+}
+
 .cert-card-preview.expanded {
     position: relative;
     width: 85vw;
@@ -4236,4 +4317,63 @@ section.section-hidden {
 
 [data-theme="light"] .cert-modal-overlay {
     background: rgba(255, 255, 255, 0.9);
+}
+
+/* ========== SHOOTING STARS ANIMATION ========== */
+.shooting-stars-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    pointer-events: none;
+    z-index: -1;
+    overflow: hidden;
+}
+
+[data-theme="light"] .shooting-stars-container {
+    display: none;
+}
+
+.shooting-star {
+    position: absolute;
+    width: 100px;
+    height: 2px;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 1), transparent);
+    border-radius: 50%;
+    filter: drop-shadow(0 0 6px rgba(255, 255, 255, 1));
+    animation: shootingStar 1.5s linear forwards;
+    opacity: 0;
+}
+
+.shooting-star::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 4px;
+    height: 4px;
+    background: rgba(255, 255, 255, 1);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 1), 0 0 20px rgba(59, 130, 246, 0.8), 0 0 30px rgba(59, 130, 246, 0.6);
+}
+
+@keyframes shootingStar {
+    0% {
+        transform: translate(0, 0) rotate(-45deg);
+        opacity: 0;
+    }
+
+    10% {
+        opacity: 1;
+    }
+
+    90% {
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(100vh, -100vh) rotate(-45deg);
+        opacity: 0;
+    }
 }

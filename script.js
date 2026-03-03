@@ -29,6 +29,7 @@ document.addEventListener('DOMContentLoaded', () => {
     initFloatingElements();
     initScrollLinkedAnimations();
     initCertifications(); // Dynamic certifications with lazy loading
+    initShootingStars(); // Animated shooting stars for dark mode
 });
 
 /* ========== PAGE LOADER ========== */
@@ -1046,4 +1047,48 @@ function initCertifications() {
     }
 }
 
+/* ========== SHOOTING STARS ANIMATION ========== */
+function initShootingStars() {
+    // Create the container for shooting stars
+    const container = document.createElement('div');
+    container.className = 'shooting-stars-container';
+    document.body.appendChild(container);
+
+    // Function to generate a shooting star
+    function createShootingStar() {
+        // Only run if we are in dark mode
+        if (document.documentElement.getAttribute('data-theme') !== 'dark') {
+            return;
+        }
+
+        const star = document.createElement('div');
+        star.className = 'shooting-star';
+
+        // Randomize the starting position along the left or bottom edge
+        // To ensure it flies across the screen from bottom-left to top-right
+        const startX = Math.random() * (window.innerWidth / 2); // Start in the left half
+        const startY = (window.innerHeight / 2) + (Math.random() * (window.innerHeight / 2)); // Start in the bottom half
+
+        star.style.left = `${startX}px`;
+        star.style.top = `${startY}px`;
+
+        // Append star and remove it after animation (1.5s total time)
+        container.appendChild(star);
+        setTimeout(() => {
+            star.remove();
+        }, 1500);
+    }
+
+    // Spawn stars continuously at randomized intervals between 2s and 6s
+    function scheduleNextStar() {
+        const randomDelay = Math.random() * 4000 + 2000;
+        setTimeout(() => {
+            createShootingStar();
+            scheduleNextStar();
+        }, randomDelay);
+    }
+
+    // Start the spawning loop
+    scheduleNextStar();
+}
 
