@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Hobbies of Indrajit Sarkar — automobiles, mobile photography and music production. Featuring an interactive 3D car.">
+    <meta name="theme-color" content="#050508">
+    <title>Hobbies · 3D Garage | Indrajit Sarkar</title>
+    <link rel="icon" href="assets/opt/logo-640.webp" type="image/webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Inter:wght@300..800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css?v=3">
+    <style>
+        /* ---------- Hobbies page ---------- */
+        body { padding-bottom: 0 !important; }
+
+        .hb-top {
+            position: fixed; top: 1rem; left: 1rem; right: 1rem; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            pointer-events: none;
+        }
+        .hb-top > * { pointer-events: auto; }
+
+        /* --- 3D hero --- */
+        .garage {
+            position: relative; height: 100svh; min-height: 480px;
+            overflow: clip;
+        }
+        #carCanvas {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            display: block; touch-action: pan-y;
+            cursor: grab;
+        }
+        #carCanvas.is-dragging { cursor: grabbing; }
+        .garage-fallback {
+            position: absolute; inset: 0;
+            background: url('assets/opt/sport-1-1600.webp') center/cover no-repeat;
+            display: none;
+        }
+        .garage.no-webgl .garage-fallback { display: block; }
+        .garage.no-webgl #carCanvas { display: none; }
+
+        .garage-title {
+            position: absolute; inset: 0;
+            display: flex; flex-direction: column; align-items: center;
+            padding-top: clamp(4.5rem, 12vh, 8rem);
+            text-align: center; pointer-events: none; z-index: 2;
+        }
+        .garage-title .eyebrow { color: var(--ink-2); }
+        .garage-title h1 {
+            font-family: var(--font-d);
+            font-size: clamp(3.4rem, 14vw, 11rem);
+            font-weight: 700; line-height: 0.95; letter-spacing: 0.02em;
+            background: linear-gradient(180deg, #fff 20%, rgba(255,255,255,0.25));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        .garage-title p.tag-line {
+            margin-top: 0.6rem; color: var(--ink-2);
+            font-size: clamp(0.9rem, 2vw, 1.1rem); letter-spacing: 0.18em; text-transform: uppercase;
+        }
+        .drag-hint {
+            position: absolute; bottom: 6.4rem; left: 50%; transform: translateX(-50%);
+            z-index: 2; pointer-events: none;
+            font-size: 0.78rem; letter-spacing: 0.22em; text-transform: uppercase;
+            color: var(--ink-3);
+            display: flex; align-items: center; gap: 0.6rem;
+            transition: opacity 0.6s;
+        }
+        .drag-hint.is-gone { opacity: 0; }
+        .drag-hint::before, .drag-hint::after { content: "⟲"; font-size: 1rem; }
+        .drag-hint::after { content: "⟳"; }
+
+        .garage .scroll-cue { z-index: 2; }
+
+        /* --- content sections --- */
+        .hb-section { padding: clamp(4.5rem, 10vw, 8rem) 0; }
+        .hb-intro p {
+            color: var(--ink-2); font-size: clamp(1rem, 1.8vw, 1.2rem);
+            max-width: 70ch; margin-top: 1.2rem;
+        }
+
+        .hobby {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: clamp(1.5rem, 4vw, 4rem);
+            align-items: center;
+            margin-top: clamp(3.5rem, 8vw, 6rem);
+        }
+        .hobby:nth-child(even) .hobby-media { order: 2; }
+        .hobby-num {
+            font-family: var(--font-d); font-weight: 700;
+            font-size: 0.9rem; letter-spacing: 0.3em; color: var(--ink-3);
+        }
+        .hobby h3 {
+            font-family: var(--font-d); font-weight: 700;
+            font-size: clamp(1.8rem, 4.5vw, 3.2rem); line-height: 1.03; margin-top: 0.6rem;
+        }
+        .hobby p { color: var(--ink-2); margin-top: 1.1rem; font-size: 1rem; }
+        .hobby-media {
+            border-radius: var(--r-lg); overflow: hidden;
+            border: 1px solid var(--glass-line); box-shadow: var(--shadow);
+            aspect-ratio: 4 / 3;
+        }
+        .hobby-media img {
+            width: 100%; height: 116%; object-fit: cover;
+            will-change: transform;
+        }
+        @media (max-width: 820px) {
+            .hobby { grid-template-columns: 1fr; }
+            .hobby:nth-child(even) .hobby-media { order: 0; }
+            .hobby-media { aspect-ratio: 16 / 10; }
+        }
+
+        .hb-footer {
+            border-top: 1px solid var(--glass-line);
+            padding: 2.5rem 0 3rem; text-align: center; color: var(--ink-3); font-size: 0.9rem;
+        }
+        .hb-footer .btn { margin-bottom: 1.2rem; }
+    </style>
+</head>
+
+<body>
+    <!-- Ambient background -->
+    <div class="ambient" aria-hidden="true">
+        <div class="aurora">
+            <b class="blob b1"></b>
+            <b class="blob b2"></b>
+            <b class="blob b3"></b>
+        </div>
+        <div class="grain"></div>
+    </div>
+
+    <div class="hb-top">
+        <a href="index.html" class="btn btn-ghost btn-sm">← Back to Portfolio</a>
+        <a href="index.html#contact" class="btn btn-primary btn-sm">Get in Touch</a>
+    </div>
+
+    <!-- ============ 3D GARAGE HERO ============ -->
+    <header class="garage" id="garage">
+        <canvas id="carCanvas" aria-label="Interactive 3D sports car — drag to spin"></canvas>
+        <div class="garage-fallback" aria-hidden="true"></div>
+        <div class="garage-title">
+            <p class="eyebrow">Beyond the code</p>
+            <h1>HOBBIES</h1>
+            <p class="tag-line">Automobiles · Photography · Music</p>
+        </div>
+        <p class="drag-hint" id="dragHint">Drag to spin — scroll to roll</p>
+        <a class="scroll-cue" href="#hobbies" aria-label="Scroll to hobbies">
+            <span>Scroll</span>
+            <i aria-hidden="true"></i>
+        </a>
+    </header>
+
+    <!-- ============ HOBBIES ============ -->
+    <main class="hb-section" id="hobbies">
+        <div class="container hb-intro">
+            <p class="eyebrow" data-reveal="up">What drives me</p>
+            <h2 class="sec-title" data-reveal="up">More than <span class="grad-text">pastimes</span></h2>
+            <p data-reveal="up" data-reveal-delay="120">
+                My hobbies are passions that shape who I am and how I see the world. Each one lets me express
+                myself differently and keeps me learning — from the mechanical world of automobiles to the creative
+                realms of photography and music. They've taught me patience, creativity, and the value of pursuing
+                what truly excites me.
+            </p>
+        </div>
+
+        <div class="container">
+            <!-- Automobilism -->
+            <section class="hobby" data-reveal="up">
+                <div class="hobby-copy">
+                    <span class="hobby-num">01 — GARAGE</span>
+                    <h3>Automobilism</h3>
+                    <p>
+                        I've always been fascinated by cars and the freedom they represent on the open road. There's
+                        something special about understanding how engines work and appreciating automotive design —
+                        car shows, new models, or simply going for a drive.
+                    </p>
+                    <p>
+                        The blend of engineering excellence and artistic design in automobiles never ceases to amaze
+                        me. For me, automobilism is the thrill of the journey and a passion for mechanical innovation —
+                        that's why this page opens with a car I can spin with my fingertips.
+                    </p>
+                </div>
+                <div class="hobby-media" data-parallax>
+                    <img src="assets/opt/sport-1-800.webp"
+                        srcset="assets/opt/sport-1-800.webp 800w, assets/opt/sport-1-1600.webp 1600w"
+                        sizes="(max-width: 820px) 92vw, 46vw"
+                        alt="Sports car on the road" loading="lazy" decoding="async">
+                </div>
+            </section>
+
+            <!-- Photography -->
+            <section class="hobby" data-reveal="up">
+                <div class="hobby-copy">
+                    <span class="hobby-num">02 — LENS</span>
+                    <h3>Mobile Photography</h3>
+                    <p>
+                        I love capturing moments wherever I go — my phone is always with me to do just that. Mobile
+                        photography lets me express creativity and see the world through a different lens, from
+                        landscapes to candid street shots.
+                    </p>
+                    <p>
+                        What excites me most is how accessible it is: no heavy equipment, just my phone and my vision.
+                        I'm constantly learning about composition, lighting and editing — preserving memories and
+                        sharing my perspective in a creative way.
+                    </p>
+                </div>
+                <div class="hobby-media" data-parallax>
+                    <img src="assets/opt/sport-2-800.webp"
+                        srcset="assets/opt/sport-2-800.webp 800w, assets/opt/sport-2-1600.webp 1600w"
+                        sizes="(max-width: 820px) 92vw, 46vw"
+                        alt="Scenic photography shot" loading="lazy" decoding="async">
+                </div>
+            </section>
+
+            <!-- Music -->
+            <section class="hobby" data-reveal="up">
+                <div class="hobby-copy">
+                    <span class="hobby-num">03 — STUDIO</span>
+                    <h3>Music Production</h3>
+                    <p>
+                        I love experimenting with sounds and creating mashups. Using tools like Virtual DJ, I blend
+                        different tracks into something fresh — there's something magical about mixing two songs and
+                        discovering how well they complement each other.
+                    </p>
+                    <p>
+                        Beats, transitions, effects — it's a fun, creative outlet that needs no expensive gear or
+                        formal training. It's all about the joy of experimentation and sharing cool mashups with
+                        friends who appreciate the art of mixing.
+                    </p>
+                </div>
+                <div class="hobby-media" data-parallax>
+                    <img src="assets/opt/sport-3-800.webp"
+                        srcset="assets/opt/sport-3-800.webp 800w, assets/opt/sport-3-1600.webp 1600w"
+                        sizes="(max-width: 820px) 92vw, 46vw"
+                        alt="Music and mixing setup" loading="lazy" decoding="async">
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <footer class="hb-footer">
+        <a href="index.html" class="btn btn-primary">← Back to Portfolio</a>
+        <p>© <span id="year">2026</span> Indrajit Sarkar</p>
+    </footer>
+
+    <!-- ---------- Page interactions (no dependencies) ---------- -->
+    <script>
+        (() => {
+            'use strict';
+            const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+            document.documentElement.classList.add('anim-ready');
+            document.getElementById('year').textContent = new Date().getFullYear();
+
+            // Reveals
+            const items = document.querySelectorAll('[data-reveal]');
+            if (!('IntersectionObserver' in window) || reduced) {
+                items.forEach(el => el.classList.add('is-in'));
+            } else {
+                const io = new IntersectionObserver((es) => {
+                    es.forEach(en => {
+                        if (!en.isIntersecting) return;
+                        const d = parseInt(en.target.dataset.revealDelay || '0', 10);
+                        if (d) en.target.style.transitionDelay = d + 'ms';
+                        en.target.classList.add('is-in');
+                        io.unobserve(en.target);
+                    });
+                }, { threshold: 0.12 });
+                items.forEach(el => io.observe(el));
+            }
+
+            // Image parallax inside hobby cards
+            if (!reduced) {
+                const medias = Array.from(document.querySelectorAll('[data-parallax] img'));
+                let tick = false;
+                const move = () => {
+                    tick = false;
+                    const vh = innerHeight;
+                    medias.forEach(img => {
+                        const r = img.parentElement.getBoundingClientRect();
+                        if (r.bottom < 0 || r.top > vh) return;
+                        const p = (r.top + r.height / 2 - vh / 2) / vh; // -0.5..0.5
+                        img.style.transform = `translateY(${(-p * 14).toFixed(2)}%)`;
+                    });
+                };
+                addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(move); } }, { passive: true });
+                move();
+            }
+        })();
+    </script>
+
+    <!-- ---------- 3D CAR (Three.js) ---------- -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+        import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+
+        const canvas = document.getElementById('carCanvas');
+        const garage = document.getElementById('garage');
+        const hint = document.getElementById('dragHint');
+        const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        let renderer;
+        try {
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+        } catch (e) {
+            garage.classList.add('no-webgl');
+            throw e;
+        }
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.15;
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0x050508, 14, 34);
+
+        const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+        camera.position.set(0, 2.1, 9.2);
+        camera.lookAt(0, 0.55, 0);
+
+        // Environment reflections for the car paint
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+        /* ---------- Lights ---------- */
+        scene.add(new THREE.HemisphereLight(0x8899ff, 0x0a0a12, 0.35));
+        const key = new THREE.DirectionalLight(0xffffff, 1.6);
+        key.position.set(4, 7, 4);
+        scene.add(key);
+        const rimBlue = new THREE.DirectionalLight(0x5b8cff, 2.2);
+        rimBlue.position.set(-7, 2.5, -4);
+        scene.add(rimBlue);
+        const rimCyan = new THREE.DirectionalLight(0x22d3ee, 1.6);
+        rimCyan.position.set(7, 2, -5);
+        scene.add(rimCyan);
+        const underglow = new THREE.PointLight(0x7c5cff, 8, 6);
+        underglow.position.set(0, 0.12, 0);
+        scene.add(underglow);
+
+        /* ---------- Floor ---------- */
+        const floor = new THREE.Mesh(
+            new THREE.CircleGeometry(16, 48),
+            new THREE.MeshStandardMaterial({ color: 0x0a0a12, roughness: 0.32, metalness: 0.75 })
+        );
+        floor.rotation.x = -Math.PI / 2;
+        scene.add(floor);
+
+        // Glowing pedestal ring under the car
+        const pedestal = new THREE.Mesh(
+            new THREE.RingGeometry(3.15, 3.3, 72),
+            new THREE.MeshBasicMaterial({ color: 0x6d8cff, transparent: true, opacity: 0.85, side: THREE.DoubleSide })
+        );
+        pedestal.rotation.x = -Math.PI / 2;
+        pedestal.position.y = 0.012;
+        scene.add(pedestal);
+        const pedestal2 = new THREE.Mesh(
+            new THREE.RingGeometry(3.34, 3.42, 72),
+            new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.28, side: THREE.DoubleSide })
+        );
+        pedestal2.rotation.x = -Math.PI / 2;
+        pedestal2.position.y = 0.012;
+        scene.add(pedestal2);
+
+        /* ---------- Car (procedural, ~40 low-poly parts) ---------- */
+        const car = new THREE.Group();
+        scene.add(car);
+
+        const paint = new THREE.MeshPhysicalMaterial({
+            color: 0x2f5cff, metalness: 0.85, roughness: 0.28,
+            clearcoat: 1.0, clearcoatRoughness: 0.08,
+        });
+        const darkTrim = new THREE.MeshStandardMaterial({ color: 0x0b0b10, roughness: 0.55, metalness: 0.4 });
+        const glass = new THREE.MeshPhysicalMaterial({
+            color: 0x0a0f18, metalness: 0.2, roughness: 0.05,
+            transmission: 0, clearcoat: 1, opacity: 0.96, transparent: true,
+        });
+        const chrome = new THREE.MeshStandardMaterial({ color: 0xd8dce6, metalness: 1, roughness: 0.15 });
+
+        // Lower chassis
+        const chassis = new THREE.Mesh(new RoundedBoxGeometry(2.05, 0.34, 4.7, 4, 0.1), darkTrim);
+        chassis.position.y = 0.42;
+        car.add(chassis);
+
+        // Main body
+        const body = new THREE.Mesh(new RoundedBoxGeometry(2.0, 0.5, 4.55, 5, 0.13), paint);
+        body.position.y = 0.72;
+        car.add(body);
+
+        // Nose wedge (front slope)
+        const nose = new THREE.Mesh(new RoundedBoxGeometry(1.88, 0.38, 1.4, 4, 0.12), paint);
+        nose.position.set(0, 0.72, 2.0);
+        nose.rotation.x = 0.11;
+        car.add(nose);
+
+        // Cabin — sunk into the body so it reads as one silhouette
+        const cabin = new THREE.Mesh(new RoundedBoxGeometry(1.5, 0.62, 2.5, 5, 0.24), glass);
+        cabin.position.set(0, 1.02, -0.42);
+        cabin.scale.set(1, 0.85, 1);
+        car.add(cabin);
+
+        // Windshield rake (sloped glass wedge toward the hood)
+        const shield = new THREE.Mesh(new RoundedBoxGeometry(1.36, 0.07, 0.85, 3, 0.03), glass);
+        shield.position.set(0, 1.02, 0.74);
+        shield.rotation.x = -0.52;
+        car.add(shield);
+
+        // Roof stripe
+        const roof = new THREE.Mesh(new RoundedBoxGeometry(1.26, 0.07, 1.5, 3, 0.03), paint);
+        roof.position.set(0, 1.25, -0.55);
+        car.add(roof);
+
+        // Rear deck
+        const deck = new THREE.Mesh(new RoundedBoxGeometry(1.9, 0.34, 1.1, 4, 0.14), paint);
+        deck.position.set(0, 0.98, -1.85);
+        car.add(deck);
+
+        // Spoiler
+        const wing = new THREE.Mesh(new RoundedBoxGeometry(1.9, 0.07, 0.45, 3, 0.03), darkTrim);
+        wing.position.set(0, 1.34, -2.28);
+        wing.rotation.x = -0.09;
+        car.add(wing);
+        [-0.7, 0.7].forEach((x) => {
+            const strut = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.3, 0.12), darkTrim);
+            strut.position.set(x, 1.16, -2.24);
+            car.add(strut);
+        });
+
+        // Side skirts
+        [-1.02, 1.02].forEach((x) => {
+            const skirt = new THREE.Mesh(new RoundedBoxGeometry(0.1, 0.18, 3.1, 2, 0.04), darkTrim);
+            skirt.position.set(x, 0.38, 0);
+            car.add(skirt);
+        });
+
+        // Headlights
+        const headMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xcfe4ff, emissiveIntensity: 3.2 });
+        [-0.62, 0.62].forEach((x) => {
+            const lamp = new THREE.Mesh(new RoundedBoxGeometry(0.42, 0.1, 0.08, 2, 0.03), headMat);
+            lamp.position.set(x, 0.82, 2.62);
+            lamp.rotation.y = x < 0 ? 0.18 : -0.18;
+            car.add(lamp);
+        });
+        // Tail light bar
+        const tail = new THREE.Mesh(new RoundedBoxGeometry(1.72, 0.09, 0.06, 2, 0.02),
+            new THREE.MeshStandardMaterial({ color: 0xff2244, emissive: 0xff2244, emissiveIntensity: 2.6 }));
+        tail.position.set(0, 1.02, -2.42);
+        car.add(tail);
+
+        // Exhausts
+        [-0.5, -0.32, 0.32, 0.5].forEach((x) => {
+            const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.16, 12), chrome);
+            pipe.rotation.x = Math.PI / 2;
+            pipe.position.set(x, 0.48, -2.4);
+            car.add(pipe);
+        });
+
+        // Wheels
+        const wheels = [];
+        const tyreMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0c, roughness: 0.9 });
+        const rimMat = chrome;
+        function makeWheel(x, z) {
+            const g = new THREE.Group();
+            const tyre = new THREE.Mesh(new THREE.CylinderGeometry(0.47, 0.47, 0.34, 24), tyreMat);
+            tyre.rotation.z = Math.PI / 2;
+            g.add(tyre);
+            const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.36, 16), rimMat);
+            rim.rotation.z = Math.PI / 2;
+            g.add(rim);
+            for (let i = 0; i < 5; i++) {
+                const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.365, 0.5, 0.06), darkTrim);
+                spoke.rotation.x = (i / 5) * Math.PI;
+                g.add(spoke);
+            }
+            const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.38, 12),
+                new THREE.MeshStandardMaterial({ color: 0x5b8cff, emissive: 0x2547b8, emissiveIntensity: 0.8, metalness: 1, roughness: 0.2 }));
+            hub.rotation.z = Math.PI / 2;
+            g.add(hub);
+            g.position.set(x, 0.47, z);
+            car.add(g);
+            wheels.push(g);
+        }
+        makeWheel(-1.02, 1.55); makeWheel(1.02, 1.55);
+        makeWheel(-1.02, -1.5); makeWheel(1.02, -1.5);
+
+        car.rotation.y = 0.6;
+
+        /* ---------- Interaction: drag + scroll + idle ---------- */
+        let targetRot = 0.6, rot = 0.6, dragging = false, lastX = 0, vel = 0, idleAt = 0;
+        let scrollExtra = 0;
+
+        canvas.addEventListener('pointerdown', (e) => {
+            dragging = true; lastX = e.clientX; vel = 0;
+            canvas.classList.add('is-dragging');
+            canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
+            hint && hint.classList.add('is-gone');
+        });
+        canvas.addEventListener('pointermove', (e) => {
+            if (!dragging) return;
+            const dx = e.clientX - lastX;
+            lastX = e.clientX;
+            targetRot += dx * 0.012;
+            vel = dx * 0.012;
+            idleAt = performance.now() + 3200;
+        });
+        const stop = () => { dragging = false; canvas.classList.remove('is-dragging'); };
+        canvas.addEventListener('pointerup', stop);
+        canvas.addEventListener('pointercancel', stop);
+
+        // Scroll = roll: leaving the hero rotates the car a full turn and rolls wheels
+        let scrollTick = false;
+        addEventListener('scroll', () => {
+            if (scrollTick) return;
+            scrollTick = true;
+            requestAnimationFrame(() => {
+                scrollTick = false;
+                const h = garage.offsetHeight || 1;
+                const p = Math.min(1.2, Math.max(0, scrollY / h));
+                scrollExtra = p * Math.PI * 2;         // full 360° over one viewport of scroll
+                wheelRoll = p * 22;                    // wheels roll with it
+                if (p > 0.02 && hint) hint.classList.add('is-gone');
+            });
+        }, { passive: true });
+
+        let wheelRoll = 0;
+
+        /* ---------- Render loop ---------- */
+        const clock = new THREE.Clock();
+        let visible = true;
+        if ('IntersectionObserver' in window) {
+            new IntersectionObserver((en) => { visible = en[0].isIntersecting; }).observe(garage);
+        }
+        document.addEventListener('visibilitychange', () => { visible = visible && !document.hidden; });
+
+        function resize() {
+            const w = garage.clientWidth, h = garage.clientHeight;
+            renderer.setSize(w, h, false);
+            camera.aspect = w / h;
+            // pull camera back on narrow screens so the car fits
+            camera.position.z = w < 640 ? 11.6 : w < 900 ? 10.4 : 9.2;
+            camera.updateProjectionMatrix();
+        }
+        addEventListener('resize', resize);
+        resize();
+
+        function frame(t) {
+            requestAnimationFrame(frame);
+            if (!visible || document.hidden) return;
+            const dt = Math.min(clock.getDelta(), 0.05);
+
+            if (!dragging) {
+                if (Math.abs(vel) > 0.0005) { targetRot += vel; vel *= 0.94; }
+                else if (!reduced && t > idleAt) targetRot += dt * 0.22; // idle turntable
+            }
+            rot += (targetRot - rot) * 0.12;
+            car.rotation.y = rot + scrollExtra;
+
+            const spin = reduced ? wheelRoll : wheelRoll + t * 0.0011;
+            wheels.forEach((w) => { w.rotation.x = spin; });
+
+            // gentle body breathing + pedestal shimmer
+            if (!reduced) {
+                car.position.y = Math.sin(t * 0.0012) * 0.03;
+                pedestal.material.opacity = 0.65 + Math.sin(t * 0.002) * 0.2;
+                underglow.intensity = 7 + Math.sin(t * 0.0023) * 2;
+            }
+            renderer.render(scene, camera);
+        }
+        requestAnimationFrame(frame);
+    </script>
+</body>
+
+</html>

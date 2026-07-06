@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description"
+        content="Indrajit Sarkar — Microsoft Certified Azure AI Engineer & Full-Stack Developer. Portfolio showcasing professional experience, projects, certifications and achievements.">
+    <meta name="keywords"
+        content="Azure AI Engineer, Full-Stack Developer, Java, Python, Microsoft Certified, DXC Technology">
+    <meta name="author" content="Indrajit Sarkar">
+    <meta property="og:title" content="Indrajit Sarkar | Azure AI Engineer & Full-Stack Developer">
+    <meta property="og:description"
+        content="Microsoft Certified Azure AI Engineer with expertise in Java, Python, and cloud technologies.">
+    <meta property="og:type" content="website">
+    <meta property="og:image" content="assets/opt/profilephoto3-640.webp">
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="theme-color" content="#050508">
+    <title>Indrajit Sarkar | Azure AI Engineer & Full-Stack Developer</title>
+    <link rel="icon" href="assets/opt/logo-640.webp" type="image/webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Inter:wght@300..800&display=swap"
+        rel="stylesheet">
+    <link rel="preload" href="assets/opt/profilephoto3-640.webp" as="image" fetchpriority="high">
+    <link rel="stylesheet" href="styles.css?v=3">
+
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Indrajit Sarkar",
+        "jobTitle": "Azure AI Engineer & Full-Stack Developer",
+        "sameAs": [
+            "https://linkedin.com/in/indrajit-sarkar01",
+            "https://github.com/Indrajit-sarkar"
+        ],
+        "worksFor": { "@type": "Organization", "name": "DXC Technology" }
+    }
+    </script>
+</head>
+
+<body>
+    <a class="skip-link" href="#main">Skip to content</a>
+
+    <!-- Ambient background -->
+    <div class="ambient" aria-hidden="true">
+        <div class="aurora">
+            <b class="blob b1"></b>
+            <b class="blob b2"></b>
+            <b class="blob b3"></b>
+        </div>
+        <div class="grain"></div>
+    </div>
+
+    <!-- Scroll progress -->
+    <div class="progress" id="progressBar" aria-hidden="true"></div>
+
+    <!-- Custom cursor (desktop, fine pointers only) -->
+    <div class="cursor-dot" id="cursorDot" aria-hidden="true"></div>
+    <div class="cursor-ring" id="cursorRing" aria-hidden="true"></div>
+
+    <!-- ============ NAVIGATION ============ -->
+    <header class="nav" id="navBar">
+        <div class="nav-inner">
+            <a href="#hero" class="nav-logo" aria-label="Home">
+                <img src="assets/opt/logo-640.webp" alt="Indrajit Sarkar logo" width="40" height="53">
+                <span class="nav-name">Indrajit<em>.</em></span>
+            </a>
+            <nav class="nav-menu" id="navMenu" aria-label="Primary">
+                <a href="#hero" class="nav-link is-active" data-section="hero">Home</a>
+                <a href="#education" class="nav-link" data-section="education">Education</a>
+                <a href="#experience" class="nav-link" data-section="experience">Experience</a>
+                <a href="#projects" class="nav-link" data-section="projects">Projects</a>
+                <a href="#skills" class="nav-link" data-section="skills">Skills</a>
+                <a href="#certifications" class="nav-link" data-section="certifications">Certifications</a>
+                <a href="#achievements" class="nav-link" data-section="achievements">Achievements</a>
+                <a href="#volunteer" class="nav-link" data-section="volunteer">Volunteer</a>
+                <a href="Hobbies.html" class="nav-link">Hobbies</a>
+                <a href="#contact" class="nav-link" data-section="contact">Contact</a>
+            </nav>
+            <div class="nav-actions">
+                <a href="resume.pdf" download="Indrajit_Sarkar_Resume.pdf" class="btn btn-ghost btn-sm nav-resume">
+                    Résumé
+                    <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true">
+                        <path fill="currentColor" d="M12 16l-5-5h3V4h4v7h3l-5 5zm-7 2h14v2H5v-2z"/>
+                    </svg>
+                </a>
+                <button class="theme-toggle" id="themeToggle" aria-label="Toggle light / dark theme">
+                    <svg class="ico-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                        <path fill="currentColor" d="M12 7a5 5 0 100 10 5 5 0 000-10zm0-6h0a1 1 0 011 1v2a1 1 0 11-2 0V2a1 1 0 011-1zm0 19a1 1 0 011 1v2a1 1 0 11-2 0v-2a1 1 0 011-1zM2 11h2a1 1 0 110 2H2a1 1 0 110-2zm18 0h2a1 1 0 110 2h-2a1 1 0 110-2zM4.9 3.5l1.4 1.4a1 1 0 11-1.4 1.4L3.5 4.9A1 1 0 014.9 3.5zm12.8 12.8l1.4 1.4a1 1 0 11-1.4 1.4l-1.4-1.4a1 1 0 111.4-1.4zm1.4-11.4a1 1 0 010 1.4l-1.4 1.4a1 1 0 11-1.4-1.4l1.4-1.4a1 1 0 011.4 0zM6.3 17.7a1 1 0 010 1.4l-1.4 1.4a1 1 0 11-1.4-1.4l1.4-1.4a1 1 0 011.4 0z"/>
+                    </svg>
+                    <svg class="ico-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+                        <path fill="currentColor" d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.4 5.4 0 01-8.54-4.54c0-1.81.89-3.42 2.26-4.4A9.6 9.6 0 0012 3z"/>
+                    </svg>
+                </button>
+                <button class="nav-burger" id="navToggle" aria-label="Open menu" aria-expanded="false">
+                    <span></span><span></span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mobile bottom navigation -->
+    <nav class="bottom-nav" id="bottomNav" aria-label="Quick navigation">
+        <a href="#hero" class="bn-item is-active" data-section="hero" aria-label="Home">
+            <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path fill="currentColor" d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+            <span>Home</span>
+        </a>
+        <a href="#projects" class="bn-item" data-section="projects" aria-label="Projects">
+            <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path fill="currentColor" d="M20 6h-8l-2-2H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V8a2 2 0 00-2-2z"/></svg>
+            <span>Projects</span>
+        </a>
+        <a href="#skills" class="bn-item" data-section="skills" aria-label="Skills">
+            <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path fill="currentColor" d="M12 2a10 10 0 100 20 10 10 0 000-20zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+            <span>Skills</span>
+        </a>
+        <a href="Hobbies.html" class="bn-item" aria-label="Hobbies">
+            <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path fill="currentColor" d="M18.92 6.01A2 2 0 0017 5H7a2 2 0 00-1.92 1.01L3 11v8a1 1 0 001 1h1a1 1 0 001-1v-1h12v1a1 1 0 001 1h1a1 1 0 001-1v-8l-2.08-4.99zM7.5 15a1.5 1.5 0 110-3 1.5 1.5 0 010 3zm9 0a1.5 1.5 0 110-3 1.5 1.5 0 010 3zM5.8 10l1.2-3h10l1.2 3H5.8z"/></svg>
+            <span>Hobbies</span>
+        </a>
+        <a href="#contact" class="bn-item" data-section="contact" aria-label="Contact">
+            <svg viewBox="0 0 24 24" width="21" height="21" aria-hidden="true"><path fill="currentColor" d="M20 4H4a2 2 0 00-2 2v12a2 2 0 002 2h16a2 2 0 002-2V6a2 2 0 00-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/></svg>
+            <span>Contact</span>
+        </a>
+    </nav>
+
+    <main id="main">
+
+        <!-- ============ HERO ============ -->
+        <section class="hero" id="hero">
+            <div class="hero-inner container" id="heroInner">
+                <div class="hero-copy">
+                    <p class="hero-eyebrow" data-reveal="up">
+                        <span class="pulse-dot" aria-hidden="true"></span>
+                        Open to opportunities · Bengaluru, India
+                    </p>
+                    <h1 class="hero-name" aria-label="Indrajit Sarkar">
+                        <span class="hero-line" data-split>INDRAJIT</span>
+                        <span class="hero-line grad-text" data-split>SARKAR</span>
+                    </h1>
+                    <p class="hero-role" data-reveal="up" data-reveal-delay="150">
+                        <span id="typeText">Azure AI Engineer</span><span class="type-caret" aria-hidden="true"></span>
+                    </p>
+                    <p class="hero-sum" data-reveal="up" data-reveal-delay="250">
+                        Results-driven IT professional with almost 2 years of experience in
+                        infrastructure management and Azure technologies.
+                    </p>
+                    <div class="hero-chips" data-reveal="up" data-reveal-delay="350">
+                        <a class="chip chip-blue" href="https://azure.microsoft.com/en-us/solutions/ai/" target="_blank" rel="noopener">Azure AI</a>
+                        <a class="chip chip-orange" href="https://www.java.com/" target="_blank" rel="noopener">Java</a>
+                        <a class="chip chip-green" href="https://www.python.org/" target="_blank" rel="noopener">Python</a>
+                    </div>
+                    <div class="hero-stats" data-reveal="up" data-reveal-delay="450">
+                        <div class="stat">
+                            <span class="stat-num"><b data-count="2">0</b>+</span>
+                            <span class="stat-label">Years exp</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-num"><b data-count="9">0</b></span>
+                            <span class="stat-label">Projects</span>
+                        </div>
+                        <div class="stat">
+                            <span class="stat-num"><b data-count="21">0</b></span>
+                            <span class="stat-label">Certifications</span>
+                        </div>
+                    </div>
+                    <div class="hero-cta" data-reveal="up" data-reveal-delay="550">
+                        <a href="#contact" class="btn btn-primary" data-magnetic>Get in Touch</a>
+                        <a href="#projects" class="btn btn-ghost" data-magnetic>View Projects</a>
+                    </div>
+                </div>
+                <div class="hero-visual" data-reveal="scale" data-reveal-delay="200">
+                    <div class="hero-photo" data-tilt>
+                        <img src="assets/opt/profilephoto3-640.webp"
+                            srcset="assets/opt/profilephoto3-640.webp 640w, assets/opt/profilephoto3-1280.webp 1280w"
+                            sizes="(max-width: 900px) 72vw, 420px"
+                            alt="Portrait of Indrajit Sarkar" width="640" height="853"
+                            fetchpriority="high" decoding="async">
+                        <div class="hero-photo-ring" aria-hidden="true"></div>
+                        <div class="float-card fc-1" aria-hidden="true">
+                            <span class="fc-ico">☁️</span> Microsoft Certified
+                        </div>
+                        <div class="float-card fc-2" aria-hidden="true">
+                            <span class="fc-ico">🎓</span> MCA · 2025
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a class="scroll-cue" href="#education" aria-label="Scroll to education">
+                <span>Scroll</span>
+                <i aria-hidden="true"></i>
+            </a>
+        </section>
+
+        <!-- ============ EDUCATION ============ -->
+        <section class="section cv-auto" id="education">
+            <div class="section-head container">
+                <p class="eyebrow" data-reveal="up">01 · Education</p>
+                <h2 class="sec-title" data-reveal="up"><span class="grad-text">Academic</span> Journey</h2>
+                <p class="sec-sub" data-reveal="up" data-reveal-delay="120">Milestones that shaped the engineer I am today.</p>
+            </div>
+
+            <div class="edu-carousel" data-reveal="up" data-reveal-delay="150">
+                <div class="edu-track" id="eduTrack" tabindex="0" aria-label="Education timeline, scroll horizontally">
+                    <!-- MCA -->
+                    <article class="edu-card" style="--edu-accent:#5b8cff">
+                        <div class="edu-bg">
+                            <img src="assets/opt/atria-institute-of-technology-640.webp" alt="" loading="lazy" decoding="async">
+                        </div>
+                        <div class="edu-body">
+                            <div class="edu-top">
+                                <span class="edu-logo"><img src="assets/opt/atria-logo-640.webp" alt="Atria Institute of Technology logo" loading="lazy" decoding="async"></span>
+                                <span class="edu-status">✓ Completed</span>
+                            </div>
+                            <h3 class="edu-degree">Master of Computer Applications</h3>
+                            <p class="edu-school"><a href="https://atria.edu" target="_blank" rel="noopener">Atria Institute of Technology, Bengaluru</a></p>
+                            <p class="edu-dates">Feb 2024 — Nov 2025</p>
+                            <figure class="edu-photo">
+                                <img src="assets/opt/atria-graduation-640.webp" alt="Graduation ceremony at Atria Institute" loading="lazy" decoding="async" data-lightbox="edu">
+                            </figure>
+                        </div>
+                    </article>
+                    <!-- BCA -->
+                    <article class="edu-card" style="--edu-accent:#34d399">
+                        <div class="edu-bg">
+                            <img src="assets/opt/indian-academy-degree-college-autonomous-640.webp" alt="" loading="lazy" decoding="async">
+                        </div>
+                        <div class="edu-body">
+                            <div class="edu-top">
+                                <span class="edu-logo"><img src="assets/opt/indian-academy-degree-college-logo-640.webp" alt="Indian Academy Degree College logo" loading="lazy" decoding="async"></span>
+                                <span class="edu-status">✓ Completed</span>
+                            </div>
+                            <h3 class="edu-degree">Bachelor of Computer Applications</h3>
+                            <p class="edu-school"><a href="https://iadc.ac.in" target="_blank" rel="noopener">Indian Academy Degree College, Bengaluru</a></p>
+                            <p class="edu-dates">Aug 2020 — Nov 2023</p>
+                            <figure class="edu-photo">
+                                <img src="assets/opt/indian-academy-graduation-photo-640.webp" alt="Graduation at Indian Academy Degree College" loading="lazy" decoding="async" data-lightbox="edu">
+                            </figure>
+                        </div>
+                    </article>
+                    <!-- PU -->
+                    <article class="edu-card" style="--edu-accent:#ff8a3d">
+                        <div class="edu-bg">
+                            <img src="assets/opt/uas-campus-and-vc-pu-college-640.webp" alt="" loading="lazy" decoding="async">
+                        </div>
+                        <div class="edu-body">
+                            <div class="edu-top">
+                                <span class="edu-logo"><img src="assets/opt/uas-logo-640.webp" alt="UAS and VC PU College logo" loading="lazy" decoding="async"></span>
+                                <span class="edu-status">✓ Completed</span>
+                            </div>
+                            <h3 class="edu-degree">Pre-University · CEBA</h3>
+                            <p class="edu-school"><a href="https://www.uasbangalore.edu.in" target="_blank" rel="noopener">UAS and VC PU College, Bengaluru</a></p>
+                            <p class="edu-dates">2018 — 2020</p>
+                        </div>
+                    </article>
+                    <!-- School -->
+                    <article class="edu-card" style="--edu-accent:#8b5cf6">
+                        <div class="edu-bg">
+                            <img src="assets/opt/allwin-bg-640.webp" alt="" loading="lazy" decoding="async">
+                        </div>
+                        <div class="edu-body">
+                            <div class="edu-top">
+                                <span class="edu-logo"><img src="assets/opt/allwin-logo-640.webp" alt="Allwin Public School logo" loading="lazy" decoding="async"></span>
+                                <span class="edu-status">✓ Completed</span>
+                            </div>
+                            <h3 class="edu-degree">Schooling</h3>
+                            <p class="edu-school"><a href="https://educatetoday.net/bengaluru-u-north/29280602903/allwin-public-school-ganganagar" target="_blank" rel="noopener">Allwin Public School, Bengaluru</a></p>
+                            <p class="edu-dates">Passout 2018 · <span class="mini-chip">School Captain</span></p>
+                            <figure class="edu-photo">
+                                <img src="assets/opt/allwin-640.webp" alt="Allwin Public School memories" loading="lazy" decoding="async" data-lightbox="edu">
+                            </figure>
+                        </div>
+                    </article>
+                </div>
+                <div class="edu-nav">
+                    <button class="round-btn" id="eduPrev" aria-label="Previous education entry">
+                        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+                    </button>
+                    <div class="edu-dots" id="eduDots" role="tablist" aria-label="Education slides"></div>
+                    <button class="round-btn" id="eduNext" aria-label="Next education entry">
+                        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ EXPERIENCE ============ -->
+        <section class="section cv-auto" id="experience">
+            <div class="section-head container">
+                <p class="eyebrow" data-reveal="up">02 · Experience</p>
+                <h2 class="sec-title" data-reveal="up">Building Solutions <span class="grad-text">That Matter</span></h2>
+                <p class="sec-sub" data-reveal="up" data-reveal-delay="120">Professional experience across cloud infrastructure and full-stack development.</p>
+            </div>
+
+            <div class="exp-stack container">
+                <!-- DXC -->
+                <article class="exp-card glass" data-tilt-soft>
+                    <div class="exp-media" aria-hidden="true">
+                        <img src="assets/opt/dxc-technology-640.webp" alt="" loading="lazy" decoding="async">
+                    </div>
+                    <div class="exp-body">
+                        <header class="exp-head">
+                            <div>
+                                <h3 class="exp-role">Analyst 3 · Infrastructure Management</h3>
+                                <p class="exp-org"><a href="https://dxc.com" target="_blank" rel="noopener">DXC Technology</a> — Bengaluru</p>
+                                <p class="exp-dates">January 2024 — <span class="now">Present</span></p>
+                            </div>
+                            <a class="exp-logo" href="https://dxc.com" target="_blank" rel="noopener" aria-label="DXC Technology website">
+                                <img src="assets/opt/dxc-tcehnology-logo-640.webp" alt="DXC Technology logo" loading="lazy" decoding="async">
+                            </a>
+                        </header>
+                        <div class="exp-metrics">
+                            <div class="metric">
+                                <span class="metric-num text-green"><b data-count="40">0</b>%</span>
+                                <span class="metric-label">Automation improvement</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-num text-blue"><b data-count="200">0</b>+</span>
+                                <span class="metric-label">Incidents / month</span>
+                            </div>
+                            <div class="metric metric-ring" data-ring="98">
+                                <svg viewBox="0 0 36 36" aria-hidden="true">
+                                    <path class="ring-bg" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                    <path class="ring-fill" d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"/>
+                                </svg>
+                                <span class="metric-num text-orange">98%</span>
+                                <span class="metric-label">SLA compliance</span>
+                            </div>
+                        </div>
+                        <div class="tag-row">
+                            <span class="tag tag-blue">Azure</span>
+                            <span class="tag tag-green">ServiceNow</span>
+                            <span class="tag tag-orange">PowerShell</span>
+                            <span class="tag">ITIL</span>
+                        </div>
+                    </div>
+                </article>
+
+                <!-- Talent Brainy -->
+                <article class="exp-card glass" data-tilt-soft>
+                    <div class="exp-media" aria-hidden="true">
+                        <img src="assets/opt/talent-640.webp" alt="" loading="lazy" decoding="async">
+                    </div>
+                    <div class="exp-body">
+                        <header class="exp-head">
+                            <div>
+                                <h3 class="exp-role">Full-Stack Web Development Intern</h3>
+                                <p class="exp-org"><a href="https://www.linkedin.com/company/talentbrainy/" target="_blank" rel="noopener">Talent Brainy</a></p>
+                                <p class="exp-dates">2023</p>
+                            </div>
+                            <a class="exp-logo" href="https://www.linkedin.com/company/talentbrainy/" target="_blank" rel="noopener" aria-label="Talent Brainy on LinkedIn">
+                                <img src="assets/opt/talent-brainy-640.webp" alt="Talent Brainy logo" loading="lazy" decoding="async">
+                            </a>
+                        </header>
+                        <div class="exp-metrics">
+                            <div class="metric">
+                                <span class="metric-num text-green"><b data-count="40">0</b>%</span>
+                                <span class="metric-label">Traffic growth</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-num text-blue"><b data-count="15">0</b>%</span>
+                                <span class="metric-label">Bounce rate reduction</span>
+                            </div>
+                            <div class="metric">
+                                <span class="metric-num text-orange"><b data-count="100">0</b>%</span>
+                                <span class="metric-label">Project completion</span>
+                            </div>
+                        </div>
+                        <div class="tag-row">
+                            <span class="tag tag-blue">React</span>
+                            <span class="tag tag-green">Node.js</span>
+                            <span class="tag tag-orange">MongoDB</span>
+                            <span class="tag">Web Design</span>
+                        </div>
+                        <a href="Certificates/Internship certificate.pdf" target="_blank" rel="noopener" class="btn btn-ghost btn-sm exp-cert-link">
+                            View Internship Certificate ↗
+                        </a>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- ============ PROJECTS ============ -->
+        <section class="section proj-section cv-auto" id="projects">
+            <!-- 3D Spline hero -->
+            <div class="proj-hero">
+                <div class="proj-spline" id="splineMount"
+                    data-scene="https://prod.spline.design/kZDDjO5HuC9GJUM2/scene.splinecode" aria-hidden="true"></div>
+                <div class="proj-hero-copy container">
+                    <p class="eyebrow" data-reveal="up">03 · Projects</p>
+                    <h2 class="proj-hero-title" data-split-scrub>PROJECTS</h2>
+                    <p class="sec-sub" data-reveal="up" data-reveal-delay="120">Selected work — from AI systems to the open web.</p>
+                </div>
+            </div>
+
+            <!-- Featured slider -->
+            <div class="feat" data-reveal="up">
+                <div class="feat-track" id="featTrack">
+                    <article class="feat-slide is-active">
+                        <div class="feat-media"><img src="assets/opt/img1-projects-1280.webp" alt="NAS Solution Guide screenshot" loading="lazy" decoding="async"></div>
+                        <div class="feat-info">
+                            <p class="feat-tags">HTML · CSS · JS</p>
+                            <h3 class="feat-title">NAS Solution Guide</h3>
+                            <p class="feat-desc">A comprehensive, step-by-step resource for building a powerful private Network-Attached-Storage server — from repurposing an old laptop to configuring a Raspberry Pi, and taking full control of your data.</p>
+                            <div class="feat-actions">
+                                <a class="btn btn-primary btn-sm" href="https://nas-solution.vercel.app/" target="_blank" rel="noopener">Live Demo</a>
+                                <a class="btn btn-ghost btn-sm" href="https://github.com/Indrajit-sarkar/NAS-solution" target="_blank" rel="noopener">GitHub ↗</a>
+                            </div>
+                        </div>
+                    </article>
+                    <article class="feat-slide">
+                        <div class="feat-media"><img src="assets/opt/img2-projects-1280.webp" alt="Image Recognition project screenshot" loading="lazy" decoding="async"></div>
+                        <div class="feat-info">
+                            <p class="feat-tags">Python · YOLOv8 · OpenCV</p>
+                            <h3 class="feat-title">Image Recognition</h3>
+                            <p class="feat-desc">High-performance image recognition with cloud API integration — real-time object detection, currency recognition, people detection and gesture-based cursor control, built with YOLOv8, MediaPipe and Google Cloud Vision.</p>
+                            <div class="feat-actions">
+                                <a class="btn btn-ghost btn-sm" href="https://github.com/Indrajit-sarkar/Image-Recognition" target="_blank" rel="noopener">GitHub ↗</a>
+                            </div>
+                        </div>
+                    </article>
+                    <article class="feat-slide">
+                        <div class="feat-media"><img src="assets/opt/img3-projects-1280.webp" alt="AI Data Extraction project screenshot" loading="lazy" decoding="async"></div>
+                        <div class="feat-info">
+                            <p class="feat-tags">Python · Azure DI · OpenAI API</p>
+                            <h3 class="feat-title">AI Data Extraction</h3>
+                            <p class="feat-desc">Enterprise-grade document processing combining intelligent PDF splitting with advanced data extraction — built on Azure AI services and optimized for high-performance parallel processing.</p>
+                            <div class="feat-actions">
+                                <a class="btn btn-ghost btn-sm" href="https://github.com/Indrajit-sarkar/AI-Data-extraction-and-PDF-split" target="_blank" rel="noopener">GitHub ↗</a>
+                            </div>
+                        </div>
+                    </article>
+                    <article class="feat-slide">
+                        <div class="feat-media"><img src="assets/opt/img4-projects-1280.webp" alt="Paris Tourism website screenshot" loading="lazy" decoding="async"></div>
+                        <div class="feat-info">
+                            <p class="feat-tags">PHP · HTML · CSS · JS</p>
+                            <h3 class="feat-title">Paris Tourism</h3>
+                            <p class="feat-desc">From the golden glow of the Seine at sunset to the hidden secrets of Montmartre — a tourism experience for the city where every street corner tells a story.</p>
+                            <div class="feat-actions">
+                                <a class="btn btn-ghost btn-sm" href="https://github.com/Indrajit-sarkar/Paris-Tourism" target="_blank" rel="noopener">GitHub ↗</a>
+                            </div>
+                        </div>
+                    </article>
+                    <article class="feat-slide">
+                        <div class="feat-media"><img src="assets/opt/img5-projects-1280.webp" alt="Scientific Calculator screenshot" loading="lazy" decoding="async"></div>
+                        <div class="feat-info">
+                            <p class="feat-tags">HTML · CSS · JS</p>
+                            <h3 class="feat-title">Scientific Calculator</h3>
+                            <p class="feat-desc">A premium scientific calculator that replicates the look and feel of native iOS apps — zero dependencies, no frameworks, no build tools. Open it in any modern browser and calculate.</p>
+                            <div class="feat-actions">
+                                <a class="btn btn-ghost btn-sm" href="https://github.com/Indrajit-sarkar/Scientific-Calculator" target="_blank" rel="noopener">GitHub ↗</a>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+                <div class="feat-ui container">
+                    <div class="feat-dots" id="featDots" role="tablist" aria-label="Featured projects"></div>
+                    <div class="feat-arrows">
+                        <button class="round-btn" id="featPrev" aria-label="Previous project">
+                            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+                        </button>
+                        <button class="round-btn" id="featNext" aria-label="Next project">
+                            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- More projects bento -->
+            <div class="proj-more container">
+                <h3 class="sub-title" data-reveal="up">More builds</h3>
+                <div class="proj-grid">
+                    <a class="proj-mini glass" href="https://github.com/Indrajit-sarkar/Money-manager" target="_blank" rel="noopener" data-reveal="roll">
+                        <div class="proj-mini-media"><img src="assets/opt/money-manager-640.webp" alt="Money Manager screenshot" loading="lazy" decoding="async"></div>
+                        <div class="proj-mini-info">
+                            <h4>Money Manager</h4>
+                            <p>PHP · HTML · CSS · JS · SQL</p>
+                        </div>
+                        <span class="proj-mini-arrow" aria-hidden="true">↗</span>
+                    </a>
+                    <a class="proj-mini glass" href="https://github.com/Indrajit-sarkar/AI-Assistant" target="_blank" rel="noopener" data-reveal="roll" data-reveal-delay="100">
+                        <div class="proj-mini-media"><img src="assets/opt/ai-assistant-640.webp" alt="AI Assistant screenshot" loading="lazy" decoding="async"></div>
+                        <div class="proj-mini-info">
+                            <h4>AI Assistant</h4>
+                            <p>Python · HTML · CSS · JS</p>
+                        </div>
+                        <span class="proj-mini-arrow" aria-hidden="true">↗</span>
+                    </a>
+                    <a class="proj-mini glass" href="https://github.com/Indrajit-sarkar/Sentiment-Analyzer-" target="_blank" rel="noopener" data-reveal="roll" data-reveal-delay="200">
+                        <div class="proj-mini-media"><img src="assets/opt/sentiment-analyzer-640.webp" alt="Sentiment Analyzer screenshot" loading="lazy" decoding="async"></div>
+                        <div class="proj-mini-info">
+                            <h4>Sentiment Analyzer</h4>
+                            <p>Python · HTML · CSS · JS</p>
+                        </div>
+                        <span class="proj-mini-arrow" aria-hidden="true">↗</span>
+                    </a>
+                    <a class="proj-mini glass" href="https://github.com/Indrajit-sarkar/ARCADE" target="_blank" rel="noopener" data-reveal="roll" data-reveal-delay="300">
+                        <div class="proj-mini-media"><img src="assets/opt/arcade-640.webp" alt="ARCADE games screenshot" loading="lazy" decoding="async"></div>
+                        <div class="proj-mini-info">
+                            <h4>ARCADE</h4>
+                            <p>HTML · CSS · JS</p>
+                        </div>
+                        <span class="proj-mini-arrow" aria-hidden="true">↗</span>
+                    </a>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ SKILLS ============ -->
+        <section class="section cv-auto" id="skills">
+            <div class="section-head container">
+                <p class="eyebrow" data-reveal="up">04 · Skills</p>
+                <h2 class="sec-title" data-reveal="up">Technical <span class="grad-text">Skills</span></h2>
+                <p class="sec-sub" data-reveal="up" data-reveal-delay="120">Technologies I work with — tap any skill to learn more.</p>
+            </div>
+
+            <div class="marquee" aria-hidden="true">
+                <div class="marquee-row">
+                    <span>Azure AI</span><i>✦</i><span>Python</span><i>✦</i><span>Java</span><i>✦</i><span>Machine Learning</span><i>✦</i><span>React</span><i>✦</i><span>Power BI</span><i>✦</i><span>Six Sigma</span><i>✦</i><span>Docker</span><i>✦</i>
+                    <span>Azure AI</span><i>✦</i><span>Python</span><i>✦</i><span>Java</span><i>✦</i><span>Machine Learning</span><i>✦</i><span>React</span><i>✦</i><span>Power BI</span><i>✦</i><span>Six Sigma</span><i>✦</i><span>Docker</span><i>✦</i>
+                </div>
+            </div>
+
+            <div class="skills-grid container">
+                <div class="skill-cat glass glow-track" data-reveal="up">
+                    <h3 class="skill-cat-title text-green">Programming</h3>
+                    <div class="skill-chips">
+                        <button class="skill-chip tag-green" data-name="Java" data-link="https://docs.oracle.com/javase/tutorial/" data-desc="Java is a high-level, class-based, object-oriented programming language designed for cross-platform compatibility.">Java</button>
+                        <button class="skill-chip tag-green" data-name="Python" data-link="https://docs.python.org/3/tutorial/" data-desc="Python is a high-level, interpreted language known for its simplicity and readability — widely used in web development, data science and AI.">Python</button>
+                        <button class="skill-chip tag-green" data-name="C++" data-link="https://cplusplus.com/doc/tutorial/" data-desc="C++ is a powerful general-purpose language that supports procedural, object-oriented and generic programming.">C++</button>
+                        <button class="skill-chip tag-green" data-name="C#" data-link="https://learn.microsoft.com/dotnet/csharp/" data-desc="C# is a modern, object-oriented language developed by Microsoft for building applications on the .NET platform.">C#</button>
+                        <button class="skill-chip tag-green" data-name="JavaScript" data-link="https://developer.mozilla.org/en-US/docs/Web/JavaScript" data-desc="JavaScript is the language of the web — it powers interactive pages and modern web applications.">JavaScript</button>
+                        <button class="skill-chip tag-green" data-name="PHP" data-link="https://www.php.net/manual/en/intro-whatis.php" data-desc="PHP is a popular server-side scripting language designed for web development and dynamic pages.">PHP</button>
+                        <button class="skill-chip tag-green" data-name="Shell Scripting" data-link="https://www.gnu.org/software/bash/manual/bash.html" data-desc="Shell scripting automates tasks and system management through command-line interfaces like Bash.">Shell Scripting</button>
+                    </div>
+                </div>
+                <div class="skill-cat glass glow-track" data-reveal="up" data-reveal-delay="100">
+                    <h3 class="skill-cat-title text-blue">Cloud &amp; AI</h3>
+                    <div class="skill-chips">
+                        <button class="skill-chip tag-blue" data-name="Microsoft Azure" data-link="https://learn.microsoft.com/azure/" data-desc="Microsoft Azure is a comprehensive cloud platform offering compute, analytics, storage and networking services.">Microsoft Azure</button>
+                        <button class="skill-chip tag-blue" data-name="Azure AI Services" data-link="https://azure.microsoft.com/products/ai-services/" data-desc="Azure AI Services provides pre-built AI capabilities including vision, speech, language and decision-making APIs.">Azure AI Services</button>
+                        <button class="skill-chip tag-blue" data-name="Azure OpenAI" data-link="https://learn.microsoft.com/azure/ai-services/openai/" data-desc="Azure OpenAI Service provides access to powerful language models like GPT-4 within Azure's secure environment.">Azure OpenAI</button>
+                        <button class="skill-chip tag-blue" data-name="Machine Learning" data-link="https://developers.google.com/machine-learning/crash-course" data-desc="Machine Learning enables computers to learn from data and make predictions without being explicitly programmed.">Machine Learning</button>
+                        <button class="skill-chip tag-blue" data-name="Computer Vision" data-link="https://learnopencv.com/" data-desc="Computer Vision enables machines to interpret and understand visual information from images and video.">Computer Vision</button>
+                        <button class="skill-chip tag-blue" data-name="NLP" data-link="https://www.ibm.com/topics/natural-language-processing" data-desc="Natural Language Processing enables computers to understand, interpret and generate human language.">NLP</button>
+                        <button class="skill-chip tag-blue" data-name="Azure Cognitive Services" data-link="https://learn.microsoft.com/azure/ai-services/" data-desc="Azure Cognitive Services offers pre-trained AI models for vision, speech, language and decision-making.">Azure Cognitive Services</button>
+                    </div>
+                </div>
+                <div class="skill-cat glass glow-track" data-reveal="up" data-reveal-delay="150">
+                    <h3 class="skill-cat-title text-orange">Methodologies</h3>
+                    <div class="skill-chips">
+                        <button class="skill-chip tag-orange" data-name="Agile" data-link="https://www.atlassian.com/agile" data-desc="Agile is an iterative approach to project management and software development that helps teams deliver value faster.">Agile</button>
+                        <button class="skill-chip tag-orange" data-name="Scrum" data-link="https://www.scrum.org/resources/what-is-scrum" data-desc="Scrum is an agile framework for managing work, with an emphasis on software development and team collaboration.">Scrum</button>
+                        <button class="skill-chip tag-orange" data-name="FMEA" data-link="https://asq.org/quality-resources/fmea" data-desc="FMEA is a systematic method for identifying and preventing product and process problems before they occur.">FMEA</button>
+                        <button class="skill-chip tag-orange" data-name="Six Sigma" data-link="https://www.isixsigma.com/new-to-six-sigma/getting-started/what-six-sigma/" data-desc="Six Sigma is a data-driven methodology for eliminating defects and improving quality in business processes.">Six Sigma</button>
+                        <button class="skill-chip tag-orange" data-name="DMAIC" data-link="https://www.isixsigma.com/dmaic-methodology/" data-desc="DMAIC — Define, Measure, Analyze, Improve, Control — is a data-driven quality strategy for improving processes.">DMAIC</button>
+                        <button class="skill-chip tag-orange" data-name="Lean" data-link="https://www.lean.org/lexicon-terms/lean-production/" data-desc="Lean focuses on minimizing waste and maximizing value in production and business processes.">Lean</button>
+                        <button class="skill-chip tag-orange" data-name="Kaizen" data-link="https://www.lean.org/lexicon-terms/kaizen/" data-desc="Kaizen is a Japanese philosophy of continuous improvement involving everyone, from management to workers.">Kaizen</button>
+                        <button class="skill-chip tag-orange" data-name="5S" data-link="https://www.lean.org/lexicon-terms/5s/" data-desc="5S is a workplace organization method: Sort, Set in Order, Shine, Standardize, Sustain.">5S</button>
+                    </div>
+                </div>
+                <div class="skill-cat glass glow-track" data-reveal="up" data-reveal-delay="200">
+                    <h3 class="skill-cat-title text-violet">Tools &amp; Web</h3>
+                    <div class="skill-chips">
+                        <button class="skill-chip tag-violet" data-name="HTML5" data-link="https://developer.mozilla.org/en-US/docs/Web/HTML" data-desc="HTML5 is the standard markup language for creating web pages and applications.">HTML5</button>
+                        <button class="skill-chip tag-violet" data-name="CSS3" data-link="https://developer.mozilla.org/en-US/docs/Web/CSS" data-desc="CSS3 styles and lays out web pages with modern features like grid, flexbox and animations.">CSS3</button>
+                        <button class="skill-chip tag-violet" data-name="React" data-link="https://react.dev/learn" data-desc="React is a JavaScript library for building user interfaces with reusable components and efficient rendering.">React</button>
+                        <button class="skill-chip tag-blue" data-name="MySQL" data-link="https://dev.mysql.com/doc/" data-desc="MySQL is an open-source relational database management system widely used for web applications.">MySQL</button>
+                        <button class="skill-chip tag-blue" data-name="MongoDB" data-link="https://www.mongodb.com/docs/manual/" data-desc="MongoDB is a document-oriented NoSQL database designed for scalability and flexibility.">MongoDB</button>
+                        <button class="skill-chip tag-blue" data-name="Power BI" data-link="https://learn.microsoft.com/power-bi/" data-desc="Power BI is a business analytics tool for visualizing data and sharing insights across organizations.">Power BI</button>
+                        <button class="skill-chip tag-violet" data-name="Git" data-link="https://git-scm.com/docs/gittutorial" data-desc="Git is a distributed version control system for tracking changes in source code.">Git</button>
+                        <button class="skill-chip tag-violet" data-name="GitHub" data-link="https://docs.github.com/en/get-started" data-desc="GitHub is a web-based platform for version control and collaboration using Git repositories.">GitHub</button>
+                        <button class="skill-chip tag-violet" data-name="VS Code" data-link="https://code.visualstudio.com/docs" data-desc="Visual Studio Code is a lightweight but powerful source-code editor with built-in debugging and Git support.">VS Code</button>
+                        <button class="skill-chip tag-violet" data-name="VMware" data-link="https://docs.vmware.com/" data-desc="VMware provides virtualization and cloud computing software for running multiple operating systems.">VMware</button>
+                        <button class="skill-chip tag-violet" data-name="Docker" data-link="https://docs.docker.com/get-started/" data-desc="Docker is a platform for developing, shipping and running applications in isolated containers.">Docker</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ CERTIFICATIONS ============ -->
+        <section class="section cv-auto" id="certifications">
+            <div class="section-head container">
+                <p class="eyebrow" data-reveal="up">05 · Certifications</p>
+                <h2 class="sec-title" data-reveal="up"><span class="grad-text">Credentials</span> &amp; Learning</h2>
+                <p class="sec-sub" data-reveal="up" data-reveal-delay="120">21 certifications across cloud, AI, analytics and process excellence.</p>
+            </div>
+
+            <!-- Microsoft featured -->
+            <div class="cert-featured container">
+                <a class="cert-ms glass" href="Certificates/AI-102.pdf" target="_blank" rel="noopener" data-reveal="roll">
+                    <img src="assets/opt/ai-102-480.webp" alt="Microsoft AI-102 certificate" loading="lazy" decoding="async">
+                    <div class="cert-ms-info">
+                        <h4>AI-102</h4>
+                        <p>Azure AI Engineer Associate</p>
+                    </div>
+                </a>
+                <a class="cert-ms glass" href="Certificates/AZ-900.pdf" target="_blank" rel="noopener" data-reveal="roll" data-reveal-delay="120">
+                    <img src="assets/opt/az-900-480.webp" alt="Microsoft AZ-900 certificate" loading="lazy" decoding="async">
+                    <div class="cert-ms-info">
+                        <h4>AZ-900</h4>
+                        <p>Azure Fundamentals</p>
+                    </div>
+                </a>
+                <a class="cert-ms glass" href="Certificates/PowerBi PL-300.pdf" target="_blank" rel="noopener" data-reveal="roll" data-reveal-delay="240">
+                    <img src="assets/opt/pl-300-480.webp" alt="Microsoft PL-300 certificate" loading="lazy" decoding="async">
+                    <div class="cert-ms-info">
+                        <h4>PL-300</h4>
+                        <p>Power BI Data Analyst</p>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Lean Six Sigma belts -->
+            <h3 class="sub-title container" data-reveal="up">Lean Six Sigma journey</h3>
+            <div class="belt-track container" data-reveal="up">
+                <article class="belt-card" style="--belt:#f5f5f7; --belt-ink:#111">
+                    <span class="belt-rank">White Belt</span>
+                    <img src="assets/opt/white-belt-480.webp" alt="Lean Six Sigma White Belt certificate" loading="lazy" decoding="async" data-lightbox="belts">
+                    <p>Introduction to Lean Six Sigma — fundamental concepts, terminology and the DMAIC framework.</p>
+                </article>
+                <article class="belt-card" style="--belt:#eab308; --belt-ink:#111">
+                    <span class="belt-rank">Yellow Belt</span>
+                    <img src="assets/opt/yellow-belt-480.webp" alt="Lean Six Sigma Yellow Belt certificate" loading="lazy" decoding="async" data-lightbox="belts">
+                    <p>Practical problem-solving and data analysis — active participation in process-improvement projects.</p>
+                    <a href="https://digitalcredentials.aigproexcellence.com/en/verify/25330191192262?ref=email" target="_blank" rel="noopener">Verify credential →</a>
+                </article>
+                <article class="belt-card" style="--belt:#22c55e; --belt-ink:#052e16">
+                    <span class="belt-rank">Green Belt</span>
+                    <img src="assets/opt/green-belt-480.webp" alt="Lean Six Sigma Green Belt certificate" loading="lazy" decoding="async" data-lightbox="belts">
+                    <p>Leading improvement projects — advanced statistical methods, hypothesis testing and root-cause analysis.</p>
+                    <a href="https://digitalcredentials.aigproexcellence.com/en/verify/83625241208547?ref=email" target="_blank" rel="noopener">Verify credential →</a>
+                </article>
+                <article class="belt-card" style="--belt:#18181b; --belt-ink:#f5f5f7">
+                    <span class="belt-rank">Black Belt</span>
+                    <img src="assets/opt/black-belt-480.webp" alt="Lean Six Sigma Black Belt certificate" loading="lazy" decoding="async" data-lightbox="belts">
+                    <p>Mastery — leading strategic initiatives, mentoring belts, and delivering large-scale process optimization.</p>
+                    <a href="https://digitalcredentials.aigproexcellence.com/en/verify/52884055167443?ref=email" target="_blank" rel="noopener">Verify credential →</a>
+                </article>
+            </div>
+
+            <!-- 3D rotating ring -->
+            <h3 class="sub-title container" data-reveal="up">Process-excellence toolbox <span class="hint">— drag to spin</span></h3>
+            <div class="ring-stage" id="ringStage" data-reveal="scale">
+                <div class="ring" id="certRing" aria-label="3D gallery of certificates, drag to rotate"></div>
+            </div>
+
+            <div class="center-cta" data-reveal="up">
+                <a href="certifications.html" class="btn btn-primary" data-magnetic>View All 21 Certifications</a>
+            </div>
+        </section>
+
+        <!-- ============ ACHIEVEMENTS ============ -->
+        <section class="section cv-auto" id="achievements">
+            <div class="section-head container">
+                <p class="eyebrow" data-reveal="up">06 · Achievements</p>
+                <h2 class="sec-title" data-reveal="up">Moments of <span class="grad-text">Glory</span></h2>
+            </div>
+
+            <div class="container">
+                <article class="ach-featured glass" data-reveal="up">
+                    <div class="ach-featured-copy">
+                        <span class="chip chip-orange">🏆 State-Level Champion</span>
+                        <h3>1st Prize — SHRISTI Coding Championship</h3>
+                        <p>Awarded by <strong>Dr. S. Somanath, Chairman of ISRO</strong>, at the state-level coding
+                            championship SHRISTI.</p>
+                    </div>
+                    <figure class="ach-featured-media">
+                        <img src="assets/opt/1st-prize-state-level-coding-championship-shristi-awarded-by-dr-s-somanath-isro-chairman-1280.webp"
+                            alt="Indrajit receiving 1st prize from Dr. S. Somanath, ISRO Chairman" loading="lazy" decoding="async"
+                            width="1280" height="960" data-lightbox="ach">
+                    </figure>
+                </article>
+
+                <div class="ach-grid">
+                    <article class="ach-card glass" data-reveal="roll" data-tilt>
+                        <img src="assets/opt/school-cap-640.webp" alt="School Captain badge" loading="lazy" decoding="async" data-lightbox="ach">
+                        <div class="ach-info"><h4>School Captain</h4><p>Led student council &amp; organized events</p></div>
+                    </article>
+                    <article class="ach-card glass" data-reveal="roll" data-reveal-delay="80" data-tilt>
+                        <img src="assets/opt/kabaddi-640.webp" alt="Kabaddi championship" loading="lazy" decoding="async" data-lightbox="ach">
+                        <div class="ach-info"><h4>Kabaddi Champion</h4><p>Inter-college tournament winner</p></div>
+                    </article>
+                    <article class="ach-card glass" data-reveal="roll" data-reveal-delay="160" data-tilt>
+                        <img src="assets/opt/football-640.webp" alt="Football championship" loading="lazy" decoding="async" data-lightbox="ach">
+                        <div class="ach-info"><h4>Football Champion</h4><p>Regional league winner &amp; captain</p></div>
+                    </article>
+                    <article class="ach-card glass" data-reveal="roll" data-reveal-delay="240" data-tilt>
+                        <img src="assets/opt/champion-intra-college-quiz-debate-and-poster-designing-competitions-640.webp" alt="Quiz, debate and poster design awards" loading="lazy" decoding="async" data-lightbox="ach">
+                        <div class="ach-info"><h4>Multi-Talent Champion</h4><p>1st prize: quiz, debate &amp; poster design</p></div>
+                    </article>
+                    <article class="ach-card glass" data-reveal="roll" data-reveal-delay="320" data-tilt>
+                        <img src="assets/opt/achievements-640.webp" alt="Academic recognition" loading="lazy" decoding="async" data-lightbox="ach">
+                        <div class="ach-info"><h4>Academic Excellence</h4><p>Special recognition &amp; awards</p></div>
+                    </article>
+                    <article class="ach-card glass" data-reveal="roll" data-reveal-delay="400" data-tilt>
+                        <img src="assets/opt/technobinge-640.webp" alt="Technobinge national fest prize" loading="lazy" decoding="async" data-lightbox="ach">
+                        <div class="ach-info"><h4>Technobinge</h4><p>2nd prize, national-level fest</p></div>
+                    </article>
+                </div>
+            </div>
+        </section>
+
+        <!-- ============ VOLUNTEER ============ -->
+        <section class="section cv-auto" id="volunteer">
+            <div class="section-head container">
+                <p class="eyebrow" data-reveal="up">07 · Volunteer</p>
+                <h2 class="sec-title" data-reveal="up">Making a <span class="grad-text">Difference</span></h2>
+                <p class="sec-sub" data-reveal="up" data-reveal-delay="120">Community work, talks and outreach.</p>
+            </div>
+
+            <div class="vol-wrap" data-reveal="up">
+                <div class="vol-track" id="volTrack" tabindex="0" aria-label="Volunteer gallery, scroll horizontally">
+                    <article class="vol-card">
+                        <img src="assets/opt/img1-640.webp" alt="Volunteering with CLT India" loading="lazy" decoding="async">
+                        <div class="vol-info">
+                            <h4>CLT India Volunteer</h4>
+                            <p>Community-driven program empowering local communities through education, healthcare initiatives and sustainable development projects across India.</p>
+                        </div>
+                    </article>
+                    <article class="vol-card">
+                        <img src="assets/opt/img2-640.webp" alt="Giving a speech on AI importance" loading="lazy" decoding="async">
+                        <div class="vol-info">
+                            <h4>Speech on AI Importance</h4>
+                            <p>Exploring how AI is revolutionizing industries and shaping the future of technology — while addressing ethics and societal impact.</p>
+                        </div>
+                    </article>
+                    <article class="vol-card">
+                        <img src="assets/opt/img3-640.webp" alt="Talk on effects of digital crime" loading="lazy" decoding="async">
+                        <div class="vol-info">
+                            <h4>Effects of Digital Crime</h4>
+                            <p>Understanding the psychological, financial and social consequences of cybercrime — and strategies for digital safety and recovery.</p>
+                        </div>
+                    </article>
+                    <article class="vol-card">
+                        <img src="assets/opt/img4-640.webp" alt="Skit on the importance of farmers" loading="lazy" decoding="async">
+                        <div class="vol-info">
+                            <h4>Skit on Farmers' Importance</h4>
+                            <p>A theatrical performance highlighting the vital role farmers play in feeding nations and sustaining rural economies.</p>
+                        </div>
+                    </article>
+                    <article class="vol-card">
+                        <img src="assets/opt/img5-640.webp" alt="Visit to Grace Foundation" loading="lazy" decoding="async">
+                        <div class="vol-info">
+                            <h4>Visit to Grace Foundation</h4>
+                            <p>An inspiring outreach experience connecting with underprivileged communities and contributing to programs that create lasting change.</p>
+                        </div>
+                    </article>
+                    <article class="vol-card">
+                        <img src="assets/opt/img6-640.webp" alt="Donating groceries and clothes" loading="lazy" decoding="async">
+                        <div class="vol-info">
+                            <h4>Grocery &amp; Clothes Donation</h4>
+                            <p>Providing essential supplies and clothing to families in need — fostering community solidarity with tangible impact.</p>
+                        </div>
+                    </article>
+                </div>
+                <div class="vol-arrows container">
+                    <button class="round-btn" id="volPrev" aria-label="Scroll volunteer gallery left">
+                        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M15.41 16.59L10.83 12l4.58-4.59L14 6l-6 6 6 6 1.41-1.41z"/></svg>
+                    </button>
+                    <button class="round-btn" id="volNext" aria-label="Scroll volunteer gallery right">
+                        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M8.59 16.59L13.17 12 8.59 7.41 10 6l6 6-6 6-1.41-1.41z"/></svg>
+                    </button>
+                </div>
+            </div>
+
+            <div class="center-cta" data-reveal="up">
+                <a href="Hobbies.html" class="btn btn-primary" data-magnetic>Explore My Hobbies · 3D</a>
+            </div>
+        </section>
+
+        <!-- ============ CONTACT ============ -->
+        <section class="section cv-auto" id="contact">
+            <div class="section-head container">
+                <p class="eyebrow" data-reveal="up">08 · Contact</p>
+                <h2 class="sec-title" data-reveal="up">Let's Build Something <span class="grad-text">Amazing</span></h2>
+            </div>
+
+            <div class="contact-card glass container" data-reveal="up">
+                <div class="contact-info">
+                    <button class="c-row" data-copy="sarkar.sarkar.indrajit01@gmail.com">
+                        <span class="c-ico">✉️</span>
+                        <span class="c-text">
+                            <small>Primary email</small>
+                            sarkar.sarkar.indrajit01@gmail.com
+                        </span>
+                        <span class="c-copy" aria-hidden="true">Copy</span>
+                    </button>
+                    <button class="c-row" data-copy="indusakar01@gmail.com">
+                        <span class="c-ico">✉️</span>
+                        <span class="c-text">
+                            <small>Secondary email</small>
+                            indusakar01@gmail.com
+                        </span>
+                        <span class="c-copy" aria-hidden="true">Copy</span>
+                    </button>
+                    <a class="c-row" href="tel:+918618835953">
+                        <span class="c-ico">📱</span>
+                        <span class="c-text">
+                            <small>Phone</small>
+                            +91 86188 35953 · +91 78998 18522
+                        </span>
+                    </a>
+                    <div class="c-row is-static">
+                        <span class="c-ico">📍</span>
+                        <span class="c-text">
+                            <small>Location</small>
+                            Bengaluru, Karnataka 560032, India
+                        </span>
+                    </div>
+                    <div class="socials">
+                        <a href="https://linkedin.com/in/indrajit-sarkar01" target="_blank" rel="noopener" class="social" aria-label="LinkedIn" data-magnetic>
+                            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M20.45 20.45h-3.56v-5.57c0-1.33-.02-3.04-1.85-3.04-1.85 0-2.13 1.45-2.13 2.94v5.67H9.35V9h3.41v1.56h.05c.48-.9 1.64-1.85 3.37-1.85 3.6 0 4.27 2.37 4.27 5.46v6.28zM5.34 7.43a2.06 2.06 0 110-4.12 2.06 2.06 0 010 4.12zM7.12 20.45H3.55V9h3.57v11.45zM22.22 0H1.77C.79 0 0 .77 0 1.73v20.54C0 23.23.79 24 1.77 24h20.45c.98 0 1.78-.77 1.78-1.73V1.73C24 .77 23.2 0 22.22 0z"/></svg>
+                        </a>
+                        <a href="https://github.com/Indrajit-sarkar" target="_blank" rel="noopener" class="social" aria-label="GitHub" data-magnetic>
+                            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 0C5.37 0 0 5.37 0 12c0 5.3 3.44 9.8 8.21 11.39.6.11.79-.26.79-.58v-2.23c-3.34.73-4.03-1.42-4.03-1.42-.55-1.39-1.33-1.76-1.33-1.76-1.09-.74.08-.73.08-.73 1.2.08 1.84 1.24 1.84 1.24 1.07 1.83 2.8 1.3 3.49 1 .1-.78.42-1.31.76-1.61-2.66-.3-5.47-1.33-5.47-5.93 0-1.31.47-2.38 1.24-3.22-.13-.3-.54-1.52.11-3.18 0 0 1.01-.32 3.3 1.23a11.5 11.5 0 016.01 0c2.29-1.55 3.3-1.23 3.3-1.23.65 1.66.24 2.88.12 3.18.77.84 1.23 1.91 1.23 3.22 0 4.61-2.8 5.62-5.48 5.92.43.37.82 1.1.82 2.22v3.29c0 .32.19.7.8.58A12 12 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+                        </a>
+                        <a href="https://www.instagram.com/indrajit.sarkar.1293/" target="_blank" rel="noopener" class="social" aria-label="Instagram" data-magnetic>
+                            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M12 2.16c3.2 0 3.58.01 4.85.07 3.25.15 4.77 1.69 4.92 4.92.06 1.27.07 1.65.07 4.85 0 3.2-.01 3.58-.07 4.85-.15 3.23-1.66 4.77-4.92 4.92-1.27.06-1.64.07-4.85.07-3.2 0-3.58-.01-4.85-.07-3.26-.15-4.77-1.7-4.92-4.92C2.17 15.58 2.16 15.2 2.16 12c0-3.2.01-3.58.07-4.85C2.38 3.92 3.9 2.38 7.15 2.23 8.42 2.17 8.8 2.16 12 2.16zM12 0C8.74 0 8.33.01 7.05.07 2.7.27.27 2.69.07 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.2 4.36 2.62 6.78 6.98 6.98 1.28.06 1.69.07 4.95.07s3.67-.01 4.95-.07c4.35-.2 6.78-2.62 6.98-6.98.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95C23.73 2.7 21.31.27 16.95.07 15.67.01 15.26 0 12 0zm0 5.84a6.16 6.16 0 100 12.32 6.16 6.16 0 000-12.32zM12 16a4 4 0 110-8 4 4 0 010 8zm6.41-11.85a1.44 1.44 0 100 2.88 1.44 1.44 0 000-2.88z"/></svg>
+                        </a>
+                        <a href="https://x.com/Indrajit42680107" target="_blank" rel="noopener" class="social" aria-label="X (Twitter)" data-magnetic>
+                            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M18.24 2.25h3.31l-7.23 8.26 8.5 11.24h-6.66l-5.21-6.82-5.97 6.82H1.67l7.73-8.84L1.25 2.25h6.83l4.71 6.23 5.45-6.23zm-1.16 17.52h1.83L7.08 4.13H5.12l11.96 15.64z"/></svg>
+                        </a>
+                        <a href="https://www.snapchat.com/add/indrajitsar5124" target="_blank" rel="noopener" class="social" aria-label="Snapchat" data-magnetic>
+                            <img src="assets/opt/snapchat-640.webp" alt="" width="20" height="19" loading="lazy" decoding="async">
+                        </a>
+                    </div>
+                </div>
+                <form class="contact-form" id="contactForm" novalidate>
+                    <div class="f-group">
+                        <label for="contactName">Name</label>
+                        <input type="text" id="contactName" name="name" placeholder="Your name" autocomplete="name" required>
+                    </div>
+                    <div class="f-group">
+                        <label for="contactEmail">Email</label>
+                        <input type="email" id="contactEmail" name="email" placeholder="your.email@example.com" autocomplete="email" required>
+                    </div>
+                    <div class="f-group">
+                        <label for="contactMessage">Message</label>
+                        <textarea id="contactMessage" name="message" rows="5" placeholder="Tell me about your project…" required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary form-submit" data-magnetic>
+                        <span class="btn-label">Send Message</span>
+                        <span class="btn-spinner" aria-hidden="true"></span>
+                    </button>
+                    <p class="form-status" id="formStatus" role="status" aria-live="polite"></p>
+                </form>
+            </div>
+        </section>
+    </main>
+
+    <!-- ============ FOOTER ============ -->
+    <footer class="footer">
+        <div class="container footer-inner">
+            <p>© <span id="year">2026</span> Indrajit Sarkar · Designed &amp; built with care.</p>
+            <button class="round-btn" id="toTop" aria-label="Back to top">↑</button>
+        </div>
+    </footer>
+
+    <!-- Toast -->
+    <div class="toast" id="toast" role="status" aria-live="polite">Copied to clipboard!</div>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" aria-modal="true" role="dialog" hidden>
+        <button class="lb-close" id="lbClose" aria-label="Close viewer">×</button>
+        <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous image">‹</button>
+        <img id="lightboxImg" alt="Expanded view">
+        <button class="lb-nav lb-next" id="lbNext" aria-label="Next image">›</button>
+    </div>
+
+    <!-- Skill sheet -->
+    <div class="sheet" id="skillSheet" aria-modal="true" role="dialog" hidden>
+        <div class="sheet-panel glass">
+            <button class="sheet-close" id="sheetClose" aria-label="Close">×</button>
+            <h3 id="sheetTitle"></h3>
+            <p id="sheetDesc"></p>
+            <a id="sheetLink" class="btn btn-primary btn-sm" href="#" target="_blank" rel="noopener">Learn more ↗</a>
+        </div>
+    </div>
+
+    <!-- Libraries (deferred; site degrades gracefully without them) -->
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script defer src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/lenis@1.1.14/dist/lenis.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+    <script defer src="script.js?v=3"></script>
+</body>
+
+</html>
