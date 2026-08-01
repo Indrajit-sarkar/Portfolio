@@ -337,19 +337,23 @@
       }
     });
 
-    // Fix wheel/scroll event propagation for chat body
+    // CRITICAL: Stop Lenis smooth scroll from interfering with chat scroll
+    // Prevent wheel events from bubbling up to Lenis
     msgBody.addEventListener('wheel', function(e) {
-      // Allow the scroll to happen naturally in the message body
       e.stopPropagation();
-    }, { passive: true });
+    }, { passive: false });
 
-    // Prevent panel from blocking scroll events
+    msgBody.addEventListener('touchmove', function(e) {
+      e.stopPropagation();
+    }, { passive: false });
+
+    // Also stop propagation on the entire panel
     panel.addEventListener('wheel', function(e) {
-      // Only prevent default if we're not scrolling the message body
-      if (e.target === panel || e.target === panel.querySelector('.alex-header') || 
-          e.target === panel.querySelector('.alex-footer')) {
-        e.preventDefault();
-      }
+      e.stopPropagation();
+    }, { passive: false });
+
+    panel.addEventListener('touchmove', function(e) {
+      e.stopPropagation();
     }, { passive: false });
   }
 

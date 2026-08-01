@@ -141,7 +141,8 @@
 /* ── Message Body ───────────────────────────────────────── */
 .alex-body {
   flex: 1;
-  overflow-y: scroll;
+  min-height: 0; /* Critical for flexbox scrolling */
+  overflow-y: auto;
   overflow-x: hidden;
   padding: 16px;
   display: flex;
@@ -150,7 +151,8 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(128, 128, 150, 0.35) transparent;
   -webkit-overflow-scrolling: touch;
-  will-change: scroll-position;
+  overscroll-behavior: contain;
+  position: relative;
 }
 .alex-body::-webkit-scrollbar { width: 6px; }
 .alex-body::-webkit-scrollbar-track { background: transparent; }
