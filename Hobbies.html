@@ -118,6 +118,114 @@
             padding: 2.5rem 0 3rem; text-align: center; color: var(--ink-3); font-size: 0.9rem;
         }
         .hb-footer .btn { margin-bottom: 1.2rem; }
+
+        /* --- Dino Game Styles --- */
+        .dino-game-container {
+            position: relative;
+            background: var(--bg-0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: default;
+        }
+        .dino-game-container canvas {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+        .dino-play-btn {
+            position: absolute;
+            bottom: 1rem;
+            right: 1rem;
+            padding: 0.65rem 1.3rem;
+            background: var(--grad);
+            color: #fff;
+            border: none;
+            border-radius: var(--r-sm);
+            font-family: var(--font-b);
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 4px 12px -4px rgba(139, 92, 246, 0.4);
+            z-index: 10;
+        }
+        .dino-play-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px -4px rgba(139, 92, 246, 0.5);
+        }
+        .dino-play-btn:active {
+            transform: translateY(0);
+        }
+        .dino-play-btn svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        /* Fullscreen Game Modal */
+        .dino-fullscreen {
+            position: fixed;
+            inset: 0;
+            background: var(--bg-0);
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .dino-fullscreen.active {
+            display: flex;
+        }
+        .dino-fullscreen canvas {
+            max-width: 100%;
+            max-height: calc(100vh - 80px);
+            image-rendering: pixelated;
+        }
+        .dino-close-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 44px;
+            height: 44px;
+            background: var(--glass-bg);
+            border: 1px solid var(--glass-line);
+            border-radius: 50%;
+            color: var(--ink);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .dino-close-btn:hover {
+            background: var(--glass-bg-strong);
+        }
+        .dino-close-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+        .dino-instructions {
+            position: absolute;
+            bottom: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            color: var(--ink-2);
+            font-size: 0.9rem;
+            letter-spacing: 0.05em;
+        }
+        .dino-score {
+            position: absolute;
+            top: 2rem;
+            left: 50%;
+            transform: translateX(-50%);
+            font-family: var(--font-m);
+            font-size: 1.5rem;
+            color: var(--ink);
+        }
     </style>
 </head>
 
@@ -142,7 +250,7 @@
         <div class="garage-title">
             <p class="eyebrow">Beyond the code</p>
             <h1>HOBBIES</h1>
-            <p class="tag-line">Automobiles · Photography · Music</p>
+            <p class="tag-line">Automobiles · Photography · Gaming</p>
         </div>
         <a class="scroll-cue" href="#hobbies" aria-label="Scroll to hobbies">
             <span>Scroll</span>
@@ -211,27 +319,30 @@
                 </div>
             </section>
 
-            <!-- Music -->
+            <!-- Gaming -->
             <section class="hobby" data-reveal="up">
                 <div class="hobby-copy">
-                    <span class="hobby-num">03 — STUDIO</span>
-                    <h3>Music Production</h3>
+                    <span class="hobby-num">03 — ARCADE</span>
+                    <h3>Gaming</h3>
                     <p>
-                        I love experimenting with sounds and creating mashups. Using tools like Virtual DJ, I blend
-                        different tracks into something fresh — there's something magical about mixing two songs and
-                        discovering how well they complement each other.
+                        Gaming has been a passion of mine since childhood. Whether it's strategy games that test my 
+                        problem-solving skills or action-packed adventures that keep my reflexes sharp, I love the 
+                        challenge and immersion that gaming provides.
                     </p>
                     <p>
-                        Beats, transitions, effects — it's a fun, creative outlet that needs no expensive gear or
-                        formal training. It's all about the joy of experimentation and sharing cool mashups with
-                        friends who appreciate the art of mixing.
+                        From casual mobile games to competitive multiplayer experiences, gaming helps me unwind while 
+                        staying mentally engaged. It's taught me teamwork, quick decision-making, and the persistence 
+                        to keep trying until I succeed — skills that translate well into my professional life.
                     </p>
                 </div>
-                <div class="hobby-media" data-parallax>
-                    <img src="assets/opt/sport-3-800.webp"
-                        srcset="assets/opt/sport-3-800.webp 800w, assets/opt/sport-3-1600.webp 1600w"
-                        sizes="(max-width: 820px) 92vw, 46vw"
-                        alt="Music and mixing setup" loading="lazy" decoding="async">
+                <div class="hobby-media dino-game-container" id="dinoGameContainer">
+                    <canvas id="dinoCanvas" aria-label="Chrome dinosaur game demo"></canvas>
+                    <button class="dino-play-btn" id="dinoPlayBtn" aria-label="Play fullscreen">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <span>Play Now</span>
+                    </button>
                 </div>
             </section>
         </div>
@@ -543,6 +654,388 @@
             renderer.render(scene, camera);
         }
         requestAnimationFrame(frame);
+    </script>
+
+    <!-- ---------- DINO GAME ---------- -->
+    <script>
+        (() => {
+            'use strict';
+
+            // Create fullscreen modal
+            const fullscreenDiv = document.createElement('div');
+            fullscreenDiv.className = 'dino-fullscreen';
+            fullscreenDiv.innerHTML = `
+                <button class="dino-close-btn" id="dinoCloseBtn" aria-label="Close game">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"/>
+                        <line x1="6" y1="6" x2="18" y2="18"/>
+                    </svg>
+                </button>
+                <canvas id="dinoCanvasFullscreen"></canvas>
+                <div class="dino-score" id="dinoScore">0</div>
+                <div class="dino-instructions">Press SPACE or TAP to jump · ESC to exit</div>
+            `;
+            document.body.appendChild(fullscreenDiv);
+
+            const demoCanvas = document.getElementById('dinoCanvas');
+            const fullCanvas = document.getElementById('dinoCanvasFullscreen');
+            const playBtn = document.getElementById('dinoPlayBtn');
+            const closeBtn = document.getElementById('dinoCloseBtn');
+            const scoreDisplay = document.getElementById('dinoScore');
+
+            let currentGame = null;
+            let isFullscreen = false;
+
+            // Dino Game Class
+            class DinoGame {
+                constructor(canvas, isDemo = false) {
+                    this.canvas = canvas;
+                    this.ctx = canvas.getContext('2d');
+                    this.isDemo = isDemo;
+                    this.isRunning = false;
+                    this.gameOver = false;
+                    this.score = 0;
+                    this.frameCount = 0;
+
+                    // Get theme colors
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    this.colors = {
+                        bg: isDark ? '#0a0a0f' : '#f5f5f7',
+                        fg: isDark ? '#f5f5f7' : '#0a0a0f',
+                        ground: isDark ? '#353545' : '#c0c0c8'
+                    };
+
+                    // Game objects
+                    this.dino = {
+                        x: 50,
+                        y: 0,
+                        width: 44,
+                        height: 48,
+                        velocityY: 0,
+                        isJumping: false,
+                        jumpStrength: -12,
+                        gravity: 0.6
+                    };
+
+                    this.ground = { y: 0, height: 2 };
+                    this.obstacles = [];
+                    this.clouds = [];
+                    this.gameSpeed = isDemo ? 4 : 6;
+                    this.obstacleTimer = 0;
+                    this.obstacleInterval = 90;
+
+                    this.resize();
+                    this.init();
+                }
+
+                resize() {
+                    const container = this.canvas.parentElement;
+                    const dpr = window.devicePixelRatio || 1;
+                    
+                    this.canvas.width = container.clientWidth * dpr;
+                    this.canvas.height = container.clientHeight * dpr;
+                    this.canvas.style.width = container.clientWidth + 'px';
+                    this.canvas.style.height = container.clientHeight + 'px';
+                    
+                    this.ctx.scale(dpr, dpr);
+                    this.width = container.clientWidth;
+                    this.height = container.clientHeight;
+
+                    this.ground.y = this.height - 60;
+                    this.dino.y = this.ground.y - this.dino.height;
+                }
+
+                init() {
+                    // Add initial clouds
+                    for (let i = 0; i < 3; i++) {
+                        this.clouds.push({
+                            x: Math.random() * this.width,
+                            y: 30 + Math.random() * 80,
+                            width: 40 + Math.random() * 20,
+                            speed: 0.5 + Math.random() * 0.5
+                        });
+                    }
+
+                    // Input handlers for fullscreen mode
+                    if (!this.isDemo) {
+                        this.boundJump = this.jump.bind(this);
+                        this.boundKeyDown = (e) => {
+                            if (e.code === 'Space') {
+                                e.preventDefault();
+                                this.jump();
+                            }
+                        };
+                        document.addEventListener('keydown', this.boundKeyDown);
+                        this.canvas.addEventListener('click', this.boundJump);
+                        this.canvas.addEventListener('touchstart', this.boundJump);
+                    }
+                }
+
+                jump() {
+                    if (this.gameOver) {
+                        this.reset();
+                        return;
+                    }
+                    if (!this.dino.isJumping) {
+                        this.dino.velocityY = this.dino.jumpStrength;
+                        this.dino.isJumping = true;
+                    }
+                }
+
+                autoJump() {
+                    // AI auto-jump for demo
+                    if (!this.isDemo || this.dino.isJumping) return;
+
+                    const nearestObstacle = this.obstacles.find(obs => obs.x > this.dino.x);
+                    if (nearestObstacle) {
+                        const distance = nearestObstacle.x - (this.dino.x + this.dino.width);
+                        if (distance < 120 && distance > 80) {
+                            this.jump();
+                        }
+                    }
+                }
+
+                update() {
+                    if (this.gameOver) return;
+
+                    this.frameCount++;
+
+                    // Update dino physics
+                    this.dino.velocityY += this.dino.gravity;
+                    this.dino.y += this.dino.velocityY;
+
+                    if (this.dino.y >= this.ground.y - this.dino.height) {
+                        this.dino.y = this.ground.y - this.dino.height;
+                        this.dino.velocityY = 0;
+                        this.dino.isJumping = false;
+                    }
+
+                    // Auto jump in demo mode
+                    this.autoJump();
+
+                    // Update obstacles
+                    this.obstacleTimer++;
+                    if (this.obstacleTimer > this.obstacleInterval) {
+                        this.obstacleTimer = 0;
+                        const isTall = Math.random() > 0.5;
+                        this.obstacles.push({
+                            x: this.width,
+                            y: this.ground.y - (isTall ? 70 : 40),
+                            width: 20,
+                            height: isTall ? 70 : 40
+                        });
+                        // Vary interval
+                        this.obstacleInterval = 60 + Math.random() * 60;
+                    }
+
+                    // Move and clean obstacles
+                    this.obstacles = this.obstacles.filter(obs => {
+                        obs.x -= this.gameSpeed;
+                        return obs.x > -obs.width;
+                    });
+
+                    // Update clouds
+                    this.clouds.forEach(cloud => {
+                        cloud.x -= cloud.speed;
+                        if (cloud.x < -cloud.width) {
+                            cloud.x = this.width;
+                            cloud.y = 30 + Math.random() * 80;
+                        }
+                    });
+
+                    // Collision detection (only in fullscreen)
+                    if (!this.isDemo) {
+                        this.obstacles.forEach(obs => {
+                            if (this.checkCollision(this.dino, obs)) {
+                                this.gameOver = true;
+                            }
+                        });
+
+                        // Update score
+                        if (this.frameCount % 10 === 0) {
+                            this.score++;
+                            if (scoreDisplay) scoreDisplay.textContent = this.score;
+                        }
+
+                        // Increase difficulty
+                        if (this.frameCount % 300 === 0) {
+                            this.gameSpeed += 0.5;
+                        }
+                    }
+                }
+
+                checkCollision(rect1, rect2) {
+                    return rect1.x < rect2.x + rect2.width &&
+                           rect1.x + rect1.width > rect2.x &&
+                           rect1.y < rect2.y + rect2.height &&
+                           rect1.y + rect1.height > rect2.y;
+                }
+
+                draw() {
+                    // Clear canvas
+                    this.ctx.fillStyle = this.colors.bg;
+                    this.ctx.fillRect(0, 0, this.width, this.height);
+
+                    // Draw clouds
+                    this.ctx.fillStyle = this.colors.ground;
+                    this.clouds.forEach(cloud => {
+                        this.ctx.beginPath();
+                        this.ctx.arc(cloud.x, cloud.y, cloud.width * 0.3, 0, Math.PI * 2);
+                        this.ctx.arc(cloud.x + cloud.width * 0.3, cloud.y - 5, cloud.width * 0.35, 0, Math.PI * 2);
+                        this.ctx.arc(cloud.x + cloud.width * 0.6, cloud.y, cloud.width * 0.3, 0, Math.PI * 2);
+                        this.ctx.fill();
+                    });
+
+                    // Draw ground
+                    this.ctx.fillStyle = this.colors.ground;
+                    this.ctx.fillRect(0, this.ground.y, this.width, this.ground.height);
+
+                    // Draw dino (simple pixelated style)
+                    this.ctx.fillStyle = this.colors.fg;
+                    const d = this.dino;
+                    
+                    // Body
+                    this.ctx.fillRect(d.x, d.y + 10, 32, 28);
+                    // Head
+                    this.ctx.fillRect(d.x + 28, d.y, 16, 20);
+                    // Eye
+                    this.ctx.fillStyle = this.colors.bg;
+                    this.ctx.fillRect(d.x + 36, d.y + 6, 4, 4);
+                    this.ctx.fillStyle = this.colors.fg;
+                    // Legs (animated)
+                    const legOffset = Math.floor(this.frameCount / 10) % 2 === 0 ? 0 : 4;
+                    this.ctx.fillRect(d.x + 4, d.y + 38, 6, 10);
+                    this.ctx.fillRect(d.x + 18 + legOffset, d.y + 38, 6, 10);
+                    // Tail
+                    this.ctx.fillRect(d.x - 8, d.y + 18, 10, 8);
+
+                    // Draw obstacles (cacti)
+                    this.ctx.fillStyle = this.colors.fg;
+                    this.obstacles.forEach(obs => {
+                        // Main stem
+                        this.ctx.fillRect(obs.x + 6, obs.y, 8, obs.height);
+                        // Arms
+                        if (obs.height > 50) {
+                            this.ctx.fillRect(obs.x, obs.y + 15, 6, 16);
+                            this.ctx.fillRect(obs.x + 14, obs.y + 20, 6, 16);
+                        }
+                        // Top
+                        this.ctx.fillRect(obs.x + 4, obs.y - 2, 12, 4);
+                    });
+
+                    // Game over message
+                    if (this.gameOver && !this.isDemo) {
+                        this.ctx.fillStyle = this.colors.fg;
+                        this.ctx.font = 'bold 32px monospace';
+                        this.ctx.textAlign = 'center';
+                        this.ctx.fillText('GAME OVER', this.width / 2, this.height / 2 - 20);
+                        this.ctx.font = '16px monospace';
+                        this.ctx.fillText('Click or press SPACE to restart', this.width / 2, this.height / 2 + 20);
+                    }
+                }
+
+                reset() {
+                    this.gameOver = false;
+                    this.score = 0;
+                    this.frameCount = 0;
+                    this.obstacles = [];
+                    this.obstacleTimer = 0;
+                    this.gameSpeed = 6;
+                    this.dino.y = this.ground.y - this.dino.height;
+                    this.dino.velocityY = 0;
+                    this.dino.isJumping = false;
+                    if (scoreDisplay) scoreDisplay.textContent = '0';
+                }
+
+                start() {
+                    if (this.isRunning) return;
+                    this.isRunning = true;
+                    this.loop();
+                }
+
+                loop() {
+                    if (!this.isRunning) return;
+                    this.update();
+                    this.draw();
+                    requestAnimationFrame(this.loop.bind(this));
+                }
+
+                stop() {
+                    this.isRunning = false;
+                    if (!this.isDemo) {
+                        document.removeEventListener('keydown', this.boundKeyDown);
+                        this.canvas.removeEventListener('click', this.boundJump);
+                        this.canvas.removeEventListener('touchstart', this.boundJump);
+                    }
+                }
+            }
+
+            // Start demo game
+            const demoGame = new DinoGame(demoCanvas, true);
+            demoGame.start();
+
+            // Handle window resize for demo
+            let resizeTimeout;
+            window.addEventListener('resize', () => {
+                clearTimeout(resizeTimeout);
+                resizeTimeout = setTimeout(() => {
+                    if (demoGame.isRunning) {
+                        demoGame.resize();
+                    }
+                }, 100);
+            });
+
+            // Play button - open fullscreen
+            playBtn.addEventListener('click', () => {
+                isFullscreen = true;
+                fullscreenDiv.classList.add('active');
+                
+                if (currentGame) {
+                    currentGame.stop();
+                }
+                
+                currentGame = new DinoGame(fullCanvas, false);
+                currentGame.start();
+            });
+
+            // Close button
+            closeBtn.addEventListener('click', () => {
+                isFullscreen = false;
+                fullscreenDiv.classList.remove('active');
+                if (currentGame) {
+                    currentGame.stop();
+                    currentGame = null;
+                }
+            });
+
+            // ESC key to close fullscreen
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && isFullscreen) {
+                    closeBtn.click();
+                }
+            });
+
+            // Listen for theme changes to update colors
+            const observer = new MutationObserver(() => {
+                if (demoGame) {
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    demoGame.colors = {
+                        bg: isDark ? '#0a0a0f' : '#f5f5f7',
+                        fg: isDark ? '#f5f5f7' : '#0a0a0f',
+                        ground: isDark ? '#353545' : '#c0c0c8'
+                    };
+                }
+                if (currentGame) {
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    currentGame.colors = {
+                        bg: isDark ? '#0a0a0f' : '#f5f5f7',
+                        fg: isDark ? '#f5f5f7' : '#0a0a0f',
+                        ground: isDark ? '#353545' : '#c0c0c8'
+                    };
+                }
+            });
+            observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+        })();
     </script>
 </body>
 
