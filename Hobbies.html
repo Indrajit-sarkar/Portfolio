@@ -135,34 +135,35 @@
         }
         .dino-play-btn {
             position: absolute;
-            bottom: 1rem;
-            right: 1rem;
-            padding: 0.65rem 1.3rem;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 0.85rem 1.8rem;
             background: var(--grad);
             color: #fff;
             border: none;
             border-radius: var(--r-sm);
             font-family: var(--font-b);
-            font-size: 0.85rem;
+            font-size: 1rem;
             font-weight: 600;
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
             cursor: pointer;
             transition: transform 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 12px -4px rgba(139, 92, 246, 0.4);
+            box-shadow: 0 8px 24px -4px rgba(139, 92, 246, 0.5);
             z-index: 10;
         }
         .dino-play-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 16px -4px rgba(139, 92, 246, 0.5);
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 12px 32px -4px rgba(139, 92, 246, 0.6);
         }
         .dino-play-btn:active {
-            transform: translateY(0);
+            transform: translate(-50%, -50%) scale(0.98);
         }
         .dino-play-btn svg {
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
         }
 
         /* Fullscreen Game Modal */
@@ -768,6 +769,8 @@
                     this.gameSpeed = isDemo ? 4 : 6;
                     this.obstacleTimer = 0;
                     this.obstacleInterval = 90;
+                    this.birds = [];
+                    this.birdTimer = 0;
 
                     this.resize();
                     this.init();
@@ -798,6 +801,16 @@
                             y: 30 + Math.random() * 80,
                             width: 40 + Math.random() * 20,
                             speed: 0.5 + Math.random() * 0.5
+                        });
+                    }
+
+                    // Add initial birds
+                    for (let i = 0; i < 2; i++) {
+                        this.birds.push({
+                            x: Math.random() * this.width,
+                            y: 60 + Math.random() * 100,
+                            speed: 1 + Math.random() * 0.5,
+                            wingFrame: Math.floor(Math.random() * 20)
                         });
                     }
 
@@ -888,6 +901,16 @@
                         }
                     });
 
+                    // Update birds
+                    this.birds.forEach(bird => {
+                        bird.x -= bird.speed;
+                        bird.wingFrame++;
+                        if (bird.x < -50) {
+                            bird.x = this.width + Math.random() * 200;
+                            bird.y = 60 + Math.random() * 100;
+                        }
+                    });
+
                     // Collision detection (only in fullscreen)
                     if (!this.isDemo) {
                         this.obstacles.forEach(obs => {
@@ -923,6 +946,7 @@
 
                     // Draw clouds
                     this.ctx.fillStyle = this.colors.ground;
+                    this.ctx.globalAlpha = 0.3;
                     this.clouds.forEach(cloud => {
                         this.ctx.beginPath();
                         this.ctx.arc(cloud.x, cloud.y, cloud.width * 0.3, 0, Math.PI * 2);
@@ -930,42 +954,115 @@
                         this.ctx.arc(cloud.x + cloud.width * 0.6, cloud.y, cloud.width * 0.3, 0, Math.PI * 2);
                         this.ctx.fill();
                     });
+                    this.ctx.globalAlpha = 1;
 
-                    // Draw ground
+                    // Draw birds (flapping animation)
+                    this.ctx.fillStyle = this.colors.fg;
+                    this.birds.forEach(bird => {
+                        const wingUp = Math.floor(bird.wingFrame / 10) % 2 === 0;
+                        const bx = bird.x;
+                        const by = bird.y;
+                        
+                        // Body
+                        this.ctx.fillRect(bx + 8, by + 4, 8, 4);
+                        
+                        // Wings
+                        if (wingUp) {
+                            // Wings up
+                            this.ctx.fillRect(bx, by, 6, 3);
+                            this.ctx.fillRect(bx + 18, by, 6, 3);
+                        } else {
+                            // Wings down
+                            this.ctx.fillRect(bx, by + 6, 6, 3);
+                            this.ctx.fillRect(bx + 18, by + 6, 6, 3);
+                        }
+                        
+                        // Head
+                        this.ctx.fillRect(bx + 16, by + 2, 4, 4);
+                    });
+
+                    // Draw ground line
                     this.ctx.fillStyle = this.colors.ground;
                     this.ctx.fillRect(0, this.ground.y, this.width, this.ground.height);
 
-                    // Draw dino (simple pixelated style)
+                    // Draw dino (T-Rex style)
                     this.ctx.fillStyle = this.colors.fg;
                     const d = this.dino;
                     
-                    // Body
-                    this.ctx.fillRect(d.x, d.y + 10, 32, 28);
-                    // Head
-                    this.ctx.fillRect(d.x + 28, d.y, 16, 20);
+                    // Head with mouth
+                    this.ctx.fillRect(d.x + 28, d.y + 2, 16, 14);
+                    // Snout
+                    this.ctx.fillRect(d.x + 42, d.y + 6, 6, 8);
                     // Eye
                     this.ctx.fillStyle = this.colors.bg;
                     this.ctx.fillRect(d.x + 36, d.y + 6, 4, 4);
                     this.ctx.fillStyle = this.colors.fg;
-                    // Legs (animated)
-                    const legOffset = Math.floor(this.frameCount / 10) % 2 === 0 ? 0 : 4;
-                    this.ctx.fillRect(d.x + 4, d.y + 38, 6, 10);
-                    this.ctx.fillRect(d.x + 18 + legOffset, d.y + 38, 6, 10);
-                    // Tail
-                    this.ctx.fillRect(d.x - 8, d.y + 18, 10, 8);
+                    
+                    // Neck
+                    this.ctx.fillRect(d.x + 22, d.y + 12, 10, 8);
+                    
+                    // Body (rounded)
+                    this.ctx.fillRect(d.x + 6, d.y + 16, 26, 20);
+                    
+                    // Tail (tapered)
+                    this.ctx.fillRect(d.x, d.y + 20, 8, 12);
+                    this.ctx.fillRect(d.x - 4, d.y + 24, 6, 6);
+                    
+                    // Arms (tiny T-Rex arms)
+                    this.ctx.fillRect(d.x + 24, d.y + 20, 4, 8);
+                    this.ctx.fillRect(d.x + 20, d.y + 26, 4, 2);
+                    
+                    // Legs (animated running)
+                    const legAnim = Math.floor(this.frameCount / 6) % 2;
+                    if (d.isJumping) {
+                        // Both legs together when jumping
+                        this.ctx.fillRect(d.x + 10, d.y + 36, 6, 12);
+                        this.ctx.fillRect(d.x + 20, d.y + 36, 6, 12);
+                    } else {
+                        // Running animation
+                        if (legAnim === 0) {
+                            // Left leg forward
+                            this.ctx.fillRect(d.x + 10, d.y + 36, 6, 12);
+                            this.ctx.fillRect(d.x + 10, d.y + 46, 8, 2); // foot
+                            // Right leg back
+                            this.ctx.fillRect(d.x + 20, d.y + 38, 6, 10);
+                            this.ctx.fillRect(d.x + 18, d.y + 46, 6, 2); // foot
+                        } else {
+                            // Right leg forward
+                            this.ctx.fillRect(d.x + 20, d.y + 36, 6, 12);
+                            this.ctx.fillRect(d.x + 20, d.y + 46, 8, 2); // foot
+                            // Left leg back
+                            this.ctx.fillRect(d.x + 10, d.y + 38, 6, 10);
+                            this.ctx.fillRect(d.x + 8, d.y + 46, 6, 2); // foot
+                        }
+                    }
 
-                    // Draw obstacles (cacti)
+                    // Draw cacti obstacles
                     this.ctx.fillStyle = this.colors.fg;
                     this.obstacles.forEach(obs => {
-                        // Main stem
-                        this.ctx.fillRect(obs.x + 6, obs.y, 8, obs.height);
-                        // Arms
                         if (obs.height > 50) {
-                            this.ctx.fillRect(obs.x, obs.y + 15, 6, 16);
-                            this.ctx.fillRect(obs.x + 14, obs.y + 20, 6, 16);
+                            // Tall cactus with arms
+                            // Main trunk
+                            this.ctx.fillRect(obs.x + 6, obs.y, 12, obs.height);
+                            // Left arm
+                            this.ctx.fillRect(obs.x, obs.y + 20, 8, 16);
+                            this.ctx.fillRect(obs.x, obs.y + 20, 8, 4);
+                            // Right arm
+                            this.ctx.fillRect(obs.x + 16, obs.y + 28, 8, 12);
+                            this.ctx.fillRect(obs.x + 16, obs.y + 28, 8, 4);
+                            // Top spikes
+                            this.ctx.fillRect(obs.x + 4, obs.y - 2, 4, 3);
+                            this.ctx.fillRect(obs.x + 16, obs.y - 2, 4, 3);
+                        } else {
+                            // Small cactus
+                            this.ctx.fillRect(obs.x + 6, obs.y, 12, obs.height);
+                            // Single arm
+                            this.ctx.fillRect(obs.x, obs.y + 12, 8, 12);
+                            this.ctx.fillRect(obs.x, obs.y + 12, 8, 4);
+                            // Top
+                            this.ctx.fillRect(obs.x + 4, obs.y - 2, 4, 3);
+                            this.ctx.fillRect(obs.x + 16, obs.y - 2, 4, 3);
                         }
-                        // Top
-                        this.ctx.fillRect(obs.x + 4, obs.y - 2, 12, 4);
                     });
 
                     // Game over message
