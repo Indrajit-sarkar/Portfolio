@@ -336,6 +336,21 @@
         send(e.target.textContent);
       }
     });
+
+    // Fix wheel/scroll event propagation for chat body
+    msgBody.addEventListener('wheel', function(e) {
+      // Allow the scroll to happen naturally in the message body
+      e.stopPropagation();
+    }, { passive: true });
+
+    // Prevent panel from blocking scroll events
+    panel.addEventListener('wheel', function(e) {
+      // Only prevent default if we're not scrolling the message body
+      if (e.target === panel || e.target === panel.querySelector('.alex-header') || 
+          e.target === panel.querySelector('.alex-footer')) {
+        e.preventDefault();
+      }
+    }, { passive: false });
   }
 
   /* ── Init ────────────────────────────────────────────────── */
