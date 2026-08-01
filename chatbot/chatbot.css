@@ -73,6 +73,7 @@
   transform: scale(0.88) translateY(20px);
   transform-origin: bottom right;
   transition: opacity 0.35s var(--ease), transform 0.4s var(--spring);
+  touch-action: none;
 }
 .alex-panel.is-open {
   opacity: 1;
@@ -142,6 +143,7 @@
 .alex-body {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 16px;
   display: flex;
   flex-direction: column;
@@ -149,6 +151,9 @@
   scroll-behavior: smooth;
   scrollbar-width: thin;
   scrollbar-color: rgba(128, 128, 150, 0.35) transparent;
+  -webkit-overflow-scrolling: touch;
+  touch-action: pan-y;
+  overscroll-behavior: contain;
 }
 .alex-body::-webkit-scrollbar { width: 6px; }
 .alex-body::-webkit-scrollbar-track { background: transparent; }
