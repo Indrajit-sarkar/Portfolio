@@ -8,9 +8,6 @@
     <meta name="theme-color" content="#050508">
     <title>Hobbies · 3D Garage | Indrajit Sarkar</title>
     <link rel="icon" href="assets/opt/logo-640.webp" type="image/webp">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Inter:wght@300..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css?v=3">
     <style>
         /* ---------- Hobbies page ---------- */
@@ -23,11 +20,36 @@
         }
         .hb-top > * { pointer-events: auto; }
 
-        /* --- 3D hero --- */
+        /* --- hero --- */
         .garage {
-            position: relative; height: 100svh; min-height: 480px;
-            overflow: clip;
+            position: relative; height: 62svh; min-height: 360px;
+            overflow: hidden; overflow: clip;
+            display: grid; place-items: center;
         }
+        .garage-title {
+            display: flex; flex-direction: column; align-items: center;
+            text-align: center; pointer-events: none; z-index: 2;
+        }
+        .garage-title .eyebrow { color: var(--ink-2); }
+        .garage-title h1 {
+            font-family: var(--font-d);
+            font-size: clamp(3.4rem, 14vw, 11rem);
+            font-weight: 700; line-height: 0.95; letter-spacing: 0.02em;
+            background: linear-gradient(180deg, #fff 20%, rgba(255,255,255,0.25));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        [data-theme="light"] .garage-title h1 {
+            background: linear-gradient(180deg, #0d0d14 20%, rgba(13,13,20,0.3));
+            -webkit-background-clip: text; background-clip: text;
+        }
+        .garage-title p.tag-line {
+            margin-top: 0.6rem; color: var(--ink-2);
+            font-size: clamp(0.9rem, 2vw, 1.1rem); letter-spacing: 0.18em; text-transform: uppercase;
+        }
+        .garage .scroll-cue { z-index: 2; }
+
+        /* --- 3D car stage (inside the Automobilism section) --- */
+        .car-stage { position: relative; background: #07070c; }
         #carCanvas {
             position: absolute; inset: 0; width: 100%; height: 100%;
             display: block; touch-action: pan-y;
@@ -39,40 +61,19 @@
             background: url('assets/opt/sport-1-1600.webp') center/cover no-repeat;
             display: none;
         }
-        .garage.no-webgl .garage-fallback { display: block; }
-        .garage.no-webgl #carCanvas { display: none; }
-
-        .garage-title {
-            position: absolute; inset: 0;
-            display: flex; flex-direction: column; align-items: center;
-            padding-top: clamp(4.5rem, 12vh, 8rem);
-            text-align: center; pointer-events: none; z-index: 2;
-        }
-        .garage-title .eyebrow { color: var(--ink-2); }
-        .garage-title h1 {
-            font-family: var(--font-d);
-            font-size: clamp(3.4rem, 14vw, 11rem);
-            font-weight: 700; line-height: 0.95; letter-spacing: 0.02em;
-            background: linear-gradient(180deg, #fff 20%, rgba(255,255,255,0.25));
-            -webkit-background-clip: text; background-clip: text; color: transparent;
-        }
-        .garage-title p.tag-line {
-            margin-top: 0.6rem; color: var(--ink-2);
-            font-size: clamp(0.9rem, 2vw, 1.1rem); letter-spacing: 0.18em; text-transform: uppercase;
-        }
+        .car-stage.no-webgl .garage-fallback { display: block; }
+        .car-stage.no-webgl #carCanvas { display: none; }
         .drag-hint {
-            position: absolute; bottom: 6.4rem; left: 50%; transform: translateX(-50%);
-            z-index: 2; pointer-events: none;
-            font-size: 0.78rem; letter-spacing: 0.22em; text-transform: uppercase;
-            color: var(--ink-3);
+            position: absolute; bottom: 0.9rem; left: 50%; transform: translateX(-50%);
+            z-index: 2; pointer-events: none; white-space: nowrap;
+            font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+            color: rgba(245, 245, 247, 0.6);
             display: flex; align-items: center; gap: 0.6rem;
             transition: opacity 0.6s;
         }
         .drag-hint.is-gone { opacity: 0; }
-        .drag-hint::before, .drag-hint::after { content: "⟲"; font-size: 1rem; }
+        .drag-hint::before, .drag-hint::after { content: "⟲"; font-size: 0.9rem; }
         .drag-hint::after { content: "⟳"; }
-
-        .garage .scroll-cue { z-index: 2; }
 
         /* --- content sections --- */
         .hb-section { padding: clamp(4.5rem, 10vw, 8rem) 0; }
@@ -136,16 +137,13 @@
         <a href="index.html#contact" class="btn btn-primary btn-sm">Get in Touch</a>
     </div>
 
-    <!-- ============ 3D GARAGE HERO ============ -->
+    <!-- ============ HERO ============ -->
     <header class="garage" id="garage">
-        <canvas id="carCanvas" aria-label="Interactive 3D sports car — drag to spin"></canvas>
-        <div class="garage-fallback" aria-hidden="true"></div>
         <div class="garage-title">
             <p class="eyebrow">Beyond the code</p>
             <h1>HOBBIES</h1>
             <p class="tag-line">Automobiles · Photography · Music</p>
         </div>
-        <p class="drag-hint" id="dragHint">Drag to spin — scroll to roll</p>
         <a class="scroll-cue" href="#hobbies" aria-label="Scroll to hobbies">
             <span>Scroll</span>
             <i aria-hidden="true"></i>
@@ -182,11 +180,10 @@
                         that's why this page opens with a car I can spin with my fingertips.
                     </p>
                 </div>
-                <div class="hobby-media" data-parallax>
-                    <img src="assets/opt/sport-1-800.webp"
-                        srcset="assets/opt/sport-1-800.webp 800w, assets/opt/sport-1-1600.webp 1600w"
-                        sizes="(max-width: 820px) 92vw, 46vw"
-                        alt="Sports car on the road" loading="lazy" decoding="async">
+                <div class="hobby-media car-stage" id="carStage">
+                    <canvas id="carCanvas" aria-label="Interactive 3D sports car — drag to spin"></canvas>
+                    <div class="garage-fallback" aria-hidden="true"></div>
+                    <p class="drag-hint" id="dragHint">Drag to spin — scroll to roll</p>
                 </div>
             </section>
 
@@ -303,9 +300,11 @@
         import * as THREE from 'three';
         import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
         import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
 
         const canvas = document.getElementById('carCanvas');
-        const garage = document.getElementById('garage');
+        const stage = document.getElementById('carStage');
         const hint = document.getElementById('dragHint');
         const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
 
@@ -313,7 +312,7 @@
         try {
             renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
         } catch (e) {
-            garage.classList.add('no-webgl');
+            stage.classList.add('no-webgl');
             throw e;
         }
         renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
@@ -324,8 +323,8 @@
         scene.fog = new THREE.Fog(0x050508, 14, 34);
 
         const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
-        camera.position.set(0, 2.1, 9.2);
-        camera.lookAt(0, 0.55, 0);
+        camera.position.set(0, 1.7, 8.4);
+        camera.lookAt(0, 0.5, 0);
 
         // Environment reflections for the car paint
         const pmrem = new THREE.PMREMGenerator(renderer);
@@ -342,7 +341,7 @@
         const rimCyan = new THREE.DirectionalLight(0x22d3ee, 1.6);
         rimCyan.position.set(7, 2, -5);
         scene.add(rimCyan);
-        const underglow = new THREE.PointLight(0x7c5cff, 8, 6);
+        const underglow = new THREE.PointLight(0x3b82f6, 4, 6);
         underglow.position.set(0, 0.12, 0);
         scene.add(underglow);
 
@@ -370,126 +369,94 @@
         pedestal2.position.y = 0.012;
         scene.add(pedestal2);
 
-        /* ---------- Car (procedural, ~40 low-poly parts) ---------- */
+        /* ---------- Car — real DRACO-compressed GLB (assets/models/car.glb),
+           with a simple procedural fallback if the model cannot load ---------- */
         const car = new THREE.Group();
         scene.add(car);
+        let wheels = [];
 
         const paint = new THREE.MeshPhysicalMaterial({
-            color: 0x2f5cff, metalness: 0.85, roughness: 0.28,
-            clearcoat: 1.0, clearcoatRoughness: 0.08,
+            color: 0x1c46c8, metalness: 1.0, roughness: 0.45,
+            clearcoat: 1.0, clearcoatRoughness: 0.03,
+        });
+        const details = new THREE.MeshStandardMaterial({ color: 0xdfe2ea, metalness: 1.0, roughness: 0.4 });
+        const glass = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff, metalness: 0.25, roughness: 0, transmission: 1.0,
         });
         const darkTrim = new THREE.MeshStandardMaterial({ color: 0x0b0b10, roughness: 0.55, metalness: 0.4 });
-        const glass = new THREE.MeshPhysicalMaterial({
-            color: 0x0a0f18, metalness: 0.2, roughness: 0.05,
-            transmission: 0, clearcoat: 1, opacity: 0.96, transparent: true,
-        });
-        const chrome = new THREE.MeshStandardMaterial({ color: 0xd8dce6, metalness: 1, roughness: 0.15 });
 
-        // Lower chassis
-        const chassis = new THREE.Mesh(new RoundedBoxGeometry(2.05, 0.34, 4.7, 4, 0.1), darkTrim);
-        chassis.position.y = 0.42;
-        car.add(chassis);
-
-        // Main body
-        const body = new THREE.Mesh(new RoundedBoxGeometry(2.0, 0.5, 4.55, 5, 0.13), paint);
-        body.position.y = 0.72;
-        car.add(body);
-
-        // Nose wedge (front slope)
-        const nose = new THREE.Mesh(new RoundedBoxGeometry(1.88, 0.38, 1.4, 4, 0.12), paint);
-        nose.position.set(0, 0.72, 2.0);
-        nose.rotation.x = 0.11;
-        car.add(nose);
-
-        // Cabin — sunk into the body so it reads as one silhouette
-        const cabin = new THREE.Mesh(new RoundedBoxGeometry(1.5, 0.62, 2.5, 5, 0.24), glass);
-        cabin.position.set(0, 1.02, -0.42);
-        cabin.scale.set(1, 0.85, 1);
-        car.add(cabin);
-
-        // Windshield rake (sloped glass wedge toward the hood)
-        const shield = new THREE.Mesh(new RoundedBoxGeometry(1.36, 0.07, 0.85, 3, 0.03), glass);
-        shield.position.set(0, 1.02, 0.74);
-        shield.rotation.x = -0.52;
-        car.add(shield);
-
-        // Roof stripe
-        const roof = new THREE.Mesh(new RoundedBoxGeometry(1.26, 0.07, 1.5, 3, 0.03), paint);
-        roof.position.set(0, 1.25, -0.55);
-        car.add(roof);
-
-        // Rear deck
-        const deck = new THREE.Mesh(new RoundedBoxGeometry(1.9, 0.34, 1.1, 4, 0.14), paint);
-        deck.position.set(0, 0.98, -1.85);
-        car.add(deck);
-
-        // Spoiler
-        const wing = new THREE.Mesh(new RoundedBoxGeometry(1.9, 0.07, 0.45, 3, 0.03), darkTrim);
-        wing.position.set(0, 1.34, -2.28);
-        wing.rotation.x = -0.09;
-        car.add(wing);
-        [-0.7, 0.7].forEach((x) => {
-            const strut = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.3, 0.12), darkTrim);
-            strut.position.set(x, 1.16, -2.24);
-            car.add(strut);
-        });
-
-        // Side skirts
-        [-1.02, 1.02].forEach((x) => {
-            const skirt = new THREE.Mesh(new RoundedBoxGeometry(0.1, 0.18, 3.1, 2, 0.04), darkTrim);
-            skirt.position.set(x, 0.38, 0);
-            car.add(skirt);
-        });
-
-        // Headlights
-        const headMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xcfe4ff, emissiveIntensity: 3.2 });
-        [-0.62, 0.62].forEach((x) => {
-            const lamp = new THREE.Mesh(new RoundedBoxGeometry(0.42, 0.1, 0.08, 2, 0.03), headMat);
-            lamp.position.set(x, 0.82, 2.62);
-            lamp.rotation.y = x < 0 ? 0.18 : -0.18;
-            car.add(lamp);
-        });
-        // Tail light bar
-        const tail = new THREE.Mesh(new RoundedBoxGeometry(1.72, 0.09, 0.06, 2, 0.02),
-            new THREE.MeshStandardMaterial({ color: 0xff2244, emissive: 0xff2244, emissiveIntensity: 2.6 }));
-        tail.position.set(0, 1.02, -2.42);
-        car.add(tail);
-
-        // Exhausts
-        [-0.5, -0.32, 0.32, 0.5].forEach((x) => {
-            const pipe = new THREE.Mesh(new THREE.CylinderGeometry(0.055, 0.055, 0.16, 12), chrome);
-            pipe.rotation.x = Math.PI / 2;
-            pipe.position.set(x, 0.48, -2.4);
-            car.add(pipe);
-        });
-
-        // Wheels
-        const wheels = [];
-        const tyreMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0c, roughness: 0.9 });
-        const rimMat = chrome;
-        function makeWheel(x, z) {
-            const g = new THREE.Group();
-            const tyre = new THREE.Mesh(new THREE.CylinderGeometry(0.47, 0.47, 0.34, 24), tyreMat);
-            tyre.rotation.z = Math.PI / 2;
-            g.add(tyre);
-            const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.36, 16), rimMat);
-            rim.rotation.z = Math.PI / 2;
-            g.add(rim);
-            for (let i = 0; i < 5; i++) {
-                const spoke = new THREE.Mesh(new THREE.BoxGeometry(0.365, 0.5, 0.06), darkTrim);
-                spoke.rotation.x = (i / 5) * Math.PI;
-                g.add(spoke);
-            }
-            const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.38, 12),
-                new THREE.MeshStandardMaterial({ color: 0x5b8cff, emissive: 0x2547b8, emissiveIntensity: 0.8, metalness: 1, roughness: 0.2 }));
-            hub.rotation.z = Math.PI / 2;
-            g.add(hub);
-            g.position.set(x, 0.47, z);
-            car.add(g);
-            wheels.push(g);
+        function buildFallbackCar() {
+            const fpaint = new THREE.MeshPhysicalMaterial({
+                color: 0x1c46c8, metalness: 0.85, roughness: 0.28, clearcoat: 1.0, clearcoatRoughness: 0.08,
+            });
+            const chrome = new THREE.MeshStandardMaterial({ color: 0xd8dce6, metalness: 1, roughness: 0.15 });
+            const fglass = new THREE.MeshPhysicalMaterial({
+                color: 0x0a0f18, metalness: 0.2, roughness: 0.05, clearcoat: 1, opacity: 0.96, transparent: true,
+            });
+            const add = (geo, mat, x, y, z, rx = 0) => {
+                const m = new THREE.Mesh(geo, mat);
+                m.position.set(x, y, z); m.rotation.x = rx; car.add(m); return m;
+            };
+            add(new RoundedBoxGeometry(2.05, 0.34, 4.7, 4, 0.1), darkTrim, 0, 0.42, 0);
+            add(new RoundedBoxGeometry(2.0, 0.5, 4.55, 5, 0.13), fpaint, 0, 0.72, 0);
+            add(new RoundedBoxGeometry(1.88, 0.38, 1.4, 4, 0.12), fpaint, 0, 0.72, 2.0, 0.11);
+            const cab = add(new RoundedBoxGeometry(1.5, 0.62, 2.5, 5, 0.24), fglass, 0, 1.02, -0.42);
+            cab.scale.set(1, 0.85, 1);
+            add(new RoundedBoxGeometry(1.36, 0.07, 0.85, 3, 0.03), fglass, 0, 1.02, 0.74, -0.52);
+            add(new RoundedBoxGeometry(1.26, 0.07, 1.5, 3, 0.03), fpaint, 0, 1.25, -0.55);
+            add(new RoundedBoxGeometry(1.9, 0.34, 1.1, 4, 0.14), fpaint, 0, 0.98, -1.85);
+            add(new RoundedBoxGeometry(1.9, 0.07, 0.45, 3, 0.03), darkTrim, 0, 1.34, -2.28, -0.09);
+            const headMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xcfe4ff, emissiveIntensity: 3.2 });
+            add(new RoundedBoxGeometry(0.42, 0.1, 0.08, 2, 0.03), headMat, -0.62, 0.82, 2.62);
+            add(new RoundedBoxGeometry(0.42, 0.1, 0.08, 2, 0.03), headMat, 0.62, 0.82, 2.62);
+            add(new RoundedBoxGeometry(1.72, 0.09, 0.06, 2, 0.02),
+                new THREE.MeshStandardMaterial({ color: 0xff2244, emissive: 0xff2244, emissiveIntensity: 2.6 }), 0, 1.02, -2.42);
+            const tyreMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0c, roughness: 0.9 });
+            [[-1.02, 1.55], [1.02, 1.55], [-1.02, -1.5], [1.02, -1.5]].forEach(([x, z]) => {
+                const g = new THREE.Group();
+                const tyre = new THREE.Mesh(new THREE.CylinderGeometry(0.47, 0.47, 0.34, 24), tyreMat);
+                tyre.rotation.z = Math.PI / 2; g.add(tyre);
+                const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.36, 16), chrome);
+                rim.rotation.z = Math.PI / 2; g.add(rim);
+                g.position.set(x, 0.47, z);
+                car.add(g); wheels.push(g);
+            });
         }
-        makeWheel(-1.02, 1.55); makeWheel(1.02, 1.55);
-        makeWheel(-1.02, -1.5); makeWheel(1.02, -1.5);
+
+        const draco = new DRACOLoader();
+        draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/gltf/');
+        const gltfLoader = new GLTFLoader();
+        gltfLoader.setDRACOLoader(draco);
+        gltfLoader.load(
+            'assets/models/car.glb',
+            (gltf) => {
+                const model = gltf.scene.children[0];
+                const setMat = (name, mat) => {
+                    const o = model.getObjectByName(name);
+                    if (o) o.material = mat;
+                };
+                setMat('body', paint);
+                ['rim_fl', 'rim_fr', 'rim_rl', 'rim_rr', 'trim'].forEach((n) => setMat(n, details));
+                setMat('glass', glass);
+                wheels = ['wheel_fl', 'wheel_fr', 'wheel_rl', 'wheel_rr']
+                    .map((n) => model.getObjectByName(n)).filter(Boolean);
+                // baked ambient-occlusion shadow plate under the car
+                new THREE.TextureLoader().load('assets/models/car_ao.png', (aoTex) => {
+                    const shadow = new THREE.Mesh(
+                        new THREE.PlaneGeometry(0.655 * 4, 1.3 * 4),
+                        new THREE.MeshBasicMaterial({
+                            map: aoTex, blending: THREE.MultiplyBlending, toneMapped: false, transparent: true,
+                        })
+                    );
+                    shadow.rotation.x = -Math.PI / 2;
+                    shadow.renderOrder = 2;
+                    model.add(shadow);
+                });
+                car.add(model);
+            },
+            undefined,
+            () => buildFallbackCar()
+        );
 
         car.rotation.y = 0.6;
 
@@ -515,18 +482,19 @@
         canvas.addEventListener('pointerup', stop);
         canvas.addEventListener('pointercancel', stop);
 
-        // Scroll = roll: leaving the hero rotates the car a full turn and rolls wheels
+        // Scroll = roll: the car does a full turn while its stage crosses the viewport
         let scrollTick = false;
         addEventListener('scroll', () => {
             if (scrollTick) return;
             scrollTick = true;
             requestAnimationFrame(() => {
                 scrollTick = false;
-                const h = garage.offsetHeight || 1;
-                const p = Math.min(1.2, Math.max(0, scrollY / h));
-                scrollExtra = p * Math.PI * 2;         // full 360° over one viewport of scroll
-                wheelRoll = p * 22;                    // wheels roll with it
-                if (p > 0.02 && hint) hint.classList.add('is-gone');
+                const r = stage.getBoundingClientRect();
+                const vh = innerHeight || 1;
+                const p = Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height)));
+                scrollExtra = p * Math.PI * 2;
+                wheelRoll = p * 22;
+                if (p > 0.65 && hint) hint.classList.add('is-gone');
             });
         }, { passive: true });
 
@@ -536,16 +504,16 @@
         const clock = new THREE.Clock();
         let visible = true;
         if ('IntersectionObserver' in window) {
-            new IntersectionObserver((en) => { visible = en[0].isIntersecting; }).observe(garage);
+            new IntersectionObserver((en) => { visible = en[0].isIntersecting; }).observe(stage);
         }
         document.addEventListener('visibilitychange', () => { visible = visible && !document.hidden; });
 
         function resize() {
-            const w = garage.clientWidth, h = garage.clientHeight;
+            const w = stage.clientWidth, h = stage.clientHeight;
             renderer.setSize(w, h, false);
             camera.aspect = w / h;
-            // pull camera back on narrow screens so the car fits
-            camera.position.z = w < 640 ? 11.6 : w < 900 ? 10.4 : 9.2;
+            // pull camera back on narrow stages so the car fits
+            camera.position.z = w < 420 ? 10.6 : w < 640 ? 9.4 : 8.4;
             camera.updateProjectionMatrix();
         }
         addEventListener('resize', resize);
@@ -569,8 +537,8 @@
             // gentle body breathing + pedestal shimmer
             if (!reduced) {
                 car.position.y = Math.sin(t * 0.0012) * 0.03;
-                pedestal.material.opacity = 0.65 + Math.sin(t * 0.002) * 0.2;
-                underglow.intensity = 7 + Math.sin(t * 0.0023) * 2;
+                pedestal.material.opacity = 0.55 + Math.sin(t * 0.002) * 0.15;
+                underglow.intensity = 3.5 + Math.sin(t * 0.0023) * 1;
             }
             renderer.render(scene, camera);
         }

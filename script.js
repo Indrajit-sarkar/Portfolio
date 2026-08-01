@@ -19,9 +19,12 @@
         const btn = $('#themeToggle');
         const saved = localStorage.getItem('theme');
         if (saved) doc.dataset.theme = saved;
+        const sync = () => btn && btn.setAttribute('aria-checked', String(doc.dataset.theme === 'dark'));
+        sync();
         btn && btn.addEventListener('click', () => {
             doc.dataset.theme = doc.dataset.theme === 'dark' ? 'light' : 'dark';
             localStorage.setItem('theme', doc.dataset.theme);
+            sync();
         });
     }
 
@@ -41,15 +44,21 @@
     function scrollToTarget(target) {
         const el = typeof target === 'string' ? $(target) : target;
         if (!el) return;
-        const y = el.getBoundingClientRect().top + window.scrollY - 84;
-        if (lenis) lenis.scrollTo(y);
-        else window.scrollTo({ top: y, behavior: reduced ? 'auto' : 'smooth' });
+        const go = () => {
+            const y = el.getBoundingClientRect().top + window.scrollY - 84;
+            if (lenis) lenis.scrollTo(y);
+            else window.scrollTo({ top: y, behavior: reduced ? 'auto' : 'smooth' });
+        };
+        go();
+        // content-visibility:auto sections use estimated heights until rendered —
+        // re-aim once layout has settled so distant anchors land precisely
+        setTimeout(go, 450);
     }
 
     function initAnchors() {
         document.addEventListener('click', (e) => {
             const a = e.target.closest('a[href^="#"]');
-            if (!a) return;
+            if (!a || a.classList.contains('skip-link')) return;
             const id = a.getAttribute('href');
             if (id.length < 2) return;
             const el = $(id);
@@ -408,7 +417,7 @@
         const box = $('#lightbox');
         const img = $('#lightboxImg');
         if (!box || !img) return;
-        let group = [], idx = 0;
+        let group = [], idx = 0, returnFocus = null;
 
         const fullSrc = (el) =>
             el.dataset.full ||
@@ -422,18 +431,37 @@
         function open(target) {
             group = $$(`img[data-lightbox="${target.dataset.lightbox}"]`);
             show(group.indexOf(target));
+            returnFocus = target;
             box.hidden = false;
             requestAnimationFrame(() => box.classList.add('is-open'));
             document.body.style.overflow = 'hidden';
+            $('#lbClose').focus();
         }
         function close() {
             box.classList.remove('is-open');
             document.body.style.overflow = '';
             setTimeout(() => { box.hidden = true; img.src = ''; }, 320);
+            if (returnFocus) { returnFocus.focus(); returnFocus = null; }
         }
+
+        // keyboard-operable triggers
+        const armTrigger = (t) => {
+            if (t.dataset.lbArmed) return;
+            t.dataset.lbArmed = '1';
+            t.setAttribute('tabindex', '0');
+            t.setAttribute('role', 'button');
+        };
+        $$('img[data-lightbox]').forEach(armTrigger);
+        new MutationObserver(() => $$('img[data-lightbox]').forEach(armTrigger))
+            .observe(document.body, { childList: true, subtree: true });
 
         document.addEventListener('click', (e) => {
             const t = e.target.closest('img[data-lightbox]');
+            if (t) { e.preventDefault(); open(t); }
+        });
+        document.addEventListener('keydown', (e) => {
+            if (e.key !== 'Enter' && e.key !== ' ') return;
+            const t = e.target.closest && e.target.closest('img[data-lightbox]');
             if (t) { e.preventDefault(); open(t); }
         });
         img.addEventListener('error', () => {
@@ -456,16 +484,20 @@
         const sheet = $('#skillSheet');
         if (!sheet) return;
         const title = $('#sheetTitle'), desc = $('#sheetDesc'), link = $('#sheetLink');
+        let returnFocus = null;
         function open(chip) {
             title.textContent = chip.dataset.name;
             desc.textContent = chip.dataset.desc;
             link.href = chip.dataset.link;
+            returnFocus = chip;
             sheet.hidden = false;
             requestAnimationFrame(() => sheet.classList.add('is-open'));
+            $('#sheetClose').focus();
         }
         function close() {
             sheet.classList.remove('is-open');
             setTimeout(() => { sheet.hidden = true; }, 320);
+            if (returnFocus) { returnFocus.focus(); returnFocus = null; }
         }
         $$('.skill-chip').forEach((c) => c.addEventListener('click', () => open(c)));
         $('#sheetClose').addEventListener('click', close);
@@ -645,7 +677,7 @@
             scrollTrigger: { trigger: '.proj-hero', start: 'top bottom', end: 'bottom top', scrub: 0.4 },
         });
 
-        $$('.ach-featured-media img, .exp-media img').forEach((el) => {
+        $$('.ach-featured-media img').forEach((el) => {
             gsap.fromTo(el, { yPercent: -6 }, {
                 yPercent: 6, ease: 'none',
                 scrollTrigger: { trigger: el.parentElement, start: 'top bottom', end: 'bottom top', scrub: 0.6 },

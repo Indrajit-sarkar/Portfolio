@@ -8,9 +8,6 @@
     <meta name="theme-color" content="#050508">
     <title>Certifications | Indrajit Sarkar</title>
     <link rel="icon" href="assets/opt/logo-640.webp" type="image/webp">
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300..700&family=Inter:wght@300..800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="styles.css?v=3">
     <style>
         body { padding-bottom: 3rem !important; }
@@ -75,9 +72,11 @@
 
     <div class="cf-top">
         <a href="index.html#certifications" class="btn btn-ghost btn-sm">← Back to Portfolio</a>
-        <button class="theme-toggle" id="themeToggle" aria-label="Toggle light / dark theme">
-            <svg class="ico-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 7a5 5 0 100 10 5 5 0 000-10zm0-6a1 1 0 011 1v2a1 1 0 11-2 0V2a1 1 0 011-1zm0 19a1 1 0 011 1v2a1 1 0 11-2 0v-2a1 1 0 011-1zM2 11h2a1 1 0 110 2H2a1 1 0 110-2zm18 0h2a1 1 0 110 2h-2a1 1 0 110-2z"/></svg>
-            <svg class="ico-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.4 5.4 0 01-8.54-4.54c0-1.81.89-3.42 2.26-4.4A9.6 9.6 0 0012 3z"/></svg>
+        <button class="theme-toggle" id="themeToggle" role="switch" aria-checked="true" aria-label="Toggle light / dark theme">
+            <span class="tt-knob" aria-hidden="true">
+                <svg class="ico-sun" viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M12 7a5 5 0 100 10 5 5 0 000-10zm0-6a1 1 0 011 1v2a1 1 0 11-2 0V2a1 1 0 011-1zm0 19a1 1 0 011 1v2a1 1 0 11-2 0v-2a1 1 0 011-1zM2 11h2a1 1 0 110 2H2a1 1 0 110-2zm18 0h2a1 1 0 110 2h-2a1 1 0 110-2z"/></svg>
+                <svg class="ico-moon" viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.4 5.4 0 01-8.54-4.54c0-1.81.89-3.42 2.26-4.4A9.6 9.6 0 0012 3z"/></svg>
+            </span>
         </button>
     </div>
 
@@ -86,7 +85,7 @@
         <h1 class="sec-title"><span class="grad-text">21</span> Certifications</h1>
         <p class="sec-sub">Cloud, AI, analytics and process excellence — tap any certificate to view it full-size, or open the original PDF.</p>
 
-        <div class="cf-filters" role="tablist" aria-label="Filter certifications">
+        <div class="cf-filters" aria-label="Filter certifications">
             <button class="cf-filter is-active" data-filter="all">All</button>
             <button class="cf-filter" data-filter="ms">Microsoft</button>
             <button class="cf-filter" data-filter="lss">Lean Six Sigma</button>
@@ -274,19 +273,11 @@
                 </div>
             </article>
             <article class="cf-card glass" data-cat="other">
-                <img src="assets/opt/vtu-480.webp" data-full="assets/opt/vtu-1000.webp" data-lightbox="certs" alt="VTU certificate" loading="lazy" decoding="async">
+                <img src="assets/opt/google-cloud-480.webp" data-full="assets/opt/google-cloud-1000.webp" data-lightbox="certs" alt="Google Cloud Computing Foundations certificate" loading="lazy" decoding="async">
                 <div class="cf-body">
-                    <h3>VTU Recognition</h3>
-                    <p>Visvesvaraya Technological University</p>
-                </div>
-            </article>
-            <article class="cf-card glass" data-cat="other">
-                <div class="cf-body" style="justify-content:center; min-height: 180px; text-align:center;">
                     <h3>Google Cloud Computing Foundations</h3>
                     <p>Google Cloud</p>
-                    <div class="cf-actions" style="justify-content:center;">
-                        <a href="Certificates/Google Cloud Computing Foundations.pdf" target="_blank" rel="noopener">Open PDF ↗</a>
-                    </div>
+                    <div class="cf-actions"><a href="Certificates/Google Cloud Computing Foundations.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
                 </div>
             </article>
         </div>
@@ -306,10 +297,14 @@
             // Theme
             const saved = localStorage.getItem('theme');
             if (saved) document.documentElement.dataset.theme = saved;
-            document.getElementById('themeToggle').addEventListener('click', () => {
+            const ttBtn = document.getElementById('themeToggle');
+            const ttSync = () => ttBtn.setAttribute('aria-checked', String(document.documentElement.dataset.theme === 'dark'));
+            ttSync();
+            ttBtn.addEventListener('click', () => {
                 const d = document.documentElement;
                 d.dataset.theme = d.dataset.theme === 'dark' ? 'light' : 'dark';
                 localStorage.setItem('theme', d.dataset.theme);
+                ttSync();
             });
 
             // Filters
@@ -332,21 +327,34 @@
                 img.src = group[idx].dataset.full || group[idx].src;
                 img.alt = group[idx].alt;
             }
+            let returnFocus = null;
             function open(t) {
                 group = visibleImgs();
                 show(group.indexOf(t));
+                returnFocus = t;
                 box.hidden = false;
                 requestAnimationFrame(() => box.classList.add('is-open'));
                 document.body.style.overflow = 'hidden';
+                document.getElementById('lbClose').focus();
             }
             function close() {
                 box.classList.remove('is-open');
                 document.body.style.overflow = '';
                 setTimeout(() => { box.hidden = true; img.src = ''; }, 320);
+                if (returnFocus) { returnFocus.focus(); returnFocus = null; }
             }
+            document.querySelectorAll('img[data-lightbox]').forEach((t) => {
+                t.setAttribute('tabindex', '0');
+                t.setAttribute('role', 'button');
+            });
             document.addEventListener('click', (e) => {
                 const t = e.target.closest('img[data-lightbox]');
                 if (t) open(t);
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                const t = e.target.closest && e.target.closest('img[data-lightbox]');
+                if (t) { e.preventDefault(); open(t); }
             });
             img.addEventListener('error', () => { if (group[idx]) img.src = group[idx].src; });
             document.getElementById('lbClose').addEventListener('click', close);
