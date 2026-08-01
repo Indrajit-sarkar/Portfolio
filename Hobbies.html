@@ -242,7 +242,19 @@
 
     <div class="hb-top">
         <a href="index.html" class="btn btn-ghost btn-sm">← Back to Portfolio</a>
-        <a href="index.html#contact" class="btn btn-primary btn-sm">Get in Touch</a>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <button class="theme-toggle" id="themeToggle" role="switch" aria-checked="true" aria-label="Toggle light / dark theme">
+                <span class="tt-knob" aria-hidden="true">
+                    <svg class="ico-sun" viewBox="0 0 24 24" width="15" height="15">
+                        <path fill="currentColor" d="M12 7a5 5 0 100 10 5 5 0 000-10zm0-6a1 1 0 011 1v2a1 1 0 11-2 0V2a1 1 0 011-1zm0 19a1 1 0 011 1v2a1 1 0 11-2 0v-2a1 1 0 011-1zM2 11h2a1 1 0 110 2H2a1 1 0 110-2zm18 0h2a1 1 0 110 2h-2a1 1 0 110-2z"/>
+                    </svg>
+                    <svg class="ico-moon" viewBox="0 0 24 24" width="15" height="15">
+                        <path fill="currentColor" d="M21.4 13.7C20.2 13.9 18.9 14 17.5 14c-5.5 0-10-4.5-10-10 0-1.4.1-2.7.3-3.9C3.5 1.8 0 6.3 0 11.5 0 17.9 5.1 23 11.5 23c5.2 0 9.7-3.5 11.4-7.8-.5 0-1 .1-1.5.1z"/>
+                    </svg>
+                </span>
+            </button>
+            <a href="index.html#contact" class="btn btn-primary btn-sm">Get in Touch</a>
+        </div>
     </div>
 
     <!-- ============ HERO ============ -->
@@ -360,6 +372,39 @@
             const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
             document.documentElement.classList.add('anim-ready');
             document.getElementById('year').textContent = new Date().getFullYear();
+
+            // Theme initialization and sync with localStorage
+            const initTheme = () => {
+                const btn = document.getElementById('themeToggle');
+                const doc = document.documentElement;
+                const saved = localStorage.getItem('theme');
+                
+                // Apply saved theme or default to dark
+                if (saved) {
+                    doc.setAttribute('data-theme', saved);
+                }
+                
+                // Sync aria-checked attribute
+                const sync = () => {
+                    if (btn) {
+                        btn.setAttribute('aria-checked', String(doc.getAttribute('data-theme') === 'dark'));
+                    }
+                };
+                sync();
+                
+                // Toggle theme on button click
+                if (btn) {
+                    btn.addEventListener('click', () => {
+                        const currentTheme = doc.getAttribute('data-theme');
+                        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                        doc.setAttribute('data-theme', newTheme);
+                        localStorage.setItem('theme', newTheme);
+                        sync();
+                    });
+                }
+            };
+            
+            initTheme();
 
             // Reveals
             const items = document.querySelectorAll('[data-reveal]');
