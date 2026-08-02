@@ -904,92 +904,37 @@
       position: fixed;
       bottom: 24px;
       right: 24px;
-      width: 90px;
-      height: 100px;
+      width: 100px;
+      height: 110px;
       z-index: 9999;
       cursor: pointer;
-      transition: transform 0.3s;
+      transition: transform 0.3s ease;
+      animation: alex-float 3s ease-in-out infinite;
     }
     #alex-companion:hover {
       transform: scale(1.1);
-    }
-    .alex-avatar {
-      width: 90px;
-      height: 100px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 45px 45px 50px 50px;
-      position: relative;
-      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
-      animation: alex-float 3s ease-in-out infinite;
+      animation: alex-float 3s ease-in-out infinite, alex-bounce 0.6s ease;
     }
     @keyframes alex-float {
       0%, 100% { transform: translateY(0px); }
       50% { transform: translateY(-8px); }
     }
-    .alex-face {
-      position: absolute;
-      top: 25px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 60px;
-      height: 50px;
+    @keyframes alex-bounce {
+      0%, 100% { transform: scale(1.1); }
+      50% { transform: scale(1.15); }
     }
-    .alex-eyes {
-      display: flex;
-      justify-content: space-around;
-      margin-bottom: 8px;
-    }
-    .alex-eye {
-      width: 12px;
-      height: 12px;
-      background: white;
-      border-radius: 50%;
-      position: relative;
-      animation: alex-blink 4s infinite;
-    }
-    .alex-eye::after {
-      content: '';
-      position: absolute;
-      width: 6px;
-      height: 6px;
-      background: #1a1a2e;
-      border-radius: 50%;
-      top: 3px;
-      left: 3px;
-    }
-    @keyframes alex-blink {
-      0%, 48%, 52%, 100% { height: 12px; }
-      50% { height: 2px; }
-    }
-    .alex-mouth {
-      width: 20px;
-      height: 10px;
-      border-bottom: 3px solid white;
-      border-radius: 0 0 20px 20px;
-      margin: 0 auto;
-    }
-    .alex-badge {
-      position: absolute;
-      bottom: 8px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.9);
-      padding: 3px 8px;
-      border-radius: 10px;
-      font-size: 10px;
-      font-weight: 600;
-      color: #667eea;
+    .alex-character-img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 24px rgba(102, 126, 234, 0.4));
     }
     @media (max-width: 768px) {
       #alex-companion {
         bottom: 90px;
         right: 20px;
-        width: 70px;
-        height: 80px;
-      }
-      .alex-avatar {
-        width: 70px;
-        height: 80px;
+        width: 80px;
+        height: 88px;
       }
     }
     </style>
@@ -997,7 +942,8 @@
     window.addEventListener('DOMContentLoaded', function() {
       var alex = document.createElement('div');
       alex.id = 'alex-companion';
-      alex.innerHTML = '<div class="alex-avatar"><div class="alex-face"><div class="alex-eyes"><div class="alex-eye"></div><div class="alex-eye"></div></div><div class="alex-mouth"></div></div><div class="alex-badge">AI</div></div>';
+      alex.title = 'Click to chat with Alex!';
+      alex.innerHTML = '<img src="assets/alex/alex-sprite.png" alt="Alex AI Companion" class="alex-character-img" />';
       alex.onclick = function() { 
         var chatFab = document.querySelector('.alex-fab');
         if (chatFab) {
@@ -1005,7 +951,7 @@
         }
       };
       document.body.appendChild(alex);
-      console.log('Alex companion loaded');
+      console.log('Alex companion loaded with character image');
     });
     </script>
 
