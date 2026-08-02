@@ -899,8 +899,23 @@
     <script defer src="script.js?v=3"></script>
 
     <!-- Alex AI Companion -->
-    <link rel="stylesheet" href="alex/alex.css">
-    <script defer src="alex/alex.js"></script>
+    <link rel="stylesheet" href="alex/alex.css?v=1">
+    <script>
+    // Immediate test
+    console.log('INLINE SCRIPT RUNNING');
+    window.addEventListener('DOMContentLoaded', function() {
+      console.log('DOM LOADED - Creating test box');
+      var testDiv = document.createElement('div');
+      testDiv.id = 'alex-test';
+      testDiv.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:300px;height:300px;background:linear-gradient(135deg,#667eea,#764ba2);border:10px solid yellow;z-index:999999;display:flex;align-items:center;justify-content:center;color:white;font-size:48px;font-weight:bold;border-radius:30px;box-shadow:0 30px 90px rgba(0,0,0,0.8);';
+      testDiv.textContent = 'ALEX TEST';
+      testDiv.onclick = function() { alert('ALEX CLICKED!'); };
+      document.body.appendChild(testDiv);
+      console.log('Test div added:', testDiv);
+      console.log('Test div in DOM:', document.getElementById('alex-test'));
+    });
+    </script>
+    <script defer src="alex/alex.js?v=1"></script>
 
     <!-- Alex AI Chatbot -->
     <link rel="stylesheet" href="chatbot/chatbot.css">
