@@ -899,23 +899,27 @@
     <script defer src="script.js?v=3"></script>
 
     <!-- Alex AI Companion -->
-    <link rel="stylesheet" href="alex/alex.css?v=1">
+    <link rel="stylesheet" href="alex/alex.css?v=2">
     <script>
     // Immediate test
     console.log('INLINE SCRIPT RUNNING');
     window.addEventListener('DOMContentLoaded', function() {
-      console.log('DOM LOADED - Creating test box');
+      console.log('DOM LOADED - Creating Alex');
       var testDiv = document.createElement('div');
       testDiv.id = 'alex-test';
-      testDiv.style.cssText = 'position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);width:300px;height:300px;background:linear-gradient(135deg,#667eea,#764ba2);border:10px solid yellow;z-index:999999;display:flex;align-items:center;justify-content:center;color:white;font-size:48px;font-weight:bold;border-radius:30px;box-shadow:0 30px 90px rgba(0,0,0,0.8);';
-      testDiv.textContent = 'ALEX TEST';
-      testDiv.onclick = function() { alert('ALEX CLICKED!'); };
+      testDiv.style.cssText = 'position:fixed;bottom:24px;right:24px;width:100px;height:110px;background:linear-gradient(135deg,#667eea,#764ba2);border:3px solid rgba(255,255,255,0.3);z-index:9999;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:bold;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.4);cursor:pointer;transition:transform 0.3s;';
+      testDiv.textContent = 'ALEX';
+      testDiv.onmouseenter = function() { this.style.transform = 'scale(1.1)'; };
+      testDiv.onmouseleave = function() { this.style.transform = 'scale(1)'; };
+      testDiv.onclick = function() { 
+        var chatFab = document.querySelector('.alex-fab');
+        if (chatFab) chatFab.click();
+      };
       document.body.appendChild(testDiv);
-      console.log('Test div added:', testDiv);
-      console.log('Test div in DOM:', document.getElementById('alex-test'));
+      console.log('Alex added to bottom-right');
     });
     </script>
-    <script defer src="alex/alex.js?v=1"></script>
+    <script defer src="alex/alex.js?v=2"></script>
 
     <!-- Alex AI Chatbot -->
     <link rel="stylesheet" href="chatbot/chatbot.css">
