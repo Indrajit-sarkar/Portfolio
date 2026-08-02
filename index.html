@@ -977,9 +977,9 @@
           education: 'laptop',
           experience: 'focused',
           projects: 'typing',
-          skills: 'laptop',
+          skills: 'sitting',
           certifications: 'excited',
-          achievements: 'excited',
+          achievements: 'surprised',
           volunteer: 'help',
           contact: 'waving',
           hobbies: 'gaming'
@@ -992,6 +992,8 @@
           this.setupChatbotIntegration();
           this.startIdleSystem();
           this.setupTouchSupport();
+          this.setupProjectCardInteractions();
+          this.setupSkillsInteractions();
         },
         
         createElement: function() {
@@ -1036,18 +1038,30 @@
         
         setupHoverEffects: function() {
           var self = this;
-          var hoverRegions = [
-            { selector: '#alex-companion', top: 0, bottom: 30, action: 'sleeping' },
-            { selector: '#alex-companion', top: 30, bottom: 110, action: 'excited' }
-          ];
+          var hoverStates = ['sleeping', 'excited', 'surprised', 'relaxing'];
+          var currentHoverIndex = 0;
+          var hoverChangeTimer = null;
           
           this.element.addEventListener('mouseenter', function() {
             self.isHovering = true;
             self.resetIdleTimer();
+            currentHoverIndex = 0;
+            
+            // Cycle through hover states
+            hoverChangeTimer = setInterval(function() {
+              if (self.isHovering) {
+                self.setImage(hoverStates[currentHoverIndex]);
+                currentHoverIndex = (currentHoverIndex + 1) % hoverStates.length;
+              }
+            }, 2000);
           });
           
           this.element.addEventListener('mouseleave', function() {
             self.isHovering = false;
+            if (hoverChangeTimer) {
+              clearInterval(hoverChangeTimer);
+              hoverChangeTimer = null;
+            }
             if (!self.isChatOpen) {
               self.setImage(self.sectionImages[self.currentSection] || 'idle');
             }
@@ -1058,32 +1072,53 @@
             
             var rect = self.element.getBoundingClientRect();
             var y = e.clientY - rect.top;
+            var x = e.clientX - rect.left;
             
-            if (y < 30) {
+            // Different poses based on mouse position
+            if (y < 25) {
               self.setImage('sleeping');
-            } else {
+            } else if (x < 35) {
+              self.setImage('surprised');
+            } else if (x > 65) {
               self.setImage('excited');
+            } else if (y > 80) {
+              self.setImage('relaxing');
             }
             
             self.resetIdleTimer();
+          });
+          
+          // Add click effects
+          this.element.addEventListener('dblclick', function() {
+            self.setImage('surprised');
+            setTimeout(function() {
+              self.setImage('excited');
+            }, 500);
           });
         },
         
         setupTouchSupport: function() {
           var self = this;
-          var touchStartY = 0;
+          var touchStates = ['excited', 'surprised', 'relaxing', 'gaming'];
+          var currentTouchIndex = 0;
           
           this.element.addEventListener('touchstart', function(e) {
             self.isHovering = true;
             self.resetIdleTimer();
             var touch = e.touches[0];
             var rect = self.element.getBoundingClientRect();
-            touchStartY = touch.clientY - rect.top;
+            var touchY = touch.clientY - rect.top;
+            var touchX = touch.clientX - rect.left;
             
-            if (touchStartY < 30) {
+            if (touchY < 25) {
               self.setImage('sleeping');
-            } else {
+            } else if (touchX < 35) {
+              self.setImage('surprised');
+            } else if (touchX > 65) {
               self.setImage('excited');
+            } else {
+              self.setImage(touchStates[currentTouchIndex]);
+              currentTouchIndex = (currentTouchIndex + 1) % touchStates.length;
             }
           }, { passive: true });
           
@@ -1093,7 +1128,22 @@
               if (!self.isChatOpen) {
                 self.setImage(self.sectionImages[self.currentSection] || 'idle');
               }
-            }, 500);
+            }, 800);
+          });
+          
+          // Long press for special animation
+          var longPressTimer;
+          this.element.addEventListener('touchstart', function() {
+            longPressTimer = setTimeout(function() {
+              self.setImage('relaxing');
+              setTimeout(function() {
+                self.setImage('gaming');
+              }, 600);
+            }, 1000);
+          });
+          
+          this.element.addEventListener('touchend', function() {
+            clearTimeout(longPressTimer);
           });
           
           document.addEventListener('touchmove', function() {
@@ -1164,27 +1214,43 @@
         
         startIdleSystem: function() {
           var self = this;
+          var idleSequence = ['idle', 'help', 'relaxing', 'walking', 'sitting'];
+          var idleIndex = 0;
           
           this.resetIdleTimer();
           
-          // Alternate between idle and help every 8 seconds when inactive
+          // Cycle through idle animations
           this.idleInterval = setInterval(function() {
             if (!self.isHovering && !self.isChatOpen) {
               var timeSinceActivity = Date.now() - self.lastActivity;
               
-              if (timeSinceActivity > 15000) {
-                // Show sleeping after 15s of inactivity
+              if (timeSinceActivity > 20000) {
+                // Sleeping after 20s
                 self.setImage('sleeping');
-              } else if (timeSinceActivity > 8000) {
-                // Alternate between idle and help after 8s
-                if (self.currentImage === self.images.idle) {
-                  self.setImage('help');
-                } else {
-                  self.setImage('idle');
-                }
+              } else if (timeSinceActivity > 10000) {
+                // Gaming mode after 10s
+                self.setImage('gaming');
+              } else if (timeSinceActivity > 6000) {
+                // Cycle through idle poses after 6s
+                self.setImage(idleSequence[idleIndex]);
+                idleIndex = (idleIndex + 1) % idleSequence.length;
               }
             }
-          }, 4000);
+          }, 3000);
+          
+          // Random surprise reactions
+          var surpriseInterval = setInterval(function() {
+            if (!self.isHovering && !self.isChatOpen && Math.random() > 0.85) {
+              var timeSinceActivity = Date.now() - self.lastActivity;
+              if (timeSinceActivity < 5000) {
+                var originalImage = self.currentImage;
+                self.setImage('surprised');
+                setTimeout(function() {
+                  self.setImage(self.sectionImages[self.currentSection] || 'idle');
+                }, 1200);
+              }
+            }
+          }, 15000);
           
           // Track activity
           ['mousemove', 'touchstart', 'scroll', 'keydown'].forEach(function(event) {
@@ -1214,6 +1280,79 @@
           if (chatFab) {
             chatFab.click();
           }
+        },
+        
+        setupProjectCardInteractions: function() {
+          var self = this;
+          
+          // React to project card hovers
+          setTimeout(function() {
+            var projectCards = document.querySelectorAll('.feat-slide, .proj-card, .exp-card');
+            
+            projectCards.forEach(function(card) {
+              card.addEventListener('mouseenter', function() {
+                if (!self.isChatOpen && !self.isHovering) {
+                  self.setImage('focused');
+                }
+              });
+              
+              card.addEventListener('mouseleave', function() {
+                if (!self.isChatOpen && !self.isHovering) {
+                  self.setImage(self.sectionImages[self.currentSection] || 'idle');
+                }
+              });
+            });
+            
+            // React to live demo button clicks
+            var demoButtons = document.querySelectorAll('a[href*="vercel"], a[href*="demo"]');
+            demoButtons.forEach(function(btn) {
+              btn.addEventListener('click', function() {
+                self.setImage('excited');
+                setTimeout(function() {
+                  self.setImage(self.sectionImages[self.currentSection] || 'idle');
+                }, 2000);
+              });
+            });
+          }, 2000);
+        },
+        
+        setupSkillsInteractions: function() {
+          var self = this;
+          
+          // React to skill card/chip hovers
+          setTimeout(function() {
+            var skillElements = document.querySelectorAll('.skill-card, .chip, .tag');
+            
+            skillElements.forEach(function(element) {
+              element.addEventListener('mouseenter', function() {
+                if (!self.isChatOpen && !self.isHovering && Math.random() > 0.7) {
+                  var reactions = ['typing', 'focused', 'laptop'];
+                  var randomReaction = reactions[Math.floor(Math.random() * reactions.length)];
+                  self.setImage(randomReaction);
+                }
+              });
+            });
+            
+            // React to contact form
+            var contactForm = document.querySelector('#contactForm, form');
+            if (contactForm) {
+              var formInputs = contactForm.querySelectorAll('input, textarea');
+              formInputs.forEach(function(input) {
+                input.addEventListener('focus', function() {
+                  if (!self.isChatOpen) {
+                    self.setImage('typing');
+                  }
+                });
+              });
+              
+              contactForm.addEventListener('submit', function() {
+                self.setImage('excited');
+                setTimeout(function() {
+                  self.setImage('waving');
+                }, 1500);
+              });
+            }
+          }, 2000);
         }
       };
       
