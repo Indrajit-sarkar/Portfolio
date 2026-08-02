@@ -163,29 +163,24 @@
     }
 
     enterScene() {
-      // Walk in from left
-      this.position.x = -150;
-      this.position.y = window.innerHeight - 150;
+      // Start visible on screen
+      this.position.x = 100;
+      this.position.y = window.innerHeight - 200;
+      this.target.x = 100;
+      this.target.y = window.innerHeight - 200;
       this.updatePosition();
       
-      console.log('Alex entering scene at:', this.position);
+      console.log('Alex entering scene at:', this.position, 'window height:', window.innerHeight);
+      console.log('Element:', this.element);
       
       setTimeout(() => {
-        this.setState('walking');
-        this.target.x = 200;
-        this.target.y = window.innerHeight - 150;
-        
-        console.log('Alex walking to:', this.target);
+        this.setState('wave');
+        this.showSpeech("Hi! I'm Alex.", 2000);
         
         setTimeout(() => {
-          this.setState('wave');
-          this.showSpeech("Hi! I'm Alex.", 2000);
-          
-          setTimeout(() => {
-            this.showSpeech('Need help exploring?', 3000, 'Ask Alex', () => this.openChat());
-            this.setState('idle');
-          }, 2500);
-        }, 2000);
+          this.showSpeech('Need help exploring?', 3000, 'Ask Alex', () => this.openChat());
+          this.setState('idle');
+        }, 2500);
       }, 500);
     }
 
