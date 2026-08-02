@@ -168,10 +168,14 @@
       this.position.y = window.innerHeight - 150;
       this.updatePosition();
       
+      console.log('Alex entering scene at:', this.position);
+      
       setTimeout(() => {
         this.setState('walking');
         this.target.x = 200;
         this.target.y = window.innerHeight - 150;
+        
+        console.log('Alex walking to:', this.target);
         
         setTimeout(() => {
           this.setState('wave');
@@ -452,8 +456,12 @@
 
   // Initialize when DOM is ready
   if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', () => new AlexCompanion());
+    document.addEventListener('DOMContentLoaded', () => {
+      console.log('Alex initializing...');
+      new AlexCompanion();
+    });
   } else {
+    console.log('Alex initializing immediately...');
     new AlexCompanion();
   }
 })();
