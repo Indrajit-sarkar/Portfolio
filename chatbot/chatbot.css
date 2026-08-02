@@ -6,47 +6,7 @@
 
 /* ── Floating Action Button ─────────────────────────────── */
 .alex-fab {
-  position: fixed;
-  bottom: 24px;
-  right: 24px;
-  width: 56px;
-  height: 56px;
-  border-radius: 50%;
-  border: 1px solid var(--lg-line);
-  background: var(--lg-fill);
-  backdrop-filter: var(--lg-blur);
-  -webkit-backdrop-filter: var(--lg-blur);
-  box-shadow: var(--lg-inset), var(--shadow);
-  z-index: 500;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  color: var(--ink);
-  transition: transform 0.3s var(--spring), box-shadow 0.3s var(--ease);
-  outline: none;
-  animation: alex-pulse 3s infinite 2s;
-  padding: 0;
-}
-
-.alex-fab svg { width: 26px; height: 26px; }
-
-.alex-fab:hover {
-  transform: scale(1.1);
-  box-shadow: 0 8px 24px -8px rgba(139, 92, 246, 0.45), var(--lg-inset), var(--shadow);
-}
-.alex-fab:active { transform: scale(0.92); }
-.alex-fab:focus-visible {
-  outline: 2px solid var(--violet);
-  outline-offset: 4px;
-}
-
-.alex-fab[aria-expanded="true"] { animation: none; }
-
-@keyframes alex-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0.4), var(--lg-inset), var(--shadow); }
-  70%  { box-shadow: 0 0 0 14px rgba(139, 92, 246, 0),  var(--lg-inset), var(--shadow); }
-  100% { box-shadow: 0 0 0 0 rgba(139, 92, 246, 0),  var(--lg-inset), var(--shadow); }
+  display: none !important; /* Hidden - Alex triggers chat instead */
 }
 
 /* ── Chat Panel ─────────────────────────────────────────── */
