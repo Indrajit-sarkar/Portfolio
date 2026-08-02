@@ -908,51 +908,324 @@
       height: 110px;
       z-index: 9999;
       cursor: pointer;
-      transition: transform 0.3s ease;
+      transition: transform 0.3s ease, bottom 0.3s ease;
       animation: alex-float 3s ease-in-out infinite;
     }
     #alex-companion:hover {
       transform: scale(1.1);
-      animation: alex-float 3s ease-in-out infinite, alex-bounce 0.6s ease;
+    }
+    #alex-companion.mobile-shifted {
+      bottom: 110px;
     }
     @keyframes alex-float {
       0%, 100% { transform: translateY(0px); }
       50% { transform: translateY(-8px); }
-    }
-    @keyframes alex-bounce {
-      0%, 100% { transform: scale(1.1); }
-      50% { transform: scale(1.15); }
     }
     .alex-character-img {
       width: 100%;
       height: 100%;
       object-fit: contain;
       filter: drop-shadow(0 8px 24px rgba(102, 126, 234, 0.4));
+      transition: opacity 0.3s ease;
     }
     @media (max-width: 768px) {
       #alex-companion {
-        bottom: 90px;
-        right: 20px;
         width: 80px;
         height: 88px;
       }
     }
+    @media (max-width: 720px) {
+      #alex-companion {
+        bottom: 110px;
+        right: 20px;
+      }
+    }
     </style>
     <script>
-    window.addEventListener('DOMContentLoaded', function() {
-      var alex = document.createElement('div');
-      alex.id = 'alex-companion';
-      alex.title = 'Click to chat with Alex!';
-      alex.innerHTML = '<img src="assets/alex/alex-sprite.png" alt="Alex AI Companion" class="alex-character-img" />';
-      alex.onclick = function() { 
-        var chatFab = document.querySelector('.alex-fab');
-        if (chatFab) {
-          chatFab.click();
+    (function() {
+      'use strict';
+      
+      var AlexCompanion = {
+        currentImage: 'Alex Idle.png',
+        currentSection: 'hero',
+        isHovering: false,
+        idleTimer: null,
+        idleInterval: null,
+        isChatOpen: false,
+        lastActivity: Date.now(),
+        
+        images: {
+          idle: 'Alex Idle.png',
+          help: 'Alex Help.png',
+          sleeping: 'Alex Sleeping.png',
+          excited: 'Alex Excited.png',
+          thinking: 'Alex Thinking.png',
+          explaining: 'Alex Explaining.png',
+          waving: 'Alex Waving.png',
+          walking: 'Alex Walking.png',
+          laptop: 'Alex Holding Laptop.png',
+          focused: 'Alex Focused.png',
+          typing: 'Alex Typing.png',
+          sitting: 'Alex Sitting.png',
+          gaming: 'Alex Gaming.png',
+          relaxing: 'Alex Relaxing.png',
+          surprised: 'Alex Suprised.png'
+        },
+        
+        sectionImages: {
+          hero: 'waving',
+          education: 'laptop',
+          experience: 'focused',
+          projects: 'typing',
+          skills: 'laptop',
+          certifications: 'excited',
+          achievements: 'excited',
+          volunteer: 'help',
+          contact: 'waving',
+          hobbies: 'gaming'
+        },
+        
+        init: function() {
+          this.createElement();
+          this.setupIntersectionObserver();
+          this.setupHoverEffects();
+          this.setupChatbotIntegration();
+          this.startIdleSystem();
+          this.setupTouchSupport();
+        },
+        
+        createElement: function() {
+          var alex = document.createElement('div');
+          alex.id = 'alex-companion';
+          alex.title = 'Click to chat with Alex!';
+          alex.innerHTML = '<img src="assets/alex/' + this.images.idle + '" alt="Alex AI Companion" class="alex-character-img" id="alex-img" />';
+          alex.addEventListener('click', this.openChat.bind(this));
+          document.body.appendChild(alex);
+          this.element = alex;
+          this.img = document.getElementById('alex-img');
+          console.log('Alex companion initialized');
+        },
+        
+        setImage: function(imageKey) {
+          if (this.images[imageKey] && this.images[imageKey] !== this.currentImage) {
+            this.currentImage = this.images[imageKey];
+            this.img.src = 'assets/alex/' + this.currentImage;
+          }
+        },
+        
+        setupIntersectionObserver: function() {
+          var self = this;
+          var sections = document.querySelectorAll('section[id], main[id]');
+          
+          var observer = new IntersectionObserver(function(entries) {
+            entries.forEach(function(entry) {
+              if (entry.isIntersecting && entry.intersectionRatio > 0.4) {
+                var sectionId = entry.target.id;
+                if (self.sectionImages[sectionId] && !self.isHovering && !self.isChatOpen) {
+                  self.currentSection = sectionId;
+                  self.setImage(self.sectionImages[sectionId]);
+                }
+              }
+            });
+          }, { threshold: [0.4] });
+          
+          sections.forEach(function(section) {
+            observer.observe(section);
+          });
+        },
+        
+        setupHoverEffects: function() {
+          var self = this;
+          var hoverRegions = [
+            { selector: '#alex-companion', top: 0, bottom: 30, action: 'sleeping' },
+            { selector: '#alex-companion', top: 30, bottom: 110, action: 'excited' }
+          ];
+          
+          this.element.addEventListener('mouseenter', function() {
+            self.isHovering = true;
+            self.resetIdleTimer();
+          });
+          
+          this.element.addEventListener('mouseleave', function() {
+            self.isHovering = false;
+            if (!self.isChatOpen) {
+              self.setImage(self.sectionImages[self.currentSection] || 'idle');
+            }
+          });
+          
+          this.element.addEventListener('mousemove', function(e) {
+            if (!self.isHovering) return;
+            
+            var rect = self.element.getBoundingClientRect();
+            var y = e.clientY - rect.top;
+            
+            if (y < 30) {
+              self.setImage('sleeping');
+            } else {
+              self.setImage('excited');
+            }
+            
+            self.resetIdleTimer();
+          });
+        },
+        
+        setupTouchSupport: function() {
+          var self = this;
+          var touchStartY = 0;
+          
+          this.element.addEventListener('touchstart', function(e) {
+            self.isHovering = true;
+            self.resetIdleTimer();
+            var touch = e.touches[0];
+            var rect = self.element.getBoundingClientRect();
+            touchStartY = touch.clientY - rect.top;
+            
+            if (touchStartY < 30) {
+              self.setImage('sleeping');
+            } else {
+              self.setImage('excited');
+            }
+          }, { passive: true });
+          
+          this.element.addEventListener('touchend', function() {
+            setTimeout(function() {
+              self.isHovering = false;
+              if (!self.isChatOpen) {
+                self.setImage(self.sectionImages[self.currentSection] || 'idle');
+              }
+            }, 500);
+          });
+          
+          document.addEventListener('touchmove', function() {
+            self.resetIdleTimer();
+          }, { passive: true });
+        },
+        
+        setupChatbotIntegration: function() {
+          var self = this;
+          
+          // Monitor chat panel
+          var checkChat = setInterval(function() {
+            var chatPanel = document.querySelector('.alex-panel');
+            if (chatPanel) {
+              var isOpen = chatPanel.classList.contains('is-open');
+              
+              if (isOpen !== self.isChatOpen) {
+                self.isChatOpen = isOpen;
+                
+                if (isOpen) {
+                  self.setImage('explaining');
+                  self.stopIdleSystem();
+                } else {
+                  self.setImage(self.sectionImages[self.currentSection] || 'idle');
+                  self.startIdleSystem();
+                }
+              }
+              
+              // Detect typing in chat
+              var chatInput = document.querySelector('.alex-input');
+              if (chatInput && isOpen) {
+                chatInput.addEventListener('input', function() {
+                  if (this.value.length > 0) {
+                    self.setImage('thinking');
+                  } else {
+                    self.setImage('explaining');
+                  }
+                });
+              }
+            }
+          }, 500);
+          
+          // Monitor for bot responses (when typing indicator appears)
+          var observer = new MutationObserver(function(mutations) {
+            mutations.forEach(function(mutation) {
+              if (mutation.addedNodes.length) {
+                mutation.addedNodes.forEach(function(node) {
+                  if (node.className && node.className.includes('alex-typing')) {
+                    self.setImage('thinking');
+                  }
+                  if (node.className && node.className.includes('alex-msg--bot')) {
+                    setTimeout(function() {
+                      self.setImage('explaining');
+                    }, 300);
+                  }
+                });
+              }
+            });
+          });
+          
+          setTimeout(function() {
+            var chatBody = document.querySelector('.alex-body');
+            if (chatBody) {
+              observer.observe(chatBody, { childList: true, subtree: true });
+            }
+          }, 1000);
+        },
+        
+        startIdleSystem: function() {
+          var self = this;
+          
+          this.resetIdleTimer();
+          
+          // Alternate between idle and help every 8 seconds when inactive
+          this.idleInterval = setInterval(function() {
+            if (!self.isHovering && !self.isChatOpen) {
+              var timeSinceActivity = Date.now() - self.lastActivity;
+              
+              if (timeSinceActivity > 15000) {
+                // Show sleeping after 15s of inactivity
+                self.setImage('sleeping');
+              } else if (timeSinceActivity > 8000) {
+                // Alternate between idle and help after 8s
+                if (self.currentImage === self.images.idle) {
+                  self.setImage('help');
+                } else {
+                  self.setImage('idle');
+                }
+              }
+            }
+          }, 4000);
+          
+          // Track activity
+          ['mousemove', 'touchstart', 'scroll', 'keydown'].forEach(function(event) {
+            document.addEventListener(event, function() {
+              self.resetIdleTimer();
+            }, { passive: true });
+          });
+        },
+        
+        stopIdleSystem: function() {
+          if (this.idleInterval) {
+            clearInterval(this.idleInterval);
+            this.idleInterval = null;
+          }
+        },
+        
+        resetIdleTimer: function() {
+          this.lastActivity = Date.now();
+          
+          if (!this.isHovering && !this.isChatOpen) {
+            this.setImage(this.sectionImages[this.currentSection] || 'idle');
+          }
+        },
+        
+        openChat: function() {
+          var chatFab = document.querySelector('.alex-fab');
+          if (chatFab) {
+            chatFab.click();
+          }
         }
       };
-      document.body.appendChild(alex);
-      console.log('Alex companion loaded with character image');
-    });
+      
+      // Initialize when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          AlexCompanion.init();
+        });
+      } else {
+        AlexCompanion.init();
+      }
+    })();
     </script>
 
     <!-- Alex AI Chatbot -->
