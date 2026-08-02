@@ -899,27 +899,115 @@
     <script defer src="script.js?v=3"></script>
 
     <!-- Alex AI Companion -->
-    <link rel="stylesheet" href="alex/alex.css?v=2">
+    <style>
+    #alex-companion {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      width: 90px;
+      height: 100px;
+      z-index: 9999;
+      cursor: pointer;
+      transition: transform 0.3s;
+    }
+    #alex-companion:hover {
+      transform: scale(1.1);
+    }
+    .alex-avatar {
+      width: 90px;
+      height: 100px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 45px 45px 50px 50px;
+      position: relative;
+      box-shadow: 0 8px 32px rgba(102, 126, 234, 0.4);
+      animation: alex-float 3s ease-in-out infinite;
+    }
+    @keyframes alex-float {
+      0%, 100% { transform: translateY(0px); }
+      50% { transform: translateY(-8px); }
+    }
+    .alex-face {
+      position: absolute;
+      top: 25px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 60px;
+      height: 50px;
+    }
+    .alex-eyes {
+      display: flex;
+      justify-content: space-around;
+      margin-bottom: 8px;
+    }
+    .alex-eye {
+      width: 12px;
+      height: 12px;
+      background: white;
+      border-radius: 50%;
+      position: relative;
+      animation: alex-blink 4s infinite;
+    }
+    .alex-eye::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      background: #1a1a2e;
+      border-radius: 50%;
+      top: 3px;
+      left: 3px;
+    }
+    @keyframes alex-blink {
+      0%, 48%, 52%, 100% { height: 12px; }
+      50% { height: 2px; }
+    }
+    .alex-mouth {
+      width: 20px;
+      height: 10px;
+      border-bottom: 3px solid white;
+      border-radius: 0 0 20px 20px;
+      margin: 0 auto;
+    }
+    .alex-badge {
+      position: absolute;
+      bottom: 8px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.9);
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      color: #667eea;
+    }
+    @media (max-width: 768px) {
+      #alex-companion {
+        bottom: 90px;
+        right: 20px;
+        width: 70px;
+        height: 80px;
+      }
+      .alex-avatar {
+        width: 70px;
+        height: 80px;
+      }
+    }
+    </style>
     <script>
-    // Immediate test
-    console.log('INLINE SCRIPT RUNNING');
     window.addEventListener('DOMContentLoaded', function() {
-      console.log('DOM LOADED - Creating Alex');
-      var testDiv = document.createElement('div');
-      testDiv.id = 'alex-test';
-      testDiv.style.cssText = 'position:fixed;bottom:24px;right:24px;width:100px;height:110px;background:linear-gradient(135deg,#667eea,#764ba2);border:3px solid rgba(255,255,255,0.3);z-index:9999;display:flex;align-items:center;justify-content:center;color:white;font-size:14px;font-weight:bold;border-radius:20px;box-shadow:0 8px 32px rgba(0,0,0,0.4);cursor:pointer;transition:transform 0.3s;';
-      testDiv.textContent = 'ALEX';
-      testDiv.onmouseenter = function() { this.style.transform = 'scale(1.1)'; };
-      testDiv.onmouseleave = function() { this.style.transform = 'scale(1)'; };
-      testDiv.onclick = function() { 
+      var alex = document.createElement('div');
+      alex.id = 'alex-companion';
+      alex.innerHTML = '<div class="alex-avatar"><div class="alex-face"><div class="alex-eyes"><div class="alex-eye"></div><div class="alex-eye"></div></div><div class="alex-mouth"></div></div><div class="alex-badge">AI</div></div>';
+      alex.onclick = function() { 
         var chatFab = document.querySelector('.alex-fab');
-        if (chatFab) chatFab.click();
+        if (chatFab) {
+          chatFab.click();
+        }
       };
-      document.body.appendChild(testDiv);
-      console.log('Alex added to bottom-right');
+      document.body.appendChild(alex);
+      console.log('Alex companion loaded');
     });
     </script>
-    <script defer src="alex/alex.js?v=2"></script>
 
     <!-- Alex AI Chatbot -->
     <link rel="stylesheet" href="chatbot/chatbot.css">
