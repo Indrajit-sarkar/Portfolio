@@ -25,102 +25,52 @@
     init() {
       this.createDOM();
       this.setupEventListeners();
-      this.startAnimationLoop();
-      this.observeSections();
       this.enterScene();
+      console.log('Alex fully initialized');
     }
 
     createDOM() {
       const container = document.createElement('div');
       container.id = 'alex-companion';
-      container.innerHTML = `
-        <div class="alex-character">
-          <div class="alex-body">
-            <div class="alex-head">
-              <div class="alex-hair"></div>
-              <div class="alex-glasses">
-                <div class="alex-glass"></div>
-                <div class="alex-glass"></div>
-              </div>
-              <div class="alex-eyes">
-                <div class="alex-eye"></div>
-                <div class="alex-eye"></div>
-              </div>
-              <div class="alex-mouth"></div>
-            </div>
-            <div class="alex-torso">
-              <div class="alex-hoodie"></div>
-            </div>
-            <div class="alex-backpack"></div>
-            <div class="alex-arms">
-              <div class="alex-arm alex-arm-left"></div>
-              <div class="alex-arm alex-arm-right"></div>
-            </div>
-            <div class="alex-legs">
-              <div class="alex-leg"></div>
-              <div class="alex-leg"></div>
-            </div>
-            <div class="alex-shoes">
-              <div class="alex-shoe"></div>
-              <div class="alex-shoe"></div>
-            </div>
-            <div class="alex-laptop">
-              <div class="alex-laptop-screen"></div>
-              <div class="alex-laptop-base"></div>
-            </div>
-          </div>
-          <div class="alex-robot">
-            <div class="alex-robot-antenna"></div>
-            <div class="alex-robot-body">
-              <div class="alex-robot-eyes">
-                <div class="alex-robot-eye"></div>
-                <div class="alex-robot-eye"></div>
-              </div>
-            </div>
-          </div>
-          <div class="alex-speech">
-            <div class="alex-speech-text"></div>
-          </div>
-          <div class="alex-zzz">Zzz</div>
-        </div>
+      container.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 200px;
+        height: 200px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: 5px solid #fff;
+        border-radius: 20px;
+        z-index: 999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        color: white;
+        font-weight: bold;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        cursor: pointer;
       `;
+      container.textContent = 'ALEX';
       
       document.body.appendChild(container);
       this.element = container;
-      this.character = container.querySelector('.alex-character');
-      this.speech = container.querySelector('.alex-speech');
-      this.speechText = container.querySelector('.alex-speech-text');
-      this.zzz = container.querySelector('.alex-zzz');
+      console.log('Alex element created and appended:', container);
+      console.log('Element in DOM:', document.getElementById('alex-companion'));
     }
 
     setupEventListeners() {
       // Character click
-      this.character.addEventListener('click', () => this.handleClick());
+      this.element.addEventListener('click', () => {
+        alert('Alex clicked!');
+        this.handleClick();
+      });
       
       // Mouse tracking
       document.addEventListener('mousemove', (e) => {
         this.mousePos = { x: e.clientX, y: e.clientY };
         this.resetIdleTimer();
-      });
-      
-      // Konami code
-      document.addEventListener('keydown', (e) => this.handleKonami(e));
-      
-      // Visibility change
-      document.addEventListener('visibilitychange', () => {
-        this.isVisible = !document.hidden;
-      });
-      
-      // Scroll detection
-      let scrollTimeout;
-      window.addEventListener('scroll', () => {
-        clearTimeout(scrollTimeout);
-        this.setState('walking');
-        scrollTimeout = setTimeout(() => {
-          if (this.state === 'walking') {
-            this.setState('idle');
-          }
-        }, 500);
       });
     }
 
@@ -163,25 +113,7 @@
     }
 
     enterScene() {
-      // Start visible on screen
-      this.position.x = 100;
-      this.position.y = window.innerHeight - 200;
-      this.target.x = 100;
-      this.target.y = window.innerHeight - 200;
-      this.updatePosition();
-      
-      console.log('Alex entering scene at:', this.position, 'window height:', window.innerHeight);
-      console.log('Element:', this.element);
-      
-      setTimeout(() => {
-        this.setState('wave');
-        this.showSpeech("Hi! I'm Alex.", 2000);
-        
-        setTimeout(() => {
-          this.showSpeech('Need help exploring?', 3000, 'Ask Alex', () => this.openChat());
-          this.setState('idle');
-        }, 2500);
-      }, 500);
+      console.log('Alex entering scene - element should be visible in center');
     }
 
     observeSections() {
