@@ -10,12 +10,15 @@
   pointer-events: none;
   transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   will-change: transform;
-  visibility: visible;
-  opacity: 1;
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+  background: rgba(255, 0, 0, 0.3); /* DEBUG: Red background */
 }
 
 #alex-companion * {
   pointer-events: auto;
+  visibility: visible !important;
 }
 
 .alex-character {
@@ -24,6 +27,7 @@
   height: 100%;
   transform-origin: bottom center;
   cursor: pointer;
+  background: rgba(0, 255, 0, 0.3); /* DEBUG: Green background */
 }
 
 /* ── Character Body ─────────────────────────────────────── */
