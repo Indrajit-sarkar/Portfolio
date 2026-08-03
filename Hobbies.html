@@ -458,8 +458,8 @@
                 this.dino = {
                     x: 50,
                     y: 0,
-                    width: 44,
-                    height: 48,
+                    width: 56,  // 28 pixels * 2 scale
+                    height: 52, // 26 pixels * 2 scale
                     velocityY: 0,
                     isJumping: false,
                     jumpStrength: -12,
@@ -539,9 +539,9 @@
                     const isTall = Math.random() > 0.5;
                     this.obstacles.push({
                         x: this.width,
-                        y: this.ground.y - (isTall ? 50 : 30),
-                        width: 20,
-                        height: isTall ? 50 : 30
+                        y: this.ground.y - (isTall ? 50 : 32),
+                        width: 24,
+                        height: isTall ? 50 : 32
                     });
                     this.obstacleInterval = 70 + Math.random() * 40;
                 }
@@ -553,59 +553,112 @@
                 });
             }
 
+            drawDino() {
+                const d = this.dino;
+                const s = 2; // scale factor for pixel art
+                const legAnim = Math.floor(this.frameCount / 6) % 2;
+                
+                this.ctx.fillStyle = this.colors.fg;
+                
+                // T-Rex pixel art (based on Chrome dino game)
+                // Head
+                this.ctx.fillRect(d.x + 22*s, d.y + 0*s, 4*s, 2*s);
+                this.ctx.fillRect(d.x + 20*s, d.y + 2*s, 6*s, 2*s);
+                this.ctx.fillRect(d.x + 18*s, d.y + 4*s, 8*s, 4*s);
+                this.ctx.fillRect(d.x + 18*s, d.y + 8*s, 10*s, 2*s);
+                
+                // Eye
+                this.ctx.fillStyle = this.colors.bg;
+                this.ctx.fillRect(d.x + 24*s, d.y + 4*s, 2*s, 2*s);
+                this.ctx.fillStyle = this.colors.fg;
+                
+                // Mouth
+                this.ctx.fillRect(d.x + 28*s, d.y + 8*s, 2*s, 2*s);
+                
+                // Neck
+                this.ctx.fillRect(d.x + 16*s, d.y + 10*s, 4*s, 2*s);
+                
+                // Body
+                this.ctx.fillRect(d.x + 6*s, d.y + 12*s, 14*s, 8*s);
+                
+                // Tail
+                this.ctx.fillRect(d.x + 0*s, d.y + 12*s, 6*s, 4*s);
+                this.ctx.fillRect(d.x + 2*s, d.y + 16*s, 4*s, 2*s);
+                
+                // Arms
+                this.ctx.fillRect(d.x + 16*s, d.y + 14*s, 2*s, 4*s);
+                
+                // Legs (animated walking)
+                if (d.isJumping) {
+                    // Both legs bent when jumping
+                    this.ctx.fillRect(d.x + 8*s, d.y + 20*s, 2*s, 2*s);
+                    this.ctx.fillRect(d.x + 10*s, d.y + 22*s, 2*s, 2*s);
+                    this.ctx.fillRect(d.x + 14*s, d.y + 20*s, 2*s, 2*s);
+                    this.ctx.fillRect(d.x + 12*s, d.y + 22*s, 2*s, 2*s);
+                } else {
+                    if (legAnim === 0) {
+                        // Left leg forward
+                        this.ctx.fillRect(d.x + 8*s, d.y + 20*s, 2*s, 4*s);
+                        this.ctx.fillRect(d.x + 8*s, d.y + 24*s, 4*s, 2*s);
+                        // Right leg back
+                        this.ctx.fillRect(d.x + 14*s, d.y + 20*s, 2*s, 2*s);
+                        this.ctx.fillRect(d.x + 14*s, d.y + 22*s, 4*s, 2*s);
+                    } else {
+                        // Right leg forward
+                        this.ctx.fillRect(d.x + 14*s, d.y + 20*s, 2*s, 4*s);
+                        this.ctx.fillRect(d.x + 12*s, d.y + 24*s, 4*s, 2*s);
+                        // Left leg back
+                        this.ctx.fillRect(d.x + 8*s, d.y + 20*s, 2*s, 2*s);
+                        this.ctx.fillRect(d.x + 6*s, d.y + 22*s, 4*s, 2*s);
+                    }
+                }
+            }
+
+            drawCactus(obs) {
+                const s = 2; // scale factor
+                this.ctx.fillStyle = this.colors.fg;
+                
+                if (obs.height > 40) {
+                    // Tall cactus with arms
+                    // Main trunk
+                    this.ctx.fillRect(obs.x + 4*s, obs.y, 4*s, obs.height);
+                    // Left arm
+                    this.ctx.fillRect(obs.x + 0*s, obs.y + 10*s, 4*s, 8*s);
+                    this.ctx.fillRect(obs.x + 0*s, obs.y + 10*s, 6*s, 4*s);
+                    // Right arm
+                    this.ctx.fillRect(obs.x + 8*s, obs.y + 16*s, 4*s, 8*s);
+                    this.ctx.fillRect(obs.x + 6*s, obs.y + 16*s, 6*s, 4*s);
+                } else {
+                    // Small cactus
+                    // Main trunk
+                    this.ctx.fillRect(obs.x + 4*s, obs.y, 4*s, obs.height);
+                    // Left arm
+                    this.ctx.fillRect(obs.x + 0*s, obs.y + 8*s, 4*s, 6*s);
+                    this.ctx.fillRect(obs.x + 0*s, obs.y + 8*s, 6*s, 4*s);
+                    // Right arm  
+                    this.ctx.fillRect(obs.x + 8*s, obs.y + 10*s, 4*s, 6*s);
+                    this.ctx.fillRect(obs.x + 6*s, obs.y + 10*s, 6*s, 4*s);
+                }
+            }
+
             draw() {
                 // Clear
                 this.ctx.fillStyle = this.colors.bg;
                 this.ctx.fillRect(0, 0, this.width, this.height);
 
-                // Ground line
+                // Ground line (dashed like Chrome dino)
                 this.ctx.fillStyle = this.colors.ground;
-                this.ctx.fillRect(0, this.ground.y, this.width, this.ground.height);
-
-                // Draw dino
-                this.ctx.fillStyle = this.colors.fg;
-                const d = this.dino;
-                
-                // Head
-                this.ctx.fillRect(d.x + 28, d.y + 2, 16, 14);
-                this.ctx.fillRect(d.x + 42, d.y + 6, 6, 8);
-                
-                // Eye
-                this.ctx.fillStyle = this.colors.bg;
-                this.ctx.fillRect(d.x + 36, d.y + 6, 4, 4);
-                this.ctx.fillStyle = this.colors.fg;
-                
-                // Body
-                this.ctx.fillRect(d.x + 6, d.y + 16, 26, 20);
-                this.ctx.fillRect(d.x, d.y + 20, 8, 12);
-                
-                // Arms
-                this.ctx.fillRect(d.x + 24, d.y + 20, 4, 8);
-                
-                // Legs (animated)
-                const legAnim = Math.floor(this.frameCount / 6) % 2;
-                if (d.isJumping) {
-                    this.ctx.fillRect(d.x + 10, d.y + 36, 6, 12);
-                    this.ctx.fillRect(d.x + 20, d.y + 36, 6, 12);
-                } else {
-                    if (legAnim === 0) {
-                        this.ctx.fillRect(d.x + 10, d.y + 36, 6, 12);
-                        this.ctx.fillRect(d.x + 20, d.y + 38, 6, 10);
-                    } else {
-                        this.ctx.fillRect(d.x + 20, d.y + 36, 6, 12);
-                        this.ctx.fillRect(d.x + 10, d.y + 38, 6, 10);
-                    }
+                const dashWidth = 10;
+                const dashGap = 10;
+                for (let x = 0; x < this.width; x += dashWidth + dashGap) {
+                    this.ctx.fillRect(x - (this.frameCount * 2) % (dashWidth + dashGap), this.ground.y, dashWidth, 2);
                 }
 
+                // Draw dinosaur
+                this.drawDino();
+
                 // Draw obstacles (cacti)
-                this.obstacles.forEach(obs => {
-                    this.ctx.fillRect(obs.x + 6, obs.y, 12, obs.height);
-                    if (obs.height > 40) {
-                        this.ctx.fillRect(obs.x, obs.y + 20, 8, 16);
-                    } else {
-                        this.ctx.fillRect(obs.x, obs.y + 12, 8, 12);
-                    }
-                });
+                this.obstacles.forEach(obs => this.drawCactus(obs));
             }
 
             start() {
