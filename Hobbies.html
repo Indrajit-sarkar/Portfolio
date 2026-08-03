@@ -119,23 +119,21 @@
         }
         .hb-footer .btn { margin-bottom: 1.2rem; }
 
-        /* --- VoxelCraft Game Styles --- */
-        .voxel-game-container {
+        /* --- Game Preview (Dino demo) + VoxelCraft Fullscreen Styles --- */
+        .game-preview-container {
             position: relative;
-            background: #8ecae6;
+            background: var(--bg-0);
             display: flex;
             align-items: center;
             justify-content: center;
             overflow: hidden;
         }
-        .voxel-game-container iframe {
+        .game-preview-container canvas {
             width: 100%;
             height: 100%;
-            border: none;
             display: block;
-            pointer-events: none;
         }
-        .voxel-play-btn {
+        .game-play-btn {
             position: absolute;
             top: 50%;
             left: 50%;
@@ -156,19 +154,19 @@
             box-shadow: 0 8px 24px -4px rgba(139, 92, 246, 0.5);
             z-index: 10;
         }
-        .voxel-play-btn:hover {
+        .game-play-btn:hover {
             transform: translate(-50%, -50%) scale(1.05);
             box-shadow: 0 12px 32px -4px rgba(139, 92, 246, 0.6);
         }
-        .voxel-play-btn:active {
+        .game-play-btn:active {
             transform: translate(-50%, -50%) scale(0.98);
         }
-        .voxel-play-btn svg {
+        .game-play-btn svg {
             width: 20px;
             height: 20px;
         }
 
-        /* Fullscreen Game Modal */
+        /* VoxelCraft Fullscreen Modal */
         .voxel-fullscreen {
             position: fixed;
             inset: 0;
@@ -332,9 +330,9 @@
                         to keep trying until I succeed — skills that translate well into my professional life.
                     </p>
                 </div>
-                <div class="hobby-media voxel-game-container" id="voxelGameContainer">
-                    <iframe src="voxelcraft.html" title="VoxelCraft game preview" loading="lazy"></iframe>
-                    <button class="voxel-play-btn" id="voxelPlayBtn" aria-label="Play fullscreen">
+                <div class="hobby-media game-preview-container" id="gamePreviewContainer">
+                    <canvas id="dinoCanvas" aria-label="Gaming preview - dinosaur game demo"></canvas>
+                    <button class="game-play-btn" id="gamePlayBtn" aria-label="Play VoxelCraft fullscreen">
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                             <path d="M8 5v14l11-7z"/>
                         </svg>
@@ -436,14 +434,21 @@
                 move();
             }
 
-            // VoxelCraft Game Modal
-            const voxelPlayBtn = document.getElementById('voxelPlayBtn');
+            // Dinosaur Preview Game (demo mode, looping)
+            const demoCanvas = document.getElementById('dinoCanvas');
+            if (demoCanvas) {
+                const demoGame = new DinoPreviewGame(demoCanvas);
+                demoGame.start();
+            }
+
+            // VoxelCraft Game Modal (opens on Play Now button)
+            const gamePlayBtn = document.getElementById('gamePlayBtn');
             const voxelFullscreen = document.getElementById('voxelFullscreen');
             const voxelCloseBtn = document.getElementById('voxelCloseBtn');
             const voxelFullscreenIframe = document.getElementById('voxelFullscreenIframe');
 
-            if (voxelPlayBtn && voxelFullscreen && voxelCloseBtn) {
-                voxelPlayBtn.addEventListener('click', () => {
+            if (gamePlayBtn && voxelFullscreen && voxelCloseBtn) {
+                gamePlayBtn.addEventListener('click', () => {
                     voxelFullscreenIframe.src = 'voxelcraft.html';
                     voxelFullscreen.classList.add('active');
                     document.body.style.overflow = 'hidden';
@@ -463,6 +468,193 @@
                 });
             }
         })();
+    </script>
+
+    <!-- ---------- DINO PREVIEW GAME (for gaming section demo) ---------- -->
+    <script>
+        // Lightweight dinosaur game for preview/demo only
+        class DinoPreviewGame {
+            constructor(canvas) {
+                this.canvas = canvas;
+                this.ctx = canvas.getContext('2d');
+                this.running = false;
+                this.frameCount = 0;
+
+                // Get theme colors
+                const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                this.colors = {
+                    bg: isDark ? '#0a0a0f' : '#f5f5f7',
+                    fg: isDark ? '#f5f5f7' : '#0a0a0f',
+                    ground: isDark ? '#353545' : '#c0c0c8'
+                };
+
+                // Game objects
+                this.dino = {
+                    x: 50,
+                    y: 0,
+                    width: 44,
+                    height: 48,
+                    velocityY: 0,
+                    isJumping: false,
+                    jumpStrength: -12,
+                    gravity: 0.6
+                };
+
+                this.ground = { y: 0, height: 2 };
+                this.obstacles = [];
+                this.gameSpeed = 4;
+                this.obstacleTimer = 0;
+                this.obstacleInterval = 90;
+
+                this.resize();
+                window.addEventListener('resize', () => this.resize());
+
+                // Listen for theme changes
+                const observer = new MutationObserver(() => {
+                    const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+                    this.colors = {
+                        bg: isDark ? '#0a0a0f' : '#f5f5f7',
+                        fg: isDark ? '#f5f5f7' : '#0a0a0f',
+                        ground: isDark ? '#353545' : '#c0c0c8'
+                    };
+                });
+                observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
+            }
+
+            resize() {
+                const container = this.canvas.parentElement;
+                const dpr = window.devicePixelRatio || 1;
+                
+                this.canvas.width = container.clientWidth * dpr;
+                this.canvas.height = container.clientHeight * dpr;
+                this.canvas.style.width = container.clientWidth + 'px';
+                this.canvas.style.height = container.clientHeight + 'px';
+                
+                this.ctx.scale(dpr, dpr);
+                this.width = container.clientWidth;
+                this.height = container.clientHeight;
+
+                this.ground.y = this.height - 60;
+                this.dino.y = this.ground.y - this.dino.height;
+            }
+
+            autoJump() {
+                if (this.dino.isJumping) return;
+                const nearestObstacle = this.obstacles.find(obs => obs.x > this.dino.x);
+                if (nearestObstacle) {
+                    const distance = nearestObstacle.x - (this.dino.x + this.dino.width);
+                    if (distance < 120 && distance > 80) {
+                        this.dino.velocityY = this.dino.jumpStrength;
+                        this.dino.isJumping = true;
+                    }
+                }
+            }
+
+            update() {
+                this.frameCount++;
+
+                // Update dino physics
+                this.dino.velocityY += this.dino.gravity;
+                this.dino.y += this.dino.velocityY;
+
+                if (this.dino.y >= this.ground.y - this.dino.height) {
+                    this.dino.y = this.ground.y - this.dino.height;
+                    this.dino.velocityY = 0;
+                    this.dino.isJumping = false;
+                }
+
+                // Auto jump
+                this.autoJump();
+
+                // Spawn obstacles
+                this.obstacleTimer++;
+                if (this.obstacleTimer > this.obstacleInterval) {
+                    this.obstacleTimer = 0;
+                    const isTall = Math.random() > 0.5;
+                    this.obstacles.push({
+                        x: this.width,
+                        y: this.ground.y - (isTall ? 50 : 30),
+                        width: 20,
+                        height: isTall ? 50 : 30
+                    });
+                    this.obstacleInterval = 70 + Math.random() * 40;
+                }
+
+                // Move obstacles
+                this.obstacles = this.obstacles.filter(obs => {
+                    obs.x -= this.gameSpeed;
+                    return obs.x > -obs.width;
+                });
+            }
+
+            draw() {
+                // Clear
+                this.ctx.fillStyle = this.colors.bg;
+                this.ctx.fillRect(0, 0, this.width, this.height);
+
+                // Ground line
+                this.ctx.fillStyle = this.colors.ground;
+                this.ctx.fillRect(0, this.ground.y, this.width, this.ground.height);
+
+                // Draw dino
+                this.ctx.fillStyle = this.colors.fg;
+                const d = this.dino;
+                
+                // Head
+                this.ctx.fillRect(d.x + 28, d.y + 2, 16, 14);
+                this.ctx.fillRect(d.x + 42, d.y + 6, 6, 8);
+                
+                // Eye
+                this.ctx.fillStyle = this.colors.bg;
+                this.ctx.fillRect(d.x + 36, d.y + 6, 4, 4);
+                this.ctx.fillStyle = this.colors.fg;
+                
+                // Body
+                this.ctx.fillRect(d.x + 6, d.y + 16, 26, 20);
+                this.ctx.fillRect(d.x, d.y + 20, 8, 12);
+                
+                // Arms
+                this.ctx.fillRect(d.x + 24, d.y + 20, 4, 8);
+                
+                // Legs (animated)
+                const legAnim = Math.floor(this.frameCount / 6) % 2;
+                if (d.isJumping) {
+                    this.ctx.fillRect(d.x + 10, d.y + 36, 6, 12);
+                    this.ctx.fillRect(d.x + 20, d.y + 36, 6, 12);
+                } else {
+                    if (legAnim === 0) {
+                        this.ctx.fillRect(d.x + 10, d.y + 36, 6, 12);
+                        this.ctx.fillRect(d.x + 20, d.y + 38, 6, 10);
+                    } else {
+                        this.ctx.fillRect(d.x + 20, d.y + 36, 6, 12);
+                        this.ctx.fillRect(d.x + 10, d.y + 38, 6, 10);
+                    }
+                }
+
+                // Draw obstacles (cacti)
+                this.obstacles.forEach(obs => {
+                    this.ctx.fillRect(obs.x + 6, obs.y, 12, obs.height);
+                    if (obs.height > 40) {
+                        this.ctx.fillRect(obs.x, obs.y + 20, 8, 16);
+                    } else {
+                        this.ctx.fillRect(obs.x, obs.y + 12, 8, 12);
+                    }
+                });
+            }
+
+            start() {
+                if (this.running) return;
+                this.running = true;
+                this.loop();
+            }
+
+            loop() {
+                if (!this.running) return;
+                this.update();
+                this.draw();
+                requestAnimationFrame(() => this.loop());
+            }
+        }
     </script>
 
     <!-- ---------- 3D CAR (Three.js) ---------- -->
