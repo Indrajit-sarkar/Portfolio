@@ -433,40 +433,6 @@
                 addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(move); } }, { passive: true });
                 move();
             }
-
-            // Dinosaur Preview Game (demo mode, looping)
-            const demoCanvas = document.getElementById('dinoCanvas');
-            if (demoCanvas) {
-                const demoGame = new DinoPreviewGame(demoCanvas);
-                demoGame.start();
-            }
-
-            // VoxelCraft Game Modal (opens on Play Now button)
-            const gamePlayBtn = document.getElementById('gamePlayBtn');
-            const voxelFullscreen = document.getElementById('voxelFullscreen');
-            const voxelCloseBtn = document.getElementById('voxelCloseBtn');
-            const voxelFullscreenIframe = document.getElementById('voxelFullscreenIframe');
-
-            if (gamePlayBtn && voxelFullscreen && voxelCloseBtn) {
-                gamePlayBtn.addEventListener('click', () => {
-                    voxelFullscreenIframe.src = 'voxelcraft.html';
-                    voxelFullscreen.classList.add('active');
-                    document.body.style.overflow = 'hidden';
-                });
-
-                voxelCloseBtn.addEventListener('click', () => {
-                    voxelFullscreen.classList.remove('active');
-                    voxelFullscreenIframe.src = '';
-                    document.body.style.overflow = '';
-                });
-
-                // Close on Escape key
-                document.addEventListener('keydown', (e) => {
-                    if (e.key === 'Escape' && voxelFullscreen.classList.contains('active')) {
-                        voxelCloseBtn.click();
-                    }
-                });
-            }
         })();
     </script>
 
@@ -655,6 +621,47 @@
                 requestAnimationFrame(() => this.loop());
             }
         }
+
+        // Initialize dinosaur preview game when DOM is ready
+        document.addEventListener('DOMContentLoaded', () => {
+            const demoCanvas = document.getElementById('dinoCanvas');
+            if (demoCanvas) {
+                const demoGame = new DinoPreviewGame(demoCanvas);
+                demoGame.start();
+            }
+        });
+    </script>
+
+    <!-- ---------- VOXELCRAFT MODAL HANDLER ---------- -->
+    <script>
+        // VoxelCraft Game Modal (opens on Play Now button)
+        document.addEventListener('DOMContentLoaded', () => {
+            const gamePlayBtn = document.getElementById('gamePlayBtn');
+            const voxelFullscreen = document.getElementById('voxelFullscreen');
+            const voxelCloseBtn = document.getElementById('voxelCloseBtn');
+            const voxelFullscreenIframe = document.getElementById('voxelFullscreenIframe');
+
+            if (gamePlayBtn && voxelFullscreen && voxelCloseBtn) {
+                gamePlayBtn.addEventListener('click', () => {
+                    voxelFullscreenIframe.src = 'voxelcraft.html';
+                    voxelFullscreen.classList.add('active');
+                    document.body.style.overflow = 'hidden';
+                });
+
+                voxelCloseBtn.addEventListener('click', () => {
+                    voxelFullscreen.classList.remove('active');
+                    voxelFullscreenIframe.src = '';
+                    document.body.style.overflow = '';
+                });
+
+                // Close on Escape key
+                document.addEventListener('keydown', (e) => {
+                    if (e.key === 'Escape' && voxelFullscreen.classList.contains('active')) {
+                        voxelCloseBtn.click();
+                    }
+                });
+            }
+        });
     </script>
 
     <!-- ---------- 3D CAR (Three.js) ---------- -->
