@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="theme-color" content="#8ec7e0">
+    <title>Mini Militia — Doodle Combat</title>
+    <link rel="icon" href="assets/opt/logo-640.webp" type="image/webp">
+    <style>
+        *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            height: 100%;
+            overflow: hidden;
+            background: #0d1117;
+            font-family: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
+            -webkit-user-select: none; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: none;
+            overscroll-behavior: none;
+        }
+
+        #wrap { position: fixed; inset: 0; }
+        canvas { display: block; width: 100%; height: 100%; }
+
+        /* ---------- touch controls ---------- */
+        .pad { position: absolute; inset: 0; pointer-events: none; }
+        .pad.hide { display: none; }
+
+        .stick {
+            position: absolute; bottom: 5vh;
+            width: min(30vw, 150px); aspect-ratio: 1;
+            border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.55);
+            background: rgba(255, 255, 255, 0.1);
+            pointer-events: auto;
+        }
+        .stick.left { left: 3vw; }
+        .stick.right { right: 3vw; border-color: rgba(255, 190, 170, 0.6); background: rgba(255, 170, 150, 0.12); }
+        .knob {
+            position: absolute; left: 50%; top: 50%;
+            width: 46%; aspect-ratio: 1; border-radius: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.75);
+            pointer-events: none;
+        }
+        .stick.right .knob { background: rgba(255, 150, 120, 0.45); border-color: rgba(255, 190, 160, 0.8); }
+
+        .btn {
+            position: absolute; bottom: 7vh;
+            width: min(15vw, 74px); aspect-ratio: 1; border-radius: 50%;
+            border: 3px solid rgba(255, 255, 255, 0.5);
+            background: rgba(255, 255, 255, 0.12);
+            display: grid; place-items: center;
+            color: #fff; pointer-events: auto;
+            font-weight: 700; font-size: clamp(0.7rem, 2.4vw, 1rem);
+        }
+        .btn:active { background: rgba(255, 255, 255, 0.3); }
+        .btn small {
+            position: absolute; right: 12%; bottom: 8%;
+            font-size: 0.7em; opacity: 0.9;
+        }
+        #bNade { left: 36vw; }
+        #bMelee { right: 36vw; }
+        #bJet {
+            left: 22vw; bottom: 20vh;
+            width: min(13vw, 62px);
+            border-color: rgba(140, 200, 255, 0.6); background: rgba(140, 200, 255, 0.16);
+        }
+
+        /* ---------- overlays ---------- */
+        .screen {
+            position: absolute; inset: 0; z-index: 20;
+            display: grid; place-items: center;
+            background: rgba(9, 14, 20, 0.88);
+            backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+            color: #fff; text-align: center; padding: 1.5rem;
+        }
+        .screen.hide { display: none; }
+        .card { max-width: 30rem; }
+        .card h1 {
+            font-size: clamp(1.9rem, 7vw, 3.2rem); line-height: 1;
+            letter-spacing: -0.02em; text-transform: uppercase;
+            text-shadow: 3px 3px 0 #1b2a3a;
+        }
+        .card h1 span { color: #ffd166; }
+        .card p { margin-top: 0.9rem; opacity: 0.82; font-size: clamp(0.85rem, 2.6vw, 1rem); line-height: 1.55; }
+        .keys {
+            margin: 1.1rem auto 0; display: grid; gap: 0.35rem;
+            font-size: 0.8rem; opacity: 0.75; text-align: left; max-width: 22rem;
+        }
+        .keys b { color: #ffd166; }
+        .cta {
+            margin-top: 1.4rem; display: inline-flex; gap: 0.6rem; align-items: center;
+            padding: 0.85rem 1.7rem; border-radius: 99px; border: 0;
+            background: #ffd166; color: #21160a; cursor: pointer;
+            font: inherit; font-weight: 700; font-size: 1rem; text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        .cta:active { transform: scale(0.97); }
+        .exit {
+            position: absolute; top: 12px; right: 12px; z-index: 15;
+            width: 38px; height: 38px; border-radius: 50%;
+            border: 2px solid rgba(255, 255, 255, 0.5);
+            background: rgba(20, 28, 38, 0.55); color: #fff;
+            display: grid; place-items: center; cursor: pointer;
+            pointer-events: auto;
+        }
+        .stat { margin-top: 1rem; font-size: 1.05rem; }
+        .stat b { color: #ffd166; font-size: 1.5rem; }
+    </style>
+</head>
+
+<body>
+    <div id="wrap">
+        <canvas id="game"></canvas>
+
+        <div class="pad" id="pad">
+            <div class="stick left" id="sMove"><div class="knob" id="kMove"></div></div>
+            <div class="stick right" id="sAim"><div class="knob" id="kAim"></div></div>
+            <div class="btn" id="bJet">JET</div>
+            <div class="btn" id="bNade">💣<small id="nadeN">3</small></div>
+            <div class="btn" id="bMelee">✊</div>
+        </div>
+
+        <button class="exit" id="exit" aria-label="Exit game" title="Exit (Esc)">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M6 6l12 12M18 6L6 18" />
+            </svg>
+        </button>
+
+        <div class="screen" id="start">
+            <div class="card">
+                <h1>Mini <span>Militia</span></h1>
+                <p>Doodle-army deathmatch. Jetpack, shoot, and out-fly four bots.
+                   First to <b>15 kills</b> or best score when the clock runs out.</p>
+                <div class="keys" id="hintKeys">
+                    <div><b>A / D</b> or <b>←→</b> — move &nbsp;·&nbsp; <b>W / Space</b> — jetpack</div>
+                    <div><b>Mouse</b> — aim &nbsp;·&nbsp; <b>Click / hold</b> — fire</div>
+                    <div><b>1 2 3</b> — weapons &nbsp;·&nbsp; <b>R</b> — reload</div>
+                    <div><b>G</b> — grenade &nbsp;·&nbsp; <b>F</b> — melee &nbsp;·&nbsp; <b>Esc</b> — exit</div>
+                </div>
+                <button class="cta" id="btnStart">Deploy</button>
+            </div>
+        </div>
+
+        <div class="screen hide" id="over">
+            <div class="card">
+                <h1 id="overTitle">Match Over</h1>
+                <div class="stat">You <b id="fKills">0</b> &nbsp;—&nbsp; Bots <b id="fDeaths">0</b></div>
+                <p id="overMsg"></p>
+                <button class="cta" id="btnAgain">Rematch</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    (() => {
+        'use strict';
+
+        const cv = document.getElementById('game');
+        const ctx = cv.getContext('2d', { alpha: false });
+
+        // ---------- constants ----------
+        const W = 3200, H = 1400;           // world size
+        const GRAV = 1750;
+        const MOVE = 250, AIR = 190, FRICT = 0.86;
+        const JET_THRUST = 2450, JET_BURN = 34, JET_REGEN = 26;
+        const KILL_TARGET = 15, MATCH_TIME = 300;
+        const RESPAWN = 2.2;
+
+        const WEAPONS = {
+            rifle:   { name: 'Rifle',   dmg: 9,  rate: 0.10, spread: 0.045, mag: 30, res: 120, spd: 1050, pellets: 1, auto: true },
+            revolver:{ name: 'Revolver',dmg: 24, rate: 0.34, spread: 0.018, mag: 6,  res: 42,  spd: 1250, pellets: 1, auto: false },
+            shotgun: { name: 'Shotgun', dmg: 7,  rate: 0.72, spread: 0.17,  mag: 2,  res: 20,  spd: 900,  pellets: 5, auto: false }
+        };
+        const WKEYS = ['rifle', 'revolver', 'shotgun'];
+
+        // ---------- map ----------
+        // jungle arena: ground + floating grass ledges + rock pillars
+        const PLATS = [
+            { x: 0,    y: 1180, w: W,   h: 220, t: 'ground' },
+            { x: 260,  y: 980,  w: 420, h: 30,  t: 'grass' },
+            { x: 900,  y: 860,  w: 340, h: 30,  t: 'grass' },
+            { x: 1420, y: 1000, w: 380, h: 30,  t: 'grass' },
+            { x: 1960, y: 850,  w: 320, h: 30,  t: 'grass' },
+            { x: 2460, y: 990,  w: 420, h: 30,  t: 'grass' },
+            { x: 620,  y: 660,  w: 300, h: 28,  t: 'grass' },
+            { x: 1240, y: 590,  w: 360, h: 28,  t: 'grass' },
+            { x: 1880, y: 520,  w: 300, h: 28,  t: 'grass' },
+            { x: 2400, y: 630,  w: 320, h: 28,  t: 'grass' },
+            { x: 140,  y: 430,  w: 260, h: 26,  t: 'grass' },
+            { x: 2860, y: 470,  w: 280, h: 26,  t: 'grass' },
+            { x: 0,    y: 760,  w: 120, h: 420, t: 'rock' },
+            { x: 3080, y: 700,  w: 120, h: 480, t: 'rock' }
+        ];
+
+        // ---------- state ----------
+        let cam = { x: 0, y: 0 };
+        let ents = [], bullets = [], nades = [], parts = [], feed = [];
+        let running = false, over = false, tPrev = 0, clock = MATCH_TIME;
+        const keys = {};
+        let mouse = { x: 0, y: 0, down: false, inCanvas: false };
+        let touchMode = matchMedia('(pointer: coarse)').matches;
+
+        const rnd = (a, b) => a + Math.random() * (b - a);
+        const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
+
+        // ---------- entities ----------
+        function makeEnt(isBot, x, y, tint, name) {
+            return {
+                bot: isBot, name, tint,
+                x, y, vx: 0, vy: 0, w: 26, h: 40,
+                hp: 100, fuel: 100, ground: false, face: 1,
+                aim: 0, wp: 'rifle',
+                ammo: { rifle: 30, revolver: 6, shotgun: 2 },
+                res:  { rifle: 120, revolver: 42, shotgun: 20 },
+                cool: 0, reloading: 0, alive: true, respawn: 0,
+                nades: 3, nadeCool: 0, melee: 0, meleeCool: 0,
+                kills: 0, deaths: 0, jetting: false,
+                // bot ai
+                think: 0, strafe: 1, wantJet: 0, burst: 0, bAim: 0
+            };
+        }
+
+        function spawnPoint() {
+            const p = PLATS[Math.floor(rnd(1, PLATS.length - 2))];
+            return { x: p.x + p.w / 2, y: p.y - 60 };
+        }
+
+        function reset() {
+            ents = []; bullets = []; nades = []; parts = []; feed = [];
+            clock = MATCH_TIME; over = false;
+
+            const p = makeEnt(false, 300, 1100, '#2f6fd0', 'YOU');
+            ents.push(p);
+            const botNames = ['Kero_Pro', 'Sniper99', 'DoodleX', 'Rambo'];
+            const botTints = ['#c8622e', '#a8452f', '#c9873a', '#8f4b2a'];
+            for (let i = 0; i < 4; i++) {
+                const s = spawnPoint();
+                const b = makeEnt(true, s.x, s.y, botTints[i], botNames[i]);
+                b.wp = WKEYS[i % 3];
+                ents.push(b);
+            }
+        }
+        const player = () => ents[0];
+
+        function say(txt) {
+            feed.unshift({ txt, t: 4 });
+            if (feed.length > 4) feed.pop();
+        }
+
+        // ---------- physics ----------
+        function collide(e, dt) {
+            e.ground = false;
+
+            e.y += e.vy * dt;
+            for (const p of PLATS) {
+                if (e.x + e.w / 2 < p.x || e.x - e.w / 2 > p.x + p.w) continue;
+                const top = p.y, bot = p.y + p.h;
+                if (e.vy >= 0 && e.y + e.h / 2 > top && e.y + e.h / 2 < top + Math.max(28, e.vy * dt + 14)) {
+                    e.y = top - e.h / 2; e.vy = 0; e.ground = true;
+                } else if (e.vy < 0 && e.y - e.h / 2 < bot && e.y - e.h / 2 > bot - 30 && p.t !== 'grass') {
+                    e.y = bot + e.h / 2; e.vy = 0;
+                }
+            }
+
+            e.x += e.vx * dt;
+            for (const p of PLATS) {
+                if (p.t === 'grass') continue;
+                // Require real vertical overlap. Touching the top surface
+                // (feet == p.y) must NOT count, or standing on the world-wide
+                // ground slab reads as a wall hit and shoves the entity to its
+                // nearest edge — which parked everyone at the map's left wall.
+                const feet = e.y + e.h / 2, head = e.y - e.h / 2;
+                if (feet <= p.y + 3 || head >= p.y + p.h - 3) continue;
+                if (e.x + e.w / 2 > p.x && e.x - e.w / 2 < p.x + p.w) {
+                    const fromLeft = e.x < p.x + p.w / 2;
+                    e.x = fromLeft ? p.x - e.w / 2 : p.x + p.w + e.w / 2;
+                    e.vx = 0;
+                }
+            }
+            e.x = clamp(e.x, e.w / 2, W - e.w / 2);
+            if (e.y > H + 200) hurt(e, 999, null);
+        }
+
+        function los(a, b) {
+            // sample the segment; blocked by rock/ground only
+            const steps = 14;
+            for (let i = 1; i < steps; i++) {
+                const x = a.x + (b.x - a.x) * i / steps;
+                const y = a.y + (b.y - a.y) * i / steps;
+                for (const p of PLATS) {
+                    if (p.t === 'grass') continue;
+                    if (x > p.x && x < p.x + p.w && y > p.y && y < p.y + p.h) return false;
+                }
+            }
+            return true;
+        }
+
+        // ---------- combat ----------
+        function fire(e) {
+            const w = WEAPONS[e.wp];
+            if (e.cool > 0 || e.reloading > 0) return;
+            if (e.ammo[e.wp] <= 0) { reload(e); return; }
+            e.ammo[e.wp]--;
+            e.cool = w.rate;
+            const mx = e.x + Math.cos(e.aim) * 26, my = e.y - 4 + Math.sin(e.aim) * 26;
+            // bots hit softer and shoot looser, so four of them stay beatable
+            const dmg = e.bot ? w.dmg * 0.55 : w.dmg;
+            const spread = e.bot ? w.spread * 2.1 : w.spread;
+            for (let i = 0; i < w.pellets; i++) {
+                const a = e.aim + rnd(-spread, spread);
+                bullets.push({ x: mx, y: my, vx: Math.cos(a) * w.spd, vy: Math.sin(a) * w.spd, dmg, own: e, life: 1.5 });
+            }
+            for (let i = 0; i < 4; i++)
+                parts.push({ x: mx, y: my, vx: Math.cos(e.aim) * rnd(60, 240) + rnd(-40, 40), vy: Math.sin(e.aim) * rnd(60, 240) + rnd(-40, 40), life: 0.14, c: '#ffe08a', r: rnd(2, 4) });
+            e.vx -= Math.cos(e.aim) * (w.pellets > 1 ? 90 : 26);
+        }
+
+        function reload(e) {
+            const w = WEAPONS[e.wp];
+            if (e.reloading > 0 || e.ammo[e.wp] >= w.mag || e.res[e.wp] <= 0) return;
+            e.reloading = w.pellets > 1 ? 1.5 : 1.15;
+        }
+
+        function throwNade(e) {
+            if (e.nades <= 0 || e.nadeCool > 0) return;
+            e.nades--; e.nadeCool = 0.9;
+            nades.push({ x: e.x, y: e.y - 8, vx: Math.cos(e.aim) * 700 + e.vx * 0.4, vy: Math.sin(e.aim) * 700 - 120, fuse: 1.7, own: e });
+        }
+
+        function doMelee(e) {
+            if (e.meleeCool > 0) return;
+            e.meleeCool = 0.55; e.melee = 0.18;
+            for (const o of ents) {
+                if (o === e || !o.alive) continue;
+                if (Math.hypot(o.x - e.x, o.y - e.y) < 62 && Math.sign(o.x - e.x) === e.face) {
+                    hurt(o, 34, e);
+                    o.vx += e.face * 420; o.vy -= 220;
+                }
+            }
+        }
+
+        function hurt(t, dmg, src) {
+            if (!t.alive) return;
+            t.hp -= dmg;
+            for (let i = 0; i < 6; i++)
+                parts.push({ x: t.x, y: t.y, vx: rnd(-160, 160), vy: rnd(-220, 60), life: 0.4, c: '#e8524f', r: rnd(2, 4) });
+            if (t.hp <= 0) {
+                t.alive = false; t.respawn = RESPAWN; t.deaths++;
+                if (src && src !== t) { src.kills++; say(`${src.name} KILLED ${t.name}`); }
+                else say(`${t.name} died`);
+                for (let i = 0; i < 22; i++)
+                    parts.push({ x: t.x, y: t.y, vx: rnd(-320, 320), vy: rnd(-360, 120), life: rnd(0.4, 0.9), c: i % 2 ? '#e8524f' : '#f7b267', r: rnd(2, 5) });
+            }
+        }
+
+        function boom(x, y, own) {
+            for (let i = 0; i < 34; i++)
+                parts.push({ x, y, vx: rnd(-460, 460), vy: rnd(-460, 200), life: rnd(0.3, 0.8), c: i % 3 ? '#ffb03a' : '#ff6a3d', r: rnd(3, 7) });
+            for (const o of ents) {
+                if (!o.alive) continue;
+                const d = Math.hypot(o.x - x, o.y - y);
+                if (d < 170) {
+                    hurt(o, Math.round(62 * (1 - d / 170)), own);
+                    const a = Math.atan2(o.y - y, o.x - x);
+                    o.vx += Math.cos(a) * 380; o.vy += Math.sin(a) * 320 - 120;
+                }
+            }
+        }
+
+        // ---------- bot ai ----------
+        function botThink(b, dt) {
+            const p = player();
+            // pick nearest living enemy (player, or another bot if player is down)
+            let tgt = null, best = 1e9;
+            for (const o of ents) {
+                if (o === b || !o.alive) continue;
+                if (o.bot && b.bot && !(!p.alive)) continue;   // bots prefer the player
+                const d = Math.hypot(o.x - b.x, o.y - b.y);
+                if (d < best) { best = d; tgt = o; }
+            }
+            if (!tgt) { b.vx *= FRICT; return; }
+
+            b.think -= dt;
+            if (b.think <= 0) {
+                b.think = rnd(0.35, 0.9);
+                b.strafe = Math.random() < 0.5 ? -1 : 1;
+                b.wantJet = (tgt.y < b.y - 70 || Math.random() < 0.25) ? rnd(0.3, 0.9) : 0;
+                if (Math.random() < 0.18) throwNade(b);
+            }
+
+            const dx = tgt.x - b.x, dy = tgt.y - b.y;
+            const dist = Math.hypot(dx, dy);
+            const seen = los(b, tgt);
+
+            // aim with a little lag + inaccuracy so they're beatable
+            const want = Math.atan2(dy + tgt.vy * 0.06, dx + tgt.vx * 0.06);
+            b.bAim += Math.atan2(Math.sin(want - b.bAim), Math.cos(want - b.bAim)) * clamp(dt * 7, 0, 1);
+            b.aim = b.bAim + Math.sin(performance.now() / 300 + b.x) * 0.05;
+            b.face = Math.cos(b.aim) >= 0 ? 1 : -1;
+
+            // movement: close in, then strafe around
+            const ideal = 320;
+            let mv = 0;
+            if (dist > ideal + 60) mv = Math.sign(dx);
+            else if (dist < ideal - 120) mv = -Math.sign(dx);
+            else mv = b.strafe;
+            b.vx += mv * (b.ground ? MOVE : AIR) * dt * 6;
+
+            // jetpack
+            b.jetting = false;
+            if (b.wantJet > 0 && b.fuel > 12) { b.jetting = true; b.wantJet -= dt; }
+            if (!b.ground && b.vy > 420 && b.fuel > 20) b.jetting = true;  // don't fall to death
+
+            // trigger discipline: short bursts with a pause, so being shot at
+            // is survivable instead of an instant melt
+            b.burst -= dt;
+            if (b.burst < -0.8) b.burst = rnd(0.3, 0.55);
+
+            if (seen && dist < 900) {
+                if (b.ammo[b.wp] <= 0) reload(b);
+                else if (b.burst > 0 &&
+                         Math.abs(Math.atan2(Math.sin(want - b.aim), Math.cos(want - b.aim))) < 0.16) {
+                    if (WEAPONS[b.wp].auto) fire(b);
+                    else if (b.cool <= 0) fire(b);
+                }
+            } else if (b.ammo[b.wp] < WEAPONS[b.wp].mag) reload(b);
+
+            if (dist < 55) doMelee(b);
+        }
+
+        // ---------- update ----------
+        function step(dt) {
+            clock -= dt;
+            if (clock <= 0) return endMatch();
+
+            const p = player();
+
+            // ---- player input ----
+            if (p.alive) {
+                let mv = 0;
+                if (keys.a || keys.arrowleft) mv -= 1;
+                if (keys.d || keys.arrowright) mv += 1;
+                if (tmove.active) mv += tmove.x;
+                p.vx += clamp(mv, -1, 1) * (p.ground ? MOVE : AIR) * dt * 6;
+
+                p.jetting = !!(keys.w || keys[' '] || keys.arrowup || tjet || (tmove.active && tmove.y < -0.45));
+
+                if (taim.active) {
+                    p.aim = Math.atan2(taim.y, taim.x);
+                    if (taim.mag > 0.55) { if (WEAPONS[p.wp].auto || p.cool <= 0) fire(p); }
+                } else if (!touchMode) {
+                    p.aim = Math.atan2(mouse.y + cam.y - p.y + 4, mouse.x + cam.x - p.x);
+                    if (mouse.down) { if (WEAPONS[p.wp].auto || p.cool <= 0) fire(p); }
+                }
+                p.face = Math.cos(p.aim) >= 0 ? 1 : -1;
+            }
+
+            // ---- entities ----
+            for (const e of ents) {
+                if (!e.alive) {
+                    e.respawn -= dt;
+                    if (e.respawn <= 0) {
+                        const s = spawnPoint();
+                        e.x = s.x; e.y = s.y; e.vx = e.vy = 0;
+                        e.hp = 100; e.fuel = 100; e.alive = true;
+                        e.ammo = { rifle: 30, revolver: 6, shotgun: 2 };
+                        e.res = { rifle: 120, revolver: 42, shotgun: 20 };
+                        e.nades = 3; e.reloading = 0;
+                    }
+                    continue;
+                }
+
+                if (e.bot) botThink(e, dt);
+
+                // jetpack
+                if (e.jetting && e.fuel > 0) {
+                    e.vy -= JET_THRUST * dt;
+                    e.fuel = Math.max(0, e.fuel - JET_BURN * dt);
+                    parts.push({ x: e.x + rnd(-7, 7), y: e.y + 18, vx: rnd(-40, 40), vy: rnd(120, 300), life: 0.22, c: Math.random() < 0.5 ? '#ffb03a' : '#fff1c9', r: rnd(2, 4) });
+                } else if (e.ground) e.fuel = Math.min(100, e.fuel + JET_REGEN * dt);
+                else e.fuel = Math.min(100, e.fuel + JET_REGEN * 0.35 * dt);
+
+                e.vy += GRAV * dt;
+                e.vy = clamp(e.vy, -620, 1250);
+                if (e.ground) e.vx *= FRICT; else e.vx *= 0.985;
+                e.vx = clamp(e.vx, -520, 520);
+                collide(e, dt);
+
+                e.cool = Math.max(0, e.cool - dt);
+                e.nadeCool = Math.max(0, e.nadeCool - dt);
+                e.meleeCool = Math.max(0, e.meleeCool - dt);
+                e.melee = Math.max(0, e.melee - dt);
+                if (e.reloading > 0) {
+                    e.reloading -= dt;
+                    if (e.reloading <= 0) {
+                        const w = WEAPONS[e.wp], need = w.mag - e.ammo[e.wp];
+                        const got = Math.min(need, e.res[e.wp]);
+                        e.ammo[e.wp] += got; e.res[e.wp] -= got;
+                    }
+                }
+                if (e.kills >= KILL_TARGET) return endMatch();
+            }
+
+            // ---- bullets ----
+            for (let i = bullets.length - 1; i >= 0; i--) {
+                const b = bullets[i];
+                b.life -= dt;
+                const nx = b.x + b.vx * dt, ny = b.y + b.vy * dt;
+                let dead = b.life <= 0;
+
+                if (!dead) for (const p2 of PLATS) {
+                    if (p2.t === 'grass') continue;
+                    if (nx > p2.x && nx < p2.x + p2.w && ny > p2.y && ny < p2.y + p2.h) {
+                        dead = true;
+                        for (let k = 0; k < 5; k++) parts.push({ x: nx, y: ny, vx: rnd(-120, 120), vy: rnd(-160, 40), life: 0.25, c: '#cfd6dd', r: rnd(1.5, 3) });
+                        break;
+                    }
+                }
+                if (!dead) for (const e of ents) {
+                    if (!e.alive || e === b.own) continue;
+                    if (Math.abs(nx - e.x) < e.w / 2 + 3 && Math.abs(ny - e.y) < e.h / 2 + 3) {
+                        hurt(e, b.dmg, b.own); dead = true; break;
+                    }
+                }
+                if (dead || nx < 0 || nx > W || ny > H + 300) bullets.splice(i, 1);
+                else { b.x = nx; b.y = ny; }
+            }
+
+            // ---- grenades ----
+            for (let i = nades.length - 1; i >= 0; i--) {
+                const g = nades[i];
+                g.fuse -= dt; g.vy += GRAV * dt;
+                g.x += g.vx * dt; g.y += g.vy * dt;
+                for (const p2 of PLATS) {
+                    if (g.x > p2.x && g.x < p2.x + p2.w && g.y > p2.y && g.y < p2.y + p2.h) {
+                        g.y = p2.y - 4; g.vy *= -0.42; g.vx *= 0.62;
+                    }
+                }
+                if (g.fuse <= 0) { boom(g.x, g.y, g.own); nades.splice(i, 1); }
+            }
+
+            // ---- particles / feed ----
+            for (let i = parts.length - 1; i >= 0; i--) {
+                const q = parts[i];
+                q.life -= dt; q.vy += GRAV * 0.35 * dt;
+                q.x += q.vx * dt; q.y += q.vy * dt;
+                if (q.life <= 0) parts.splice(i, 1);
+            }
+            for (let i = feed.length - 1; i >= 0; i--) { feed[i].t -= dt; if (feed[i].t <= 0) feed.splice(i, 1); }
+
+            // ---- camera ----
+            const vw = cv.width / DPR, vh = cv.height / DPR;
+            const tx = clamp(p.x - vw / 2, 0, Math.max(0, W - vw));
+            const ty = clamp(p.y - vh / 2 - 40, 0, Math.max(0, H - vh));
+            cam.x += (tx - cam.x) * clamp(dt * 6, 0, 1);
+            cam.y += (ty - cam.y) * clamp(dt * 6, 0, 1);
+
+            document.getElementById('nadeN').textContent = p.nades;
+        }
+
+        function endMatch() {
+            if (over) return;
+            over = true; running = false;
+            const p = player();
+            let bot = 0; for (const e of ents) if (e.bot) bot = Math.max(bot, e.kills);
+            document.getElementById('fKills').textContent = p.kills;
+            document.getElementById('fDeaths').textContent = bot;
+            const win = p.kills >= KILL_TARGET || p.kills > bot;
+            document.getElementById('overTitle').innerHTML = win ? 'Victory<span>!</span>' : 'Defeated';
+            document.getElementById('overMsg').textContent = win
+                ? 'You out-flew the doodle army.'
+                : 'The bots had the better day. Try the jetpack more.';
+            document.getElementById('over').classList.remove('hide');
+        }
+
+        // ---------- render ----------
+        let DPR = 1;
+        function resize() {
+            DPR = Math.min(2, window.devicePixelRatio || 1);
+            cv.width = Math.floor(innerWidth * DPR);
+            cv.height = Math.floor(innerHeight * DPR);
+            ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
+        }
+        addEventListener('resize', resize);
+
+        function sky(vw, vh) {
+            const g = ctx.createLinearGradient(0, 0, 0, vh);
+            g.addColorStop(0, '#a9dcef'); g.addColorStop(1, '#d7eef5');
+            ctx.fillStyle = g; ctx.fillRect(0, 0, vw, vh);
+
+            // parallax mountains
+            ctx.fillStyle = '#b8c9cf';
+            for (let i = 0; i < 7; i++) {
+                const bx = i * 620 - cam.x * 0.25, by = vh - 190;
+                ctx.beginPath(); ctx.moveTo(bx - 260, by); ctx.lineTo(bx, by - 230); ctx.lineTo(bx + 260, by); ctx.closePath(); ctx.fill();
+            }
+            ctx.fillStyle = '#8fb98a';
+            for (let i = 0; i < 9; i++) {
+                const bx = i * 470 - cam.x * 0.45, by = vh - 120;
+                ctx.beginPath(); ctx.moveTo(bx - 220, by); ctx.lineTo(bx, by - 150); ctx.lineTo(bx + 220, by); ctx.closePath(); ctx.fill();
+            }
+        }
+
+        function drawPlat(p) {
+            const x = p.x - cam.x, y = p.y - cam.y;
+            if (p.t === 'rock') {
+                ctx.fillStyle = '#6f6a5f'; ctx.strokeStyle = '#2f2b26'; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.rect(x, y, p.w, p.h); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#8b857a';
+                for (let i = 0; i < 8; i++) {
+                    const rx = x + 14 + (i * 37) % (p.w - 28), ry = y + 22 + (i * 71) % (p.h - 40);
+                    ctx.beginPath(); ctx.arc(rx, ry, 11, 0, 7); ctx.fill();
+                }
+                return;
+            }
+            const isGround = p.t === 'ground';
+            ctx.fillStyle = isGround ? '#7d6a52' : '#6b5a46';
+            ctx.strokeStyle = '#2f2b26'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.rect(x, y + 8, p.w, p.h); ctx.fill(); ctx.stroke();
+            // spiky grass top
+            ctx.fillStyle = '#5aa64b'; ctx.beginPath();
+            ctx.moveTo(x, y + 12);
+            const n = Math.max(4, Math.round(p.w / 26));
+            for (let i = 0; i <= n; i++) {
+                const gx = x + (p.w * i / n);
+                ctx.lineTo(gx - p.w / n / 2, y + 12);
+                ctx.lineTo(gx - p.w / n / 4, y - 12);
+                ctx.lineTo(gx, y + 12);
+            }
+            ctx.lineTo(x + p.w, y + 14); ctx.closePath(); ctx.fill();
+            ctx.strokeStyle = '#2f2b26'; ctx.lineWidth = 2.5; ctx.stroke();
+        }
+
+        function drawEnt(e) {
+            if (!e.alive) return;
+            const x = e.x - cam.x, y = e.y - cam.y;
+            ctx.save(); ctx.translate(x, y);
+            ctx.lineWidth = 2.5; ctx.strokeStyle = '#241f1a';
+
+            // jetpack flames
+            if (e.jetting && e.fuel > 0) {
+                ctx.fillStyle = '#ffb03a';
+                for (const off of [-8, 8]) {
+                    ctx.beginPath(); ctx.moveTo(off - 5, 16); ctx.lineTo(off + 5, 16);
+                    ctx.lineTo(off, 16 + rnd(16, 30)); ctx.closePath(); ctx.fill();
+                }
+            }
+
+            const f = e.face;
+            ctx.scale(f, 1);
+
+            // legs
+            ctx.fillStyle = '#3f4a2e';
+            ctx.beginPath(); ctx.rect(-9, 6, 7, 15); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.rect(2, 6, 7, 15); ctx.fill(); ctx.stroke();
+            // boots
+            ctx.fillStyle = '#2b2b2b';
+            ctx.beginPath(); ctx.rect(-11, 19, 10, 5); ctx.fill(); ctx.stroke();
+            ctx.beginPath(); ctx.rect(1, 19, 10, 5); ctx.fill(); ctx.stroke();
+            // torso
+            ctx.fillStyle = e.tint;
+            ctx.beginPath(); ctx.rect(-10, -8, 20, 16); ctx.fill(); ctx.stroke();
+            // vest
+            ctx.fillStyle = 'rgba(0,0,0,.18)';
+            ctx.beginPath(); ctx.rect(-10, -3, 20, 6); ctx.fill();
+            // head
+            ctx.fillStyle = '#e8b98c';
+            ctx.beginPath(); ctx.arc(0, -16, 9, 0, 7); ctx.fill(); ctx.stroke();
+            // helmet
+            ctx.fillStyle = '#4a5a33';
+            ctx.beginPath(); ctx.arc(0, -17, 10, Math.PI, 0); ctx.closePath(); ctx.fill(); ctx.stroke();
+            // eye
+            ctx.fillStyle = '#241f1a';
+            ctx.beginPath(); ctx.arc(4, -16, 1.8, 0, 7); ctx.fill();
+
+            ctx.restore();
+
+            // gun, drawn at the aim angle
+            ctx.save(); ctx.translate(x, y - 4); ctx.rotate(e.aim);
+            if (Math.cos(e.aim) < 0) ctx.scale(1, -1);
+            ctx.fillStyle = '#3a3a3a'; ctx.strokeStyle = '#1b1b1b'; ctx.lineWidth = 2;
+            if (e.wp === 'shotgun') { ctx.beginPath(); ctx.rect(4, -4, 30, 7); ctx.fill(); ctx.stroke(); }
+            else if (e.wp === 'revolver') { ctx.beginPath(); ctx.rect(4, -3, 18, 6); ctx.fill(); ctx.stroke(); }
+            else { ctx.beginPath(); ctx.rect(4, -3.5, 34, 7); ctx.fill(); ctx.stroke();
+                   ctx.beginPath(); ctx.rect(12, 3, 6, 8); ctx.fill(); ctx.stroke(); }
+            if (e.cool > WEAPONS[e.wp].rate * 0.6) {
+                ctx.fillStyle = '#ffe08a';
+                ctx.beginPath(); ctx.moveTo(36, -6); ctx.lineTo(52, 0); ctx.lineTo(36, 6); ctx.closePath(); ctx.fill();
+            }
+            ctx.restore();
+
+            // melee swipe
+            if (e.melee > 0) {
+                ctx.strokeStyle = 'rgba(255,255,255,.75)'; ctx.lineWidth = 4;
+                ctx.beginPath(); ctx.arc(x + e.face * 24, y - 4, 26, -0.9, 0.9); ctx.stroke();
+            }
+
+            // name + hp for bots
+            if (e.bot) {
+                ctx.font = '600 11px "Trebuchet MS", sans-serif'; ctx.textAlign = 'center';
+                ctx.fillStyle = '#c8322c'; ctx.fillText(e.name, x, y - 34);
+                ctx.fillStyle = 'rgba(0,0,0,.35)'; ctx.fillRect(x - 18, y - 31, 36, 4);
+                ctx.fillStyle = '#e8524f'; ctx.fillRect(x - 18, y - 31, 36 * clamp(e.hp / 100, 0, 1), 4);
+            } else {
+                ctx.font = '700 11px "Trebuchet MS", sans-serif'; ctx.textAlign = 'center';
+                ctx.fillStyle = '#1f7a2e'; ctx.fillText('YOU', x, y - 34);
+            }
+        }
+
+        function bar(x, y, w, h, v, col) {
+            ctx.fillStyle = 'rgba(255,255,255,.35)';
+            ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.roundRect(x, y, w, h, 4); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = col;
+            ctx.beginPath(); ctx.roundRect(x + 2, y + 2, (w - 4) * clamp(v, 0, 1), h - 4, 3); ctx.fill();
+        }
+
+        function hud(vw) {
+            const p = player();
+            ctx.textAlign = 'left';
+
+            // zoom badge
+            ctx.strokeStyle = 'rgba(255,255,255,.8)'; ctx.lineWidth = 3;
+            ctx.beginPath(); ctx.arc(52, 52, 30, 0, 7); ctx.stroke();
+            ctx.font = '700 15px "Trebuchet MS", sans-serif'; ctx.fillStyle = '#fff';
+            ctx.fillText('1X', 42, 58);
+
+            // health + fuel
+            ctx.fillStyle = '#fff'; ctx.font = '700 13px "Trebuchet MS", sans-serif';
+            ctx.fillText('♥', 104, 40); ctx.fillText('▲', 104, 64);
+            bar(122, 28, 170, 15, p.hp / 100, '#d61fb5');
+            bar(122, 52, 170, 15, p.fuel / 100, '#2b3fd6');
+
+            // timer
+            const m = Math.max(0, Math.floor(clock / 60)), s = Math.max(0, Math.floor(clock % 60));
+            ctx.textAlign = 'center'; ctx.font = '700 30px "Trebuchet MS", sans-serif';
+            ctx.fillStyle = '#fff'; ctx.strokeStyle = 'rgba(0,0,0,.35)'; ctx.lineWidth = 4;
+            const tstr = `${String(m).padStart(2, '0')} : ${String(s).padStart(2, '0')}`;
+            ctx.strokeText(tstr, vw / 2, 48); ctx.fillText(tstr, vw / 2, 48);
+
+            // score chips
+            let bot = 0; for (const e of ents) if (e.bot) bot = Math.max(bot, e.kills);
+            ctx.font = '700 15px "Trebuchet MS", sans-serif';
+            ctx.fillStyle = '#2f6fd0'; ctx.beginPath(); ctx.roundRect(vw / 2 - 52, 58, 44, 22, 4); ctx.fill();
+            ctx.fillStyle = '#fff'; ctx.fillText(String(p.kills), vw / 2 - 30, 74);
+            ctx.fillStyle = '#e08a2e'; ctx.beginPath(); ctx.roundRect(vw / 2 + 8, 58, 44, 22, 4); ctx.fill();
+            ctx.fillStyle = '#fff'; ctx.fillText(String(bot), vw / 2 + 30, 74);
+
+            // weapon panel
+            const px = vw - 250;
+            ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.roundRect(px, 26, 230, 44, 22); ctx.fill(); ctx.stroke();
+            ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = '700 13px "Trebuchet MS", sans-serif';
+            ctx.fillText(WEAPONS[p.wp].name.toUpperCase(), px + 16, 46);
+            ctx.font = '700 17px "Trebuchet MS", sans-serif';
+            ctx.fillText(String(p.ammo[p.wp]).padStart(3, '0'), px + 16, 64);
+            ctx.fillText(String(p.res[p.wp]).padStart(3, '0'), px + 74, 64);
+            ctx.font = '700 13px "Trebuchet MS", sans-serif';
+            ctx.fillText(`💣 ${p.nades}`, px + 150, 56);
+            if (p.reloading > 0) {
+                ctx.fillStyle = '#ffd166';
+                ctx.fillText('RELOADING…', px + 16, 88);
+            }
+
+            // kill feed
+            ctx.textAlign = 'center'; ctx.font = '700 15px "Trebuchet MS", sans-serif';
+            feed.forEach((f, i) => {
+                ctx.globalAlpha = clamp(f.t, 0, 1);
+                ctx.fillStyle = '#d3312b';
+                ctx.fillText(f.txt, vw / 2, 130 + i * 22);
+                ctx.globalAlpha = 1;
+            });
+
+            // respawn notice
+            if (!p.alive) {
+                ctx.font = '700 26px "Trebuchet MS", sans-serif'; ctx.fillStyle = '#fff';
+                ctx.strokeStyle = 'rgba(0,0,0,.4)'; ctx.lineWidth = 4;
+                const t = `RESPAWNING ${Math.ceil(p.respawn)}`;
+                ctx.strokeText(t, vw / 2, 210); ctx.fillText(t, vw / 2, 210);
+            }
+        }
+
+        function render() {
+            const vw = cv.width / DPR, vh = cv.height / DPR;
+            sky(vw, vh);
+            for (const p of PLATS) drawPlat(p);
+
+            for (const g of nades) {
+                ctx.fillStyle = '#4a5a33'; ctx.strokeStyle = '#241f1a'; ctx.lineWidth = 2;
+                ctx.beginPath(); ctx.arc(g.x - cam.x, g.y - cam.y, 6, 0, 7); ctx.fill(); ctx.stroke();
+            }
+            ctx.lineWidth = 3; ctx.strokeStyle = '#fff9e0';
+            for (const b of bullets) {
+                ctx.beginPath();
+                ctx.moveTo(b.x - cam.x, b.y - cam.y);
+                ctx.lineTo(b.x - cam.x - b.vx * 0.012, b.y - cam.y - b.vy * 0.012);
+                ctx.stroke();
+            }
+            for (const e of ents) drawEnt(e);
+            for (const q of parts) {
+                ctx.globalAlpha = clamp(q.life * 3, 0, 1);
+                ctx.fillStyle = q.c;
+                ctx.beginPath(); ctx.arc(q.x - cam.x, q.y - cam.y, q.r, 0, 7); ctx.fill();
+            }
+            ctx.globalAlpha = 1;
+            hud(vw);
+        }
+
+        let framed = false;
+        function loop(t) {
+            framed = true;
+            const dt = Math.min(0.033, (t - tPrev) / 1000 || 0.016);
+            tPrev = t;
+            if (running) step(dt);
+            render();
+            requestAnimationFrame(loop);
+        }
+
+        // ---------- input: keyboard / mouse ----------
+        addEventListener('keydown', e => {
+            const k = e.key.toLowerCase();
+            keys[k] = true;
+            if (k === 'escape') exitGame();
+            if (!running) return;
+            if (k === 'r') reload(player());
+            if (k === 'g') throwNade(player());
+            if (k === 'f') doMelee(player());
+            if (k === '1' || k === '2' || k === '3') player().wp = WKEYS[+k - 1];
+            if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault();
+        });
+        addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
+
+        cv.addEventListener('mousemove', e => {
+            const r = cv.getBoundingClientRect();
+            mouse.x = e.clientX - r.left; mouse.y = e.clientY - r.top; mouse.inCanvas = true;
+        });
+        cv.addEventListener('mousedown', e => { if (e.button === 0) mouse.down = true; });
+        addEventListener('mouseup', () => { mouse.down = false; });
+        cv.addEventListener('contextmenu', e => e.preventDefault());
+
+        // ---------- input: touch sticks ----------
+        const tmove = { active: false, x: 0, y: 0, mag: 0 };
+        const taim = { active: false, x: 1, y: 0, mag: 0 };
+        let tjet = false;
+
+        function bindStick(el, knob, st) {
+            let id = null;
+            const R = () => el.getBoundingClientRect();
+            const set = (cx, cy) => {
+                const r = R(), ox = r.left + r.width / 2, oy = r.top + r.height / 2;
+                let dx = cx - ox, dy = cy - oy;
+                const lim = r.width / 2, d = Math.hypot(dx, dy) || 1;
+                const cl = Math.min(1, d / lim);
+                st.x = dx / d; st.y = dy / d; st.mag = cl;
+                knob.style.transform = `translate(calc(-50% + ${(dx / d) * lim * cl * 0.55}px), calc(-50% + ${(dy / d) * lim * cl * 0.55}px))`;
+            };
+            el.addEventListener('pointerdown', e => {
+                id = e.pointerId; st.active = true; touchMode = true;
+                el.setPointerCapture(id); set(e.clientX, e.clientY); e.preventDefault();
+            });
+            el.addEventListener('pointermove', e => { if (e.pointerId === id) set(e.clientX, e.clientY); });
+            const up = e => {
+                if (e.pointerId !== id) return;
+                id = null; st.active = false; st.mag = 0; st.x = 0; st.y = 0;
+                knob.style.transform = 'translate(-50%, -50%)';
+            };
+            el.addEventListener('pointerup', up);
+            el.addEventListener('pointercancel', up);
+        }
+        bindStick(document.getElementById('sMove'), document.getElementById('kMove'), tmove);
+        bindStick(document.getElementById('sAim'), document.getElementById('kAim'), taim);
+
+        function bindHold(el, on, off) {
+            el.addEventListener('pointerdown', e => { touchMode = true; on(); e.preventDefault(); });
+            el.addEventListener('pointerup', () => off && off());
+            el.addEventListener('pointercancel', () => off && off());
+            el.addEventListener('pointerleave', () => off && off());
+        }
+        bindHold(document.getElementById('bJet'), () => tjet = true, () => tjet = false);
+        bindHold(document.getElementById('bNade'), () => running && throwNade(player()));
+        bindHold(document.getElementById('bMelee'), () => running && doMelee(player()));
+
+        // tap the weapon panel to cycle weapons
+        cv.addEventListener('pointerdown', e => {
+            if (!running) return;
+            const r = cv.getBoundingClientRect();
+            const x = e.clientX - r.left, y = e.clientY - r.top;
+            if (x > r.width - 250 && y < 80) {
+                const p = player();
+                p.wp = WKEYS[(WKEYS.indexOf(p.wp) + 1) % WKEYS.length];
+            }
+        });
+
+        // ---------- flow ----------
+        function applyMode() {
+            document.getElementById('pad').classList.toggle('hide', !touchMode);
+            document.getElementById('hintKeys').style.display = touchMode ? 'none' : '';
+        }
+        function start() {
+            reset(); resize(); applyMode();
+            document.getElementById('start').classList.add('hide');
+            document.getElementById('over').classList.add('hide');
+            running = true; over = false; tPrev = performance.now();
+        }
+        function exitGame() {
+            if (window.parent && window.parent !== window) window.parent.postMessage('mm:exit', '*');
+            else history.length > 1 ? history.back() : location.href = 'Hobbies.html';
+        }
+
+        document.getElementById('btnStart').addEventListener('click', start);
+        document.getElementById('btnAgain').addEventListener('click', start);
+        document.getElementById('exit').addEventListener('click', exitGame);
+        addEventListener('pointerdown', () => { }, { once: true });
+
+        resize(); applyMode(); reset();
+        requestAnimationFrame(loop);
+
+        // Some embedders throttle rAF; if the first frame never arrives, fall
+        // back to a timer so the match still runs.
+        setTimeout(() => {
+            if (!framed) {
+                let last = performance.now();
+                setInterval(() => {
+                    const now = performance.now();
+                    const dt = Math.min(0.033, (now - last) / 1000);
+                    last = now;
+                    if (running) step(dt);
+                    render();
+                }, 16);
+            }
+        }, 900);
+    })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="All 24 professional certifications of Indrajit Sarkar — Anthropic Claude Certified, Microsoft Azure, Power BI, Lean Six Sigma and process excellence.">
+    <meta name="theme-color" content="#0c0c0b">
+    <title>Certifications | Indrajit Sarkar</title>
+    <link rel="icon" href="assets/opt/logo-640.webp" type="image/webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400..700&display=swap">
+    <link rel="stylesheet" href="styles.css?v=5">
+    <style>
+        body { padding-bottom: 3rem !important; }
+
+        .cf-top {
+            position: fixed; top: 1rem; left: 1rem; right: 1rem; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+
+        .cf-head { padding: clamp(7rem, 16vh, 9rem) 0 1rem; text-align: center; }
+        .cf-head .sec-sub { margin-inline: auto; }
+
+        .cf-filters {
+            display: flex; flex-wrap: wrap; justify-content: center; gap: 0.6rem;
+            margin: 2rem auto clamp(2rem, 5vw, 3rem);
+        }
+        .cf-filter {
+            padding: 0.55rem 1.3rem; border-radius: 99px;
+            font-size: 0.88rem; font-weight: 600;
+            border: 1px solid var(--glass-line); background: var(--glass-bg);
+            transition: all 0.3s var(--ease);
+        }
+        .cf-filter:hover { border-color: var(--blue); }
+        .cf-filter.is-active { background: var(--grad); color: #fff; border-color: transparent; }
+
+        .cf-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr));
+            gap: 1.2rem;
+        }
+        .cf-card {
+            overflow: hidden; display: flex; flex-direction: column;
+            transition: transform 0.45s var(--ease), border-color 0.35s, opacity 0.4s, scale 0.4s;
+        }
+        .cf-card:hover { transform: translateY(-6px); border-color: rgba(91, 140, 255, 0.5); }
+        .cf-card.is-hide { display: none; }
+        .cf-card img {
+            width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: top;
+            cursor: zoom-in; transition: transform 0.7s var(--ease);
+        }
+        .cf-card:hover img { transform: scale(1.05); }
+        .cf-body { padding: 1.1rem 1.25rem 1.25rem; display: flex; flex-direction: column; gap: 0.2rem; flex: 1; }
+        .cf-body h3 { font-family: var(--font-d); font-size: 1.05rem; font-weight: 700; line-height: 1.25; }
+        .cf-body p { font-size: 0.8rem; color: var(--ink-3); }
+        .cf-actions { margin-top: auto; padding-top: 0.8rem; display: flex; gap: 0.9rem; }
+        .cf-actions a {
+            font-size: 0.83rem; font-weight: 600; color: var(--blue); text-decoration: none;
+        }
+        .cf-actions a:hover { text-decoration: underline; }
+    </style>
+</head>
+
+<body>
+    <div class="ambient" aria-hidden="true">
+        <div class="aurora">
+            <b class="blob b1"></b>
+            <b class="blob b2"></b>
+            <b class="blob b3"></b>
+        </div>
+        <div class="grain"></div>
+    </div>
+
+    <div class="cf-top">
+        <a href="index.html#certifications" class="btn btn-ghost btn-sm">← Back to Portfolio</a>
+        <button class="theme-toggle" id="themeToggle" role="switch" aria-checked="true" aria-label="Toggle light / dark theme">
+            <span class="tt-knob" aria-hidden="true">
+                <svg class="ico-sun" viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M12 7a5 5 0 100 10 5 5 0 000-10zm0-6a1 1 0 011 1v2a1 1 0 11-2 0V2a1 1 0 011-1zm0 19a1 1 0 011 1v2a1 1 0 11-2 0v-2a1 1 0 011-1zM2 11h2a1 1 0 110 2H2a1 1 0 110-2zm18 0h2a1 1 0 110 2h-2a1 1 0 110-2z"/></svg>
+                <svg class="ico-moon" viewBox="0 0 24 24" width="15" height="15"><path fill="currentColor" d="M12 3a9 9 0 109 9c0-.46-.04-.92-.1-1.36a5.4 5.4 0 01-8.54-4.54c0-1.81.89-3.42 2.26-4.4A9.6 9.6 0 0012 3z"/></svg>
+            </span>
+        </button>
+    </div>
+
+    <header class="cf-head container">
+        <p class="eyebrow">Complete collection</p>
+        <h1 class="sec-title"><span class="grad-text">24</span> Certifications</h1>
+        <p class="sec-sub">Cloud, AI, analytics and process excellence — tap any certificate to view it full-size, or open the original PDF.</p>
+
+        <div class="cf-filters" aria-label="Filter certifications">
+            <button class="cf-filter is-active" data-filter="all">All</button>
+            <button class="cf-filter" data-filter="ms">Microsoft</button>
+            <button class="cf-filter" data-filter="anthropic">Anthropic</button>
+            <button class="cf-filter" data-filter="lss">Lean Six Sigma</button>
+            <button class="cf-filter" data-filter="tools">Process Tools</button>
+            <button class="cf-filter" data-filter="other">Others</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="cf-grid" id="cfGrid">
+            <!-- Microsoft -->
+            <article class="cf-card glass" data-cat="ms">
+                <img src="assets/opt/ai-102-480.webp" data-full="assets/opt/ai-102-1000.webp" data-lightbox="certs" alt="Microsoft AI-102 certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>AI-102 · Azure AI Engineer Associate</h3>
+                    <p>Microsoft</p>
+                    <div class="cf-actions"><a href="Certificates/AI-102.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="ms">
+                <img src="assets/opt/az-900-480.webp" data-full="assets/opt/az-900-1000.webp" data-lightbox="certs" alt="Microsoft AZ-900 certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>AZ-900 · Azure Fundamentals</h3>
+                    <p>Microsoft</p>
+                    <div class="cf-actions"><a href="Certificates/AZ-900.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="ms">
+                <img src="assets/opt/pl-300-480.webp" data-full="assets/opt/pl-300-1000.webp" data-lightbox="certs" alt="Microsoft PL-300 certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>PL-300 · Power BI Data Analyst</h3>
+                    <p>Microsoft</p>
+                    <div class="cf-actions"><a href="Certificates/PowerBi PL-300.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+
+            <!-- Anthropic — Claude Certified -->
+            <article class="cf-card glass" data-cat="anthropic">
+                <div class="cf-badge-slot">
+                    <div class="cc-badge" aria-hidden="true">
+                        <em>Foundations</em>
+                        <i>✳</i>
+                        <b>Architect</b>
+                    </div>
+                </div>
+                <div class="cf-body">
+                    <h3>Claude Certified Architect · Foundations</h3>
+                    <p>Anthropic · Aug 2026</p>
+                    <div class="cf-actions">
+                        <a href="Certificates/Claude Certified Architect - Foundations.pdf" target="_blank" rel="noopener">Open PDF ↗</a>
+                        <a href="https://www.credly.com/badges/5d9943aa-e6b3-4694-85c3-95d279130410" target="_blank" rel="noopener">Verify ↗</a>
+                    </div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="anthropic">
+                <div class="cf-badge-slot">
+                    <div class="cc-badge" aria-hidden="true">
+                        <em>Foundations</em>
+                        <i>✳</i>
+                        <b>Developer</b>
+                    </div>
+                </div>
+                <div class="cf-body">
+                    <h3>Claude Certified Developer · Foundations</h3>
+                    <p>Anthropic · Aug 2026</p>
+                    <div class="cf-actions">
+                        <a href="Certificates/Claude Certified Developer - Foundations.pdf" target="_blank" rel="noopener">Open PDF ↗</a>
+                        <a href="https://www.credly.com/badges/7a96eaac-bdb5-49db-bd18-e6074581a4c7" target="_blank" rel="noopener">Verify ↗</a>
+                    </div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="anthropic">
+                <div class="cf-badge-slot">
+                    <div class="cc-badge" aria-hidden="true">
+                        <em>Foundations</em>
+                        <i>✳</i>
+                        <b>Associate</b>
+                    </div>
+                </div>
+                <div class="cf-body">
+                    <h3>Claude Certified Associate · Foundations</h3>
+                    <p>Anthropic · Aug 2026</p>
+                    <div class="cf-actions">
+                        <a href="Certificates/Claude Certified Associate - Foundations.pdf" target="_blank" rel="noopener">Open PDF ↗</a>
+                        <a href="https://www.credly.com/badges/7648643e-bd4f-434c-9560-8492c95039bb" target="_blank" rel="noopener">Verify ↗</a>
+                    </div>
+                </div>
+            </article>
+
+            <!-- Lean Six Sigma -->
+            <article class="cf-card glass" data-cat="lss">
+                <img src="assets/opt/white-belt-480.webp" data-full="assets/opt/white-belt-1000.webp" data-lightbox="certs" alt="Lean Six Sigma White Belt" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>Lean Six Sigma · White Belt</h3>
+                    <p>AIGPE</p>
+                    <div class="cf-actions"><a href="Certificates/Lean SIx sigma White Belt.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="lss">
+                <img src="assets/opt/yellow-belt-480.webp" data-full="assets/opt/yellow-belt-1000.webp" data-lightbox="certs" alt="Lean Six Sigma Yellow Belt" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>Lean Six Sigma · Yellow Belt</h3>
+                    <p>AIGPE</p>
+                    <div class="cf-actions">
+                        <a href="Certificates/Lean SIx sigma Yellow Belt.pdf" target="_blank" rel="noopener">Open PDF ↗</a>
+                        <a href="https://digitalcredentials.aigproexcellence.com/en/verify/25330191192262?ref=email" target="_blank" rel="noopener">Verify ✓</a>
+                    </div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="lss">
+                <img src="assets/opt/green-belt-480.webp" data-full="assets/opt/green-belt-1000.webp" data-lightbox="certs" alt="Lean Six Sigma Green Belt" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>Lean Six Sigma · Green Belt</h3>
+                    <p>AIGPE</p>
+                    <div class="cf-actions">
+                        <a href="Certificates/Lean Six sigma Green Belt.pdf" target="_blank" rel="noopener">Open PDF ↗</a>
+                        <a href="https://digitalcredentials.aigproexcellence.com/en/verify/83625241208547?ref=email" target="_blank" rel="noopener">Verify ✓</a>
+                    </div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="lss">
+                <img src="assets/opt/black-belt-480.webp" data-full="assets/opt/black-belt-1000.webp" data-lightbox="certs" alt="Lean Six Sigma Black Belt" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>Lean Six Sigma · Black Belt</h3>
+                    <p>AIGPE</p>
+                    <div class="cf-actions">
+                        <a href="Certificates/Lean Six sigma Black Belt.pdf" target="_blank" rel="noopener">Open PDF ↗</a>
+                        <a href="https://digitalcredentials.aigproexcellence.com/en/verify/52884055167443?ref=email" target="_blank" rel="noopener">Verify ✓</a>
+                    </div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="lss">
+                <img src="assets/opt/6sigma-480.webp" data-full="assets/opt/6sigma-1000.webp" data-lightbox="certs" alt="Lean Six Sigma — Six Sigma Academy Amsterdam" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>Lean Six Sigma</h3>
+                    <p>Six Sigma Academy Amsterdam</p>
+                    <div class="cf-actions"><a href="Certificates/Lean six sigma from Six sigma Academy Amsterdam.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+
+            <!-- Process tools -->
+            <article class="cf-card glass" data-cat="tools">
+                <img src="assets/opt/8d-480.webp" data-full="assets/opt/8d-1000.webp" data-lightbox="certs" alt="8D Problem Solving Expert certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>8D Problem Solving Expert</h3>
+                    <p>AIGPE</p>
+                    <div class="cf-actions"><a href="Certificates/8D PROBLEM SOLVING EXPERT .pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="tools">
+                <img src="assets/opt/root-cause-480.webp" data-full="assets/opt/root-cause-1000.webp" data-lightbox="certs" alt="AI-powered Root Cause Analysis certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>AI-Powered Root Cause Analysis</h3>
+                    <p>AIGPE</p>
+                    <div class="cf-actions"><a href="Certificates/AIGPE AI-POWERED  ROOT CAUSE ANALYSIS.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="tools">
+                <img src="assets/opt/wbs-480.webp" data-full="assets/opt/wbs-1000.webp" data-lightbox="certs" alt="WBS Specialist certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>AI-Powered WBS Specialist</h3>
+                    <p>AIGPE</p>
+                    <div class="cf-actions"><a href="Certificates/AIGPE AI-POWERED WBS SPECIALIST.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="tools">
+                <img src="assets/opt/fmea-480.webp" data-full="assets/opt/fmea-1000.webp" data-lightbox="certs" alt="FMEA certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>FMEA Specialist</h3>
+                    <p>AIGPE</p>
+                    <div class="cf-actions"><a href="Certificates/AIGPE FEMA.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="tools">
+                <img src="assets/opt/5force-480.webp" data-full="assets/opt/5force-1000.webp" data-lightbox="certs" alt="Porter Five Forces certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>Porter's Five Forces</h3>
+                    <p>AIGPE</p>
+                    <div class="cf-actions"><a href="Certificates/AIGPE FIVE FORCE.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="tools">
+                <img src="assets/opt/kano-480.webp" data-full="assets/opt/kano-1000.webp" data-lightbox="certs" alt="Kano Analysis Specialist certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>Kano Analysis Specialist</h3>
+                    <p>AIGPE</p>
+                    <div class="cf-actions"><a href="Certificates/AIGPE KANO ANALYSIS SPECIALIST.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="tools">
+                <img src="assets/opt/minitab-480.webp" data-full="assets/opt/minitab-1000.webp" data-lightbox="certs" alt="Minitab certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>Minitab</h3>
+                    <p>AIGPE</p>
+                    <div class="cf-actions"><a href="Certificates/AIGPE Mini Tab Beginner.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="tools">
+                <img src="assets/opt/parento-480.webp" data-full="assets/opt/parento-1000.webp" data-lightbox="certs" alt="Pareto Analysis certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>Pareto Analysis</h3>
+                    <p>AIGPE</p>
+                    <div class="cf-actions"><a href="Certificates/AIGPE PARENTO .pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="tools">
+                <img src="assets/opt/qfd-480.webp" data-full="assets/opt/qfd-1000.webp" data-lightbox="certs" alt="Quality Function Deployment certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>Quality Function Deployment</h3>
+                    <p>AIGPE</p>
+                    <div class="cf-actions"><a href="Certificates/AIGPE QUALITY Function.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="tools">
+                <img src="assets/opt/jit-480.webp" data-full="assets/opt/jit-1000.webp" data-lightbox="certs" alt="Just In Time certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>Just-In-Time</h3>
+                    <p>AIGPE</p>
+                    <div class="cf-actions"><a href="Certificates/Just In time.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+
+            <!-- Others -->
+            <article class="cf-card glass" data-cat="other">
+                <img src="assets/opt/cybersecurity-480.webp" data-full="assets/opt/cybersecurity-1000.webp" data-lightbox="certs" alt="Cyber Security certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>Cyber Security</h3>
+                    <p>Certification</p>
+                    <div class="cf-actions"><a href="Certificates/Cyber security certificate.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="other">
+                <img src="assets/opt/internship-480.webp" data-full="assets/opt/internship-1000.webp" data-lightbox="certs" alt="Internship certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>Full-Stack Internship</h3>
+                    <p>Talent Brainy</p>
+                    <div class="cf-actions"><a href="Certificates/Internship certificate.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+            <article class="cf-card glass" data-cat="other">
+                <img src="assets/opt/google-cloud-480.webp" data-full="assets/opt/google-cloud-1000.webp" data-lightbox="certs" alt="Google Cloud Computing Foundations certificate" loading="lazy" decoding="async">
+                <div class="cf-body">
+                    <h3>Google Cloud Computing Foundations</h3>
+                    <p>Google Cloud</p>
+                    <div class="cf-actions"><a href="Certificates/Google Cloud Computing Foundations.pdf" target="_blank" rel="noopener">Open PDF ↗</a></div>
+                </div>
+            </article>
+        </div>
+    </main>
+
+    <!-- Lightbox -->
+    <div class="lightbox" id="lightbox" aria-modal="true" role="dialog" hidden>
+        <button class="lb-close" id="lbClose" aria-label="Close viewer">×</button>
+        <button class="lb-nav lb-prev" id="lbPrev" aria-label="Previous">‹</button>
+        <img id="lightboxImg" alt="Expanded certificate">
+        <button class="lb-nav lb-next" id="lbNext" aria-label="Next">›</button>
+    </div>
+
+    <script>
+        (() => {
+            'use strict';
+            // Theme
+            const saved = localStorage.getItem('theme');
+            if (saved) document.documentElement.dataset.theme = saved;
+            const ttBtn = document.getElementById('themeToggle');
+            const ttSync = () => ttBtn.setAttribute('aria-checked', String(document.documentElement.dataset.theme === 'dark'));
+            ttSync();
+            ttBtn.addEventListener('click', () => {
+                const d = document.documentElement;
+                d.dataset.theme = d.dataset.theme === 'dark' ? 'light' : 'dark';
+                localStorage.setItem('theme', d.dataset.theme);
+                ttSync();
+            });
+
+            // Filters
+            const filters = document.querySelectorAll('.cf-filter');
+            const cards = document.querySelectorAll('.cf-card');
+            filters.forEach((f) => f.addEventListener('click', () => {
+                filters.forEach((x) => x.classList.toggle('is-active', x === f));
+                const k = f.dataset.filter;
+                cards.forEach((c) => c.classList.toggle('is-hide', k !== 'all' && c.dataset.cat !== k));
+            }));
+
+            // Lightbox
+            const box = document.getElementById('lightbox');
+            const img = document.getElementById('lightboxImg');
+            let group = [], idx = 0;
+            const visibleImgs = () =>
+                Array.from(document.querySelectorAll('.cf-card:not(.is-hide) img[data-lightbox]'));
+            function show(i) {
+                idx = (i + group.length) % group.length;
+                img.src = group[idx].dataset.full || group[idx].src;
+                img.alt = group[idx].alt;
+            }
+            let returnFocus = null;
+            function open(t) {
+                group = visibleImgs();
+                show(group.indexOf(t));
+                returnFocus = t;
+                box.hidden = false;
+                requestAnimationFrame(() => box.classList.add('is-open'));
+                document.body.style.overflow = 'hidden';
+                document.getElementById('lbClose').focus();
+            }
+            function close() {
+                box.classList.remove('is-open');
+                document.body.style.overflow = '';
+                setTimeout(() => { box.hidden = true; img.src = ''; }, 320);
+                if (returnFocus) { returnFocus.focus(); returnFocus = null; }
+            }
+            document.querySelectorAll('img[data-lightbox]').forEach((t) => {
+                t.setAttribute('tabindex', '0');
+                t.setAttribute('role', 'button');
+            });
+            document.addEventListener('click', (e) => {
+                const t = e.target.closest('img[data-lightbox]');
+                if (t) open(t);
+            });
+            document.addEventListener('keydown', (e) => {
+                if (e.key !== 'Enter' && e.key !== ' ') return;
+                const t = e.target.closest && e.target.closest('img[data-lightbox]');
+                if (t) { e.preventDefault(); open(t); }
+            });
+            img.addEventListener('error', () => { if (group[idx]) img.src = group[idx].src; });
+            document.getElementById('lbClose').addEventListener('click', close);
+            document.getElementById('lbPrev').addEventListener('click', () => show(idx - 1));
+            document.getElementById('lbNext').addEventListener('click', () => show(idx + 1));
+            box.addEventListener('click', (e) => { if (e.target === box) close(); });
+            document.addEventListener('keydown', (e) => {
+                if (box.hidden) return;
+                if (e.key === 'Escape') close();
+                if (e.key === 'ArrowLeft') show(idx - 1);
+                if (e.key === 'ArrowRight') show(idx + 1);
+            });
+        })();
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="description" content="Hobbies of Indrajit Sarkar — automobiles, mobile photography and music production. Featuring an interactive 3D car.">
+    <meta name="theme-color" content="#0c0c0b">
+    <title>Hobbies · 3D Garage | Indrajit Sarkar</title>
+    <link rel="icon" href="assets/opt/logo-640.webp" type="image/webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400..700&display=swap">
+    <link rel="stylesheet" href="styles.css?v=5">
+    <style>
+        /* ---------- Hobbies page ---------- */
+        body { padding-bottom: 0 !important; }
+
+        .hb-top {
+            position: fixed; top: 1rem; left: 1rem; right: 1rem; z-index: 100;
+            display: flex; justify-content: space-between; align-items: center;
+            pointer-events: none;
+        }
+        .hb-top > * { pointer-events: auto; }
+
+        /* --- hero --- */
+        .garage {
+            position: relative; height: 62svh; min-height: 360px;
+            overflow: hidden; overflow: clip;
+            display: grid; place-items: center;
+        }
+        .garage-title {
+            display: flex; flex-direction: column; align-items: center;
+            text-align: center; pointer-events: none; z-index: 2;
+        }
+        .garage-title .eyebrow { color: var(--ink-2); }
+        .garage-title h1 {
+            font-family: var(--font-d);
+            font-size: clamp(3.4rem, 14vw, 11rem);
+            font-weight: 700; line-height: 0.95; letter-spacing: 0.02em;
+            background: linear-gradient(180deg, #fff 20%, rgba(255,255,255,0.25));
+            -webkit-background-clip: text; background-clip: text; color: transparent;
+        }
+        [data-theme="light"] .garage-title h1 {
+            background: linear-gradient(180deg, #0d0d14 20%, rgba(13,13,20,0.3));
+            -webkit-background-clip: text; background-clip: text;
+        }
+        .garage-title p.tag-line {
+            margin-top: 0.6rem; color: var(--ink-2);
+            font-size: clamp(0.9rem, 2vw, 1.1rem); letter-spacing: 0.18em; text-transform: uppercase;
+        }
+        .garage .scroll-cue { z-index: 2; }
+
+        /* --- 3D car stage (inside the Automobilism section) --- */
+        .car-stage { position: relative; background: #07070c; }
+        #carCanvas {
+            position: absolute; inset: 0; width: 100%; height: 100%;
+            display: block; touch-action: pan-y;
+            cursor: grab;
+        }
+        #carCanvas.is-dragging { cursor: grabbing; }
+        .garage-fallback {
+            position: absolute; inset: 0;
+            background: url('assets/opt/sport-1-1600.webp') center/cover no-repeat;
+            display: none;
+        }
+        .car-stage.no-webgl .garage-fallback { display: block; }
+        .car-stage.no-webgl #carCanvas { display: none; }
+        .drag-hint {
+            position: absolute; bottom: 0.9rem; left: 50%; transform: translateX(-50%);
+            z-index: 2; pointer-events: none; white-space: nowrap;
+            font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+            color: rgba(245, 245, 247, 0.6);
+            display: flex; align-items: center; gap: 0.6rem;
+            transition: opacity 0.6s;
+        }
+        .drag-hint.is-gone { opacity: 0; }
+        .drag-hint::before, .drag-hint::after { content: "⟲"; font-size: 0.9rem; }
+        .drag-hint::after { content: "⟳"; }
+
+        /* --- content sections --- */
+        .hb-section { padding: clamp(4.5rem, 10vw, 8rem) 0; }
+        .hb-intro p {
+            color: var(--ink-2); font-size: clamp(1rem, 1.8vw, 1.2rem);
+            max-width: 70ch; margin-top: 1.2rem;
+        }
+
+        .hobby {
+            display: grid; grid-template-columns: 1fr 1fr;
+            gap: clamp(1.5rem, 4vw, 4rem);
+            align-items: center;
+            margin-top: clamp(3.5rem, 8vw, 6rem);
+        }
+        .hobby:nth-child(even) .hobby-media { order: 2; }
+        .hobby-num {
+            font-family: var(--font-d); font-weight: 700;
+            font-size: 0.9rem; letter-spacing: 0.3em; color: var(--ink-3);
+        }
+        .hobby h3 {
+            font-family: var(--font-d); font-weight: 700;
+            font-size: clamp(1.8rem, 4.5vw, 3.2rem); line-height: 1.03; margin-top: 0.6rem;
+        }
+        .hobby p { color: var(--ink-2); margin-top: 1.1rem; font-size: 1rem; }
+        .hobby-media {
+            border-radius: var(--r-lg); overflow: hidden;
+            border: 1px solid var(--glass-line); box-shadow: var(--shadow);
+            aspect-ratio: 4 / 3;
+        }
+        .hobby-media img {
+            width: 100%; height: 116%; object-fit: cover;
+            will-change: transform;
+        }
+        @media (max-width: 820px) {
+            .hobby { grid-template-columns: 1fr; }
+            .hobby:nth-child(even) .hobby-media { order: 0; }
+            .hobby-media { aspect-ratio: 16 / 10; }
+        }
+
+        .hb-footer {
+            border-top: 1px solid var(--glass-line);
+            padding: 2.5rem 0 3rem; text-align: center; color: var(--ink-3); font-size: 0.9rem;
+        }
+        .hb-footer .btn { margin-bottom: 1.2rem; }
+
+        /* --- Game preview (looping gameplay footage) + fullscreen modal --- */
+        .game-preview-container {
+            position: relative;
+            background: var(--bg-0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .game-loop-video {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: cover;
+        }
+        /* darken slightly so the Play button stays legible over the footage */
+        .game-preview-container::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            background: rgba(8, 8, 7, 0.35);
+            pointer-events: none;
+        }
+        .game-play-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            padding: 0.85rem 1.8rem;
+            background: var(--grad);
+            color: #fff;
+            border: none;
+            border-radius: var(--r-sm);
+            font-family: var(--font-b);
+            font-size: 1rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.6rem;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 8px 24px -4px rgba(139, 92, 246, 0.5);
+            z-index: 10;
+        }
+        .game-play-btn:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 12px 32px -4px rgba(139, 92, 246, 0.6);
+        }
+        .game-play-btn:active {
+            transform: translate(-50%, -50%) scale(0.98);
+        }
+        .game-play-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* VoxelCraft Fullscreen Modal */
+        .voxel-fullscreen {
+            position: fixed;
+            inset: 0;
+            background: #8ecae6;
+            z-index: 9999;
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .voxel-fullscreen.active {
+            display: flex;
+        }
+        .voxel-fullscreen iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+        .voxel-close-btn {
+            position: absolute;
+            top: 1.5rem;
+            right: 1.5rem;
+            width: 44px;
+            height: 44px;
+            background: rgba(255, 255, 255, 0.9);
+            border: 1px solid rgba(0, 0, 0, 0.1);
+            border-radius: 50%;
+            color: #0a0a12;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background 0.2s;
+            z-index: 10000;
+        }
+        .voxel-close-btn:hover {
+            background: rgba(255, 255, 255, 1);
+        }
+        .voxel-close-btn svg {
+            width: 24px;
+            height: 24px;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Ambient background -->
+    <div class="ambient" aria-hidden="true">
+        <div class="aurora">
+            <b class="blob b1"></b>
+            <b class="blob b2"></b>
+            <b class="blob b3"></b>
+        </div>
+        <div class="grain"></div>
+    </div>
+
+    <div class="hb-top">
+        <a href="index.html" class="btn btn-ghost btn-sm">← Back to Portfolio</a>
+        <div style="display: flex; gap: 0.75rem; align-items: center;">
+            <button class="theme-toggle" id="themeToggle" role="switch" aria-checked="true" aria-label="Toggle light / dark theme">
+                <span class="tt-knob" aria-hidden="true">
+                    <svg class="ico-sun" viewBox="0 0 24 24" width="15" height="15">
+                        <path fill="currentColor" d="M12 7a5 5 0 100 10 5 5 0 000-10zm0-6a1 1 0 011 1v2a1 1 0 11-2 0V2a1 1 0 011-1zm0 19a1 1 0 011 1v2a1 1 0 11-2 0v-2a1 1 0 011-1zM2 11h2a1 1 0 110 2H2a1 1 0 110-2zm18 0h2a1 1 0 110 2h-2a1 1 0 110-2z"/>
+                    </svg>
+                    <svg class="ico-moon" viewBox="0 0 24 24" width="15" height="15">
+                        <path fill="currentColor" d="M21.4 13.7C20.2 13.9 18.9 14 17.5 14c-5.5 0-10-4.5-10-10 0-1.4.1-2.7.3-3.9C3.5 1.8 0 6.3 0 11.5 0 17.9 5.1 23 11.5 23c5.2 0 9.7-3.5 11.4-7.8-.5 0-1 .1-1.5.1z"/>
+                    </svg>
+                </span>
+            </button>
+            <a href="index.html#contact" class="btn btn-primary btn-sm">Get in Touch</a>
+        </div>
+    </div>
+
+    <!-- ============ HERO ============ -->
+    <header class="garage" id="garage">
+        <div class="garage-title">
+            <p class="eyebrow">Beyond the code</p>
+            <h1>HOBBIES</h1>
+            <p class="tag-line">Automobiles · Photography · Gaming</p>
+        </div>
+        <a class="scroll-cue" href="#hobbies" aria-label="Scroll to hobbies">
+            <span>Scroll</span>
+            <i aria-hidden="true"></i>
+        </a>
+    </header>
+
+    <!-- ============ HOBBIES ============ -->
+    <main class="hb-section" id="hobbies">
+        <div class="container hb-intro">
+            <p class="eyebrow" data-reveal="up">What drives me</p>
+            <h2 class="sec-title" data-reveal="up">More than <span class="grad-text">pastimes</span></h2>
+            <p data-reveal="up" data-reveal-delay="120">
+                My hobbies are passions that shape who I am and how I see the world. Each one lets me express
+                myself differently and keeps me learning — from the mechanical world of automobiles to the creative
+                realms of photography and music. They've taught me patience, creativity, and the value of pursuing
+                what truly excites me.
+            </p>
+        </div>
+
+        <div class="container">
+            <!-- Automobilism -->
+            <section class="hobby" data-reveal="up">
+                <div class="hobby-copy">
+                    <span class="hobby-num">01 — GARAGE</span>
+                    <h3>Automobilism</h3>
+                    <p>
+                        I've always been fascinated by cars and the freedom they represent on the open road. There's
+                        something special about understanding how engines work and appreciating automotive design —
+                        car shows, new models, or simply going for a drive.
+                    </p>
+                    <p>
+                        The blend of engineering excellence and artistic design in automobiles never ceases to amaze
+                        me. For me, automobilism is the thrill of the journey and a passion for mechanical innovation —
+                        that's why this page opens with a car I can spin with my fingertips.
+                    </p>
+                </div>
+                <div class="hobby-media car-stage" id="carStage">
+                    <canvas id="carCanvas" aria-label="Interactive 3D sports car — drag to spin"></canvas>
+                    <div class="garage-fallback" aria-hidden="true"></div>
+                    <p class="drag-hint" id="dragHint">Drag to spin — scroll to roll</p>
+                </div>
+            </section>
+
+            <!-- Photography -->
+            <section class="hobby" data-reveal="up">
+                <div class="hobby-copy">
+                    <span class="hobby-num">02 — LENS</span>
+                    <h3>Mobile Photography</h3>
+                    <p>
+                        I love capturing moments wherever I go — my phone is always with me to do just that. Mobile
+                        photography lets me express creativity and see the world through a different lens, from
+                        landscapes to candid street shots.
+                    </p>
+                    <p>
+                        What excites me most is how accessible it is: no heavy equipment, just my phone and my vision.
+                        I'm constantly learning about composition, lighting and editing — preserving memories and
+                        sharing my perspective in a creative way.
+                    </p>
+                </div>
+                <div class="hobby-media" data-parallax>
+                    <img src="assets/opt/photography-camera-800.webp"
+                        srcset="assets/opt/photography-camera-800.webp 800w, assets/opt/photography-camera-1600.webp 1600w"
+                        sizes="(max-width: 820px) 92vw, 46vw"
+                        alt="Indrajit shooting with a Canon DSLR" loading="lazy" decoding="async"
+                        width="1600" height="900">
+                </div>
+            </section>
+
+            <!-- Gaming -->
+            <section class="hobby" data-reveal="up">
+                <div class="hobby-copy">
+                    <span class="hobby-num">03 — ARCADE</span>
+                    <h3>Gaming</h3>
+                    <p>
+                        Gaming has been a passion of mine since childhood. Whether it's strategy games that test my 
+                        problem-solving skills or action-packed adventures that keep my reflexes sharp, I love the 
+                        challenge and immersion that gaming provides.
+                    </p>
+                    <p>
+                        From casual mobile games to competitive multiplayer experiences, gaming helps me unwind while 
+                        staying mentally engaged. It's taught me teamwork, quick decision-making, and the persistence 
+                        to keep trying until I succeed — skills that translate well into my professional life.
+                    </p>
+                </div>
+                <div class="hobby-media game-preview-container" id="gamePreviewContainer">
+                    <video id="gameLoop" class="game-loop-video"
+                        src="assets/video/gaming-loop.mp4"
+                        poster="assets/video/gaming-loop-poster.webp"
+                        autoplay loop muted playsinline preload="metadata"
+                        aria-label="Gameplay footage on loop"></video>
+                    <button class="game-play-btn" id="gamePlayBtn" aria-label="Play Mini Militia fullscreen">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M8 5v14l11-7z"/>
+                        </svg>
+                        <span>Play Now</span>
+                    </button>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- ============ MUSIC I LOVE ============ -->
+    <style>
+    .music {
+        position: relative; isolation: isolate;
+        display: flex; align-items: center;
+        min-height: min(100svh, 52rem);
+        padding: clamp(4rem, 9vw, 7rem) 0;
+        overflow: hidden; overflow: clip;
+        content-visibility: auto;
+        contain-intrinsic-size: auto 52rem;
+    }
+
+    /* Warm gradient in the site's own khaki/umber range, with a heavily
+       blurred cut-out of Indrajit standing in it — the same composition as the
+       reference, without importing a foreign orange palette. */
+    /* The backdrop is a real photograph, pre-blurred at build time (ffmpeg
+       gblur) rather than with a heavy CSS filter — 15 KB and far cheaper to
+       paint. The gradient above it pulls the colour back to the site palette. */
+    .music-figure {
+        position: absolute; inset: 0; z-index: -3;
+        width: 100%; height: 100%;
+        object-fit: cover; object-position: 50% 38%;
+        filter: blur(6px) brightness(0.62) saturate(1.05);
+        transform: scale(1.08);
+        pointer-events: none;
+    }
+    .music::before {
+        content: ""; position: absolute; inset: 0; z-index: -2;
+        background:
+            radial-gradient(115% 85% at 50% 12%, rgba(216, 177, 132, 0.5) 0%,
+                rgba(184, 129, 79, 0.5) 24%, rgba(125, 81, 51, 0.58) 48%,
+                rgba(61, 40, 25, 0.72) 72%, rgba(20, 15, 11, 0.88) 100%);
+    }
+    [data-theme="light"] .music::before {
+        background:
+            radial-gradient(115% 85% at 50% 12%, rgba(240, 220, 194, 0.44) 0%,
+                rgba(217, 180, 135, 0.46) 24%, rgba(176, 133, 88, 0.55) 50%,
+                rgba(109, 76, 49, 0.7) 78%, rgba(58, 40, 26, 0.85) 100%);
+    }
+    /* vignette so the copy and card always sit on something calm */
+    .music::after {
+        content: ""; position: absolute; inset: 0; z-index: -1;
+        background: linear-gradient(180deg, rgba(20, 15, 11, 0.5) 0%,
+            rgba(20, 15, 11, 0.15) 35%, rgba(20, 15, 11, 0.55) 100%);
+    }
+
+    .music-inner {
+        display: grid;
+        /* the player column is sized here, not by a percentage on .player —
+           `width: min(23rem, 100%)` inside an `auto` column resolves
+           circularly and collapses the card to ~60% of its intended width */
+        grid-template-columns: minmax(0, 1fr) min(23rem, 40vw);
+        align-items: center; gap: clamp(2rem, 5vw, 4.5rem);
+    }
+
+    .music-eyebrow {
+        display: inline-flex; align-items: center; gap: 0.55rem;
+        font-family: var(--font-m); font-size: 0.68rem; font-weight: 500;
+        letter-spacing: 0.16em; text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.72); margin-bottom: 1.1rem;
+    }
+    .music-eyebrow::before {
+        content: ""; width: 5px; height: 5px; border-radius: 50%;
+        background: #fff; flex: 0 0 auto;
+    }
+    .music-title {
+        font-family: var(--font-d);
+        font-size: clamp(3.2rem, 9vw, 7.5rem);
+        font-weight: 400; font-variation-settings: 'wdth' 100;
+        line-height: 0.92; letter-spacing: -0.035em;
+        color: #fff;
+    }
+    .music-title b { font-weight: 900; }
+    .music-sub {
+        margin-top: 1.4rem; max-width: 34ch;
+        color: rgba(255, 255, 255, 0.72);
+        font-size: clamp(0.92rem, 1.2vw, 1.02rem); line-height: 1.6;
+    }
+
+    /* ---------- player card ---------- */
+    .player {
+        width: 100%;
+        padding: 1.15rem;
+        border-radius: 26px;
+        border: 1px solid rgba(255, 255, 255, 0.12);
+        background: rgba(14, 11, 9, 0.72);
+        backdrop-filter: blur(26px) saturate(140%);
+        -webkit-backdrop-filter: blur(26px) saturate(140%);
+        box-shadow: 0 30px 70px -30px rgba(0, 0, 0, 0.8);
+        color: #fff;
+    }
+
+    .player-head {
+        display: flex; align-items: center; justify-content: space-between;
+        margin-bottom: 1rem;
+    }
+    .player-status {
+        display: inline-flex; align-items: center; gap: 0.45rem;
+        padding: 0.32rem 0.7rem; border-radius: 99px;
+        border: 1px solid rgba(255, 255, 255, 0.16);
+        font-family: var(--font-m); font-size: 0.58rem; font-weight: 500;
+        letter-spacing: 0.14em; text-transform: uppercase;
+        color: rgba(255, 255, 255, 0.8);
+    }
+    .player-mark {
+        display: grid; place-items: center;
+        width: 26px; height: 26px; border-radius: 8px;
+        background: rgba(255, 255, 255, 0.1);
+        font-size: 0.8rem;
+    }
+
+    /* Two cards: the selected one sits in front, the other slips back and
+       blurs. Clicking the back card brings it forward. */
+    /* margin-top reserves the space the back card peeks up into */
+    .deck { position: relative; aspect-ratio: 1 / 1; margin-top: 2.1rem; }
+    .disc {
+        position: absolute; inset: 0;
+        padding: 0; border: 0; cursor: pointer;
+        border-radius: 18px; overflow: hidden;
+        background: var(--disc-tint, linear-gradient(150deg, #7d5133, #140f0b));
+        transform-origin: 50% 50%;
+        transition: transform 0.55s var(--ease), filter 0.55s var(--ease),
+            opacity 0.55s var(--ease), box-shadow 0.55s var(--ease);
+    }
+    .disc img { width: 100%; height: 100%; object-fit: cover; display: block; }
+
+    /* The front card is inset down-left and the back card fanned up-right, so
+       a clear L-shaped wedge of the back cover stays visible inside the panel
+       rather than hiding behind the front card. */
+    .disc.is-front {
+        transform: translate(-6%, 6%) scale(0.88);
+        filter: none;
+        opacity: 1; z-index: 2;
+        box-shadow: 0 20px 44px -20px rgba(0, 0, 0, 0.8);
+    }
+    /* sits behind and above, so its top edge stays visible */
+    .disc.is-back {
+        transform: translate(8%, -8%) scale(0.8) rotate(-3deg);
+        /* Not dimmed at all: both covers are dark images and this strip sits
+           on a near-black panel, so any brightness cut makes it disappear.
+           The blur alone says "behind"; the ring defines the card edge. */
+        filter: blur(5px) saturate(0.95);
+        opacity: 1; z-index: 1;
+        box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.38),
+            0 16px 32px -14px rgba(0, 0, 0, 0.75);
+    }
+    /* clears the blur on hover so it reads as selectable */
+    .disc.is-back:hover, .disc.is-back:focus-visible {
+        transform: translate(9%, -10%) scale(0.84) rotate(-2deg);
+        filter: blur(1.5px) saturate(1);
+        box-shadow: 0 0 0 1.5px rgba(255, 255, 255, 0.6),
+            0 18px 36px -14px rgba(0, 0, 0, 0.75);
+    }
+    .disc:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .disc { transition: none; }
+    }
+
+    .player-meta { margin: 0.95rem 0 0.2rem; }
+    .player-meta h3 {
+        font-family: var(--font-d); font-size: 1.08rem; font-weight: 800;
+        font-variation-settings: 'wdth' 100; letter-spacing: -0.01em;
+    }
+    .player-meta p {
+        font-size: 0.78rem; color: rgba(255, 255, 255, 0.6); margin-top: 0.15rem;
+    }
+
+    /* iOS-style sliders: rounded, filled to the left of the thumb */
+    .mp-range {
+        -webkit-appearance: none; appearance: none;
+        width: 100%; height: 22px; margin: 0;
+        background: none; cursor: pointer;
+    }
+    .mp-range::-webkit-slider-runnable-track {
+        height: 6px; border-radius: 99px;
+        background: linear-gradient(to right, #fff var(--fill, 0%),
+            rgba(255, 255, 255, 0.22) var(--fill, 0%));
+    }
+    .mp-range::-webkit-slider-thumb {
+        -webkit-appearance: none; appearance: none;
+        width: 14px; height: 14px; margin-top: -4px;
+        border-radius: 50%; background: #fff;
+        box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+        transition: transform 0.15s var(--ease);
+    }
+    .mp-range:active::-webkit-slider-thumb { transform: scale(1.25); }
+    .mp-range::-moz-range-track {
+        height: 6px; border-radius: 99px; background: rgba(255, 255, 255, 0.22);
+    }
+    .mp-range::-moz-range-progress { height: 6px; border-radius: 99px; background: #fff; }
+    .mp-range::-moz-range-thumb {
+        width: 14px; height: 14px; border: 0; border-radius: 50%; background: #fff;
+    }
+    .mp-range:focus-visible { outline: 2px solid #fff; outline-offset: 4px; border-radius: 99px; }
+
+    .player-seek { margin-top: 0.75rem; }
+    .player-times {
+        display: flex; justify-content: space-between;
+        font-family: var(--font-m); font-size: 0.6rem;
+        color: rgba(255, 255, 255, 0.55);
+        margin-top: -0.15rem;
+    }
+
+    .player-controls {
+        display: flex; align-items: center; justify-content: center;
+        gap: 1.5rem; margin: 0.85rem 0 0.35rem;
+    }
+    .player-controls button {
+        display: grid; place-items: center;
+        width: 42px; height: 42px; border-radius: 50%;
+        color: #fff; background: none; border: 0; cursor: pointer;
+        transition: background 0.25s var(--ease), transform 0.2s var(--ease);
+    }
+    .player-controls button:hover { background: rgba(255, 255, 255, 0.12); }
+    .player-controls button:active { transform: scale(0.92); }
+    .player-controls .mp-play {
+        width: 56px; height: 56px;
+        background: #fff; color: #14100b;
+    }
+    .player-controls .mp-play:hover { background: rgba(255, 255, 255, 0.88); }
+    .player-controls button:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+    .player-volume {
+        display: flex; align-items: center; gap: 0.6rem;
+        padding: 0.2rem 0.1rem 0.5rem;
+        color: rgba(255, 255, 255, 0.7);
+    }
+    .player-volume svg { flex: 0 0 auto; }
+
+    @media (max-width: 900px) {
+        .music-inner { grid-template-columns: 1fr; }
+        .music-figure { width: min(110vw, 30rem); filter: blur(30px) grayscale(1) brightness(0.3); }
+        .player { width: 100%; max-width: 26rem; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+        .player-controls button { transition: none; }
+    }
+    </style>
+
+    <section class="music" id="music">
+        <img class="music-figure" src="assets/music/backdrop-night-garden-blur.webp" alt="" aria-hidden="true"
+            loading="lazy" decoding="async" width="900" height="1203">
+
+        <div class="music-inner container">
+            <div class="music-copy" data-reveal="up">
+                <p class="music-eyebrow">Off the clock</p>
+                <h2 class="music-title">Music<br><b>I Love</b></h2>
+                <p class="music-sub">
+                    Two tracks on heavy rotation while I work — one for the late builds,
+                    one for the deadlines.
+                </p>
+            </div>
+
+            <div class="player" data-reveal="up" data-reveal-delay="140">
+                <div class="player-head">
+                    <span class="player-mark" aria-hidden="true">♪</span>
+                    <span class="player-status"><span class="pulse-dot" aria-hidden="true"></span>On repeat</span>
+                </div>
+
+                <div class="deck" id="mpDeck"></div>
+
+                <div class="player-meta">
+                    <h3 id="mpTitle">Lose My Mind</h3>
+                    <p id="mpArtist">Don Toliver · feat. Doja Cat</p>
+                </div>
+
+                <div class="player-seek">
+                    <input class="mp-range" type="range" id="mpSeek" min="0" max="100" step="0.1" value="0"
+                        aria-label="Seek through track">
+                    <div class="player-times"><span id="mpNow">0:00</span><span id="mpDur">0:00</span></div>
+                </div>
+
+                <div class="player-controls">
+                    <button type="button" id="mpPrev" aria-label="Previous track">
+                        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M7 6h2v12H7zm3 6 8-6v12z"/></svg>
+                    </button>
+                    <button type="button" id="mpPlay" class="mp-play" aria-label="Play">
+                        <svg id="mpIconPlay" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M8 5v14l11-7z"/></svg>
+                        <svg id="mpIconPause" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" hidden><path fill="currentColor" d="M7 5h3.5v14H7zm6.5 0H17v14h-3.5z"/></svg>
+                    </button>
+                    <button type="button" id="mpNext" aria-label="Next track">
+                        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M15 6h2v12h-2zM6 6l8 6-8 6z"/></svg>
+                    </button>
+                </div>
+
+                <div class="player-volume">
+                    <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true"><path fill="currentColor" d="M5 9v6h4l5 4V5L9 9z"/></svg>
+                    <input class="mp-range" type="range" id="mpVol" min="0" max="100" step="1" value="80"
+                        aria-label="Volume">
+                    <svg viewBox="0 0 24 24" width="17" height="17" aria-hidden="true"><path fill="currentColor" d="M3 9v6h4l5 4V5L7 9zm11.5-.5a4 4 0 0 1 0 7v-2a2 2 0 0 0 0-3zm0-4a8 8 0 0 1 0 15v-2a6 6 0 0 0 0-11z"/></svg>
+                </div>
+
+                <audio id="mpAudio" preload="none"></audio>
+            </div>
+        </div>
+    </section>
+
+    <script>
+    (function () {
+      'use strict';
+
+      var TRACKS = [
+        {
+          title: 'Lose My Mind',
+          artist: 'Don Toliver · feat. Doja Cat',
+          src: 'assets/music/lose-my-mind.mp3',
+          cover: 'assets/music/cover-lose-my-mind.webp',
+          tint: 'linear-gradient(150deg, #b9a3dd, #7e5cb8 45%, #3a2456)',
+          len: '3:29'
+        },
+        {
+          title: 'Legends Never Die',
+          artist: 'League of Legends · feat. Against The Current',
+          src: 'assets/music/legends-never-die.mp3',
+          cover: 'assets/music/cover-legends-never-die.webp',
+          tint: 'linear-gradient(150deg, #d0a44e, #8e2b2b 48%, #2a0f10)',
+          len: '3:55'
+        }
+      ];
+
+      var $ = function (id) { return document.getElementById(id); };
+      var audio = $('mpAudio');
+      if (!audio) return;
+
+      var deck = $('mpDeck');
+      var elTitle = $('mpTitle'), elArtist = $('mpArtist');
+      var seek = $('mpSeek'), now = $('mpNow'), dur = $('mpDur');
+      var play = $('mpPlay'), iPlay = $('mpIconPlay'), iPause = $('mpIconPause');
+      var vol = $('mpVol');
+      var i = 0, discs = [];
+
+      function fmt(s) {
+        if (!isFinite(s) || s < 0) return '0:00';
+        var m = Math.floor(s / 60), r = Math.floor(s % 60);
+        return m + ':' + (r < 10 ? '0' : '') + r;
+      }
+
+      function fill(el, pct) { el.style.setProperty('--fill', pct + '%'); }
+
+      function buildDeck() {
+        TRACKS.forEach(function (t, n) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'disc';
+          b.style.setProperty('--disc-tint', t.tint);
+          b.innerHTML = '<img src="' + t.cover + '" alt="" onerror="this.remove()">';
+          b.addEventListener('click', function () {
+            // clicking the card already in front toggles playback
+            if (n === i) {
+              if (audio.paused) audio.play().catch(function () {}); else audio.pause();
+            } else {
+              load(n, true);
+            }
+          });
+          deck.appendChild(b);
+          discs.push(b);
+        });
+      }
+
+      function markDeck() {
+        discs.forEach(function (d, n) {
+          var front = n === i;
+          d.classList.toggle('is-front', front);
+          d.classList.toggle('is-back', !front);
+          d.setAttribute('aria-current', front ? 'true' : 'false');
+          d.setAttribute('aria-label',
+            (front ? 'Play or pause ' : 'Switch to ') + TRACKS[n].title);
+          // only the front card should be reachable as the primary target
+          d.tabIndex = 0;
+        });
+      }
+
+      function load(n, autoplay) {
+        i = (n + TRACKS.length) % TRACKS.length;
+        var t = TRACKS[i];
+        audio.src = t.src;
+        elTitle.textContent = t.title;
+        elArtist.textContent = t.artist;
+        dur.textContent = t.len;
+        now.textContent = '0:00';
+        seek.value = 0;
+        fill(seek, 0);
+        markDeck();
+        if (autoplay) audio.play().catch(function () { /* gesture required */ });
+      }
+
+      // NOTE: `hidden` is an IDL property of HTMLElement only — assigning
+      // svg.hidden silently does nothing. Toggle the attribute instead.
+      function setPlayingIcon(playing) {
+        iPlay.toggleAttribute('hidden', playing);
+        iPause.toggleAttribute('hidden', !playing);
+        play.setAttribute('aria-label', playing ? 'Pause' : 'Play');
+      }
+
+      play.addEventListener('click', function () {
+        if (audio.paused) audio.play().catch(function () {}); else audio.pause();
+      });
+      $('mpNext').addEventListener('click', function () { load(i + 1, !audio.paused || audio.currentTime > 0); });
+      $('mpPrev').addEventListener('click', function () {
+        // restart first, then step back — the usual music-player behaviour
+        if (audio.currentTime > 3) { audio.currentTime = 0; return; }
+        load(i - 1, !audio.paused || audio.currentTime > 0);
+      });
+
+      audio.addEventListener('play', function () { setPlayingIcon(true); });
+      audio.addEventListener('pause', function () { setPlayingIcon(false); });
+      audio.addEventListener('ended', function () { load(i + 1, true); });
+      audio.addEventListener('loadedmetadata', function () { dur.textContent = fmt(audio.duration); });
+      audio.addEventListener('timeupdate', function () {
+        if (!audio.duration) return;
+        var pct = (audio.currentTime / audio.duration) * 100;
+        seek.value = pct;
+        fill(seek, pct);
+        now.textContent = fmt(audio.currentTime);
+      });
+
+      seek.addEventListener('input', function () {
+        fill(seek, this.value);
+        if (audio.duration) {
+          audio.currentTime = (this.value / 100) * audio.duration;
+          now.textContent = fmt(audio.currentTime);
+        }
+      });
+
+      vol.addEventListener('input', function () {
+        audio.volume = this.value / 100;
+        fill(vol, this.value);
+      });
+
+      buildDeck();
+      audio.volume = vol.value / 100;
+      fill(vol, vol.value);
+      load(0, false);
+      setPlayingIcon(false);
+    })();
+    </script>
+
+    <footer class="hb-footer">
+        <a href="index.html" class="btn btn-primary">← Back to Portfolio</a>
+        <p>© <span id="year">2026</span> Indrajit Sarkar</p>
+    </footer>
+
+    <!-- Mini Militia Fullscreen Modal -->
+    <div class="voxel-fullscreen" id="voxelFullscreen">
+        <button class="voxel-close-btn" id="voxelCloseBtn" aria-label="Close game">
+            <svg viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
+            </svg>
+        </button>
+        <iframe id="voxelFullscreenIframe" src="" title="Mini Militia — doodle combat game"></iframe>
+    </div>
+
+    <!-- ---------- Page interactions (no dependencies) ---------- -->
+    <script>
+        (() => {
+            'use strict';
+            const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+            document.documentElement.classList.add('anim-ready');
+            document.getElementById('year').textContent = new Date().getFullYear();
+
+            // Theme initialization and sync with localStorage
+            const initTheme = () => {
+                const btn = document.getElementById('themeToggle');
+                const doc = document.documentElement;
+                const saved = localStorage.getItem('theme');
+                
+                // Apply saved theme or default to dark
+                if (saved) {
+                    doc.setAttribute('data-theme', saved);
+                }
+                
+                // Sync aria-checked attribute
+                const sync = () => {
+                    if (btn) {
+                        btn.setAttribute('aria-checked', String(doc.getAttribute('data-theme') === 'dark'));
+                    }
+                };
+                sync();
+                
+                // Toggle theme on button click
+                if (btn) {
+                    btn.addEventListener('click', () => {
+                        const currentTheme = doc.getAttribute('data-theme');
+                        const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+                        doc.setAttribute('data-theme', newTheme);
+                        localStorage.setItem('theme', newTheme);
+                        sync();
+                    });
+                }
+            };
+            
+            initTheme();
+
+            // Reveals
+            const items = document.querySelectorAll('[data-reveal]');
+            if (!('IntersectionObserver' in window) || reduced) {
+                items.forEach(el => el.classList.add('is-in'));
+            } else {
+                const io = new IntersectionObserver((es) => {
+                    es.forEach(en => {
+                        if (!en.isIntersecting) return;
+                        const d = parseInt(en.target.dataset.revealDelay || '0', 10);
+                        if (d) en.target.style.transitionDelay = d + 'ms';
+                        en.target.classList.add('is-in');
+                        io.unobserve(en.target);
+                    });
+                }, { threshold: 0.12 });
+                items.forEach(el => io.observe(el));
+            }
+
+            // Image parallax inside hobby cards
+            if (!reduced) {
+                const medias = Array.from(document.querySelectorAll('[data-parallax] img'));
+                let tick = false;
+                const move = () => {
+                    tick = false;
+                    const vh = innerHeight;
+                    medias.forEach(img => {
+                        const r = img.parentElement.getBoundingClientRect();
+                        if (r.bottom < 0 || r.top > vh) return;
+                        const p = (r.top + r.height / 2 - vh / 2) / vh; // -0.5..0.5
+                        img.style.transform = `translateY(${(-p * 14).toFixed(2)}%)`;
+                    });
+                };
+                addEventListener('scroll', () => { if (!tick) { tick = true; requestAnimationFrame(move); } }, { passive: true });
+                move();
+            }
+        })();
+    </script>
+
+
+    <!-- ---------- VOXELCRAFT MODAL HANDLER ---------- -->
+    <script>
+        // Mini Militia game modal (opens on Play Now)
+        document.addEventListener('DOMContentLoaded', () => {
+            const gamePlayBtn = document.getElementById('gamePlayBtn');
+            const shell = document.getElementById('voxelFullscreen');
+            const closeBtn = document.getElementById('voxelCloseBtn');
+            const frame = document.getElementById('voxelFullscreenIframe');
+            if (!gamePlayBtn || !shell || !closeBtn) return;
+
+            const close = () => {
+                shell.classList.remove('active');
+                frame.src = '';
+                document.body.style.overflow = '';
+            };
+
+            gamePlayBtn.addEventListener('click', () => {
+                frame.src = 'minimilitia.html';
+                shell.classList.add('active');
+                document.body.style.overflow = 'hidden';
+                // hand keyboard focus to the game so WASD reaches it
+                frame.addEventListener('load', () => frame.focus(), { once: true });
+            });
+
+            closeBtn.addEventListener('click', close);
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && shell.classList.contains('active')) close();
+            });
+            // the game's own exit button posts back to us
+            window.addEventListener('message', (e) => {
+                if (e.data === 'mm:exit') close();
+            });
+        });
+    </script>
+
+    <!-- ---------- 3D CAR (Three.js) ---------- -->
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module">
+        import * as THREE from 'three';
+        import { RoundedBoxGeometry } from 'three/addons/geometries/RoundedBoxGeometry.js';
+        import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
+        import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
+        import { DRACOLoader } from 'three/addons/loaders/DRACOLoader.js';
+
+        const canvas = document.getElementById('carCanvas');
+        const stage = document.getElementById('carStage');
+        const hint = document.getElementById('dragHint');
+        const reduced = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+        let renderer;
+        try {
+            renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: true, powerPreference: 'high-performance' });
+        } catch (e) {
+            stage.classList.add('no-webgl');
+            throw e;
+        }
+        renderer.setPixelRatio(Math.min(devicePixelRatio, 2));
+        renderer.toneMapping = THREE.ACESFilmicToneMapping;
+        renderer.toneMappingExposure = 1.15;
+
+        const scene = new THREE.Scene();
+        scene.fog = new THREE.Fog(0x050508, 14, 34);
+
+        const camera = new THREE.PerspectiveCamera(38, 1, 0.1, 100);
+        camera.position.set(0, 1.7, 8.4);
+        camera.lookAt(0, 0.5, 0);
+
+        // Environment reflections for the car paint
+        const pmrem = new THREE.PMREMGenerator(renderer);
+        scene.environment = pmrem.fromScene(new RoomEnvironment(), 0.04).texture;
+
+        /* ---------- Lights ---------- */
+        scene.add(new THREE.HemisphereLight(0x8899ff, 0x0a0a12, 0.35));
+        const key = new THREE.DirectionalLight(0xffffff, 1.6);
+        key.position.set(4, 7, 4);
+        scene.add(key);
+        const rimBlue = new THREE.DirectionalLight(0x5b8cff, 2.2);
+        rimBlue.position.set(-7, 2.5, -4);
+        scene.add(rimBlue);
+        const rimCyan = new THREE.DirectionalLight(0x22d3ee, 1.6);
+        rimCyan.position.set(7, 2, -5);
+        scene.add(rimCyan);
+        const underglow = new THREE.PointLight(0x3b82f6, 4, 6);
+        underglow.position.set(0, 0.12, 0);
+        scene.add(underglow);
+
+        /* ---------- Floor ---------- */
+        const floor = new THREE.Mesh(
+            new THREE.CircleGeometry(16, 48),
+            new THREE.MeshStandardMaterial({ color: 0x0a0a12, roughness: 0.32, metalness: 0.75 })
+        );
+        floor.rotation.x = -Math.PI / 2;
+        scene.add(floor);
+
+        // Glowing pedestal ring under the car
+        const pedestal = new THREE.Mesh(
+            new THREE.RingGeometry(3.15, 3.3, 72),
+            new THREE.MeshBasicMaterial({ color: 0x6d8cff, transparent: true, opacity: 0.85, side: THREE.DoubleSide })
+        );
+        pedestal.rotation.x = -Math.PI / 2;
+        pedestal.position.y = 0.012;
+        scene.add(pedestal);
+        const pedestal2 = new THREE.Mesh(
+            new THREE.RingGeometry(3.34, 3.42, 72),
+            new THREE.MeshBasicMaterial({ color: 0x22d3ee, transparent: true, opacity: 0.28, side: THREE.DoubleSide })
+        );
+        pedestal2.rotation.x = -Math.PI / 2;
+        pedestal2.position.y = 0.012;
+        scene.add(pedestal2);
+
+        /* ---------- Car — real DRACO-compressed GLB (assets/models/car.glb),
+           with a simple procedural fallback if the model cannot load ---------- */
+        const car = new THREE.Group();
+        scene.add(car);
+        let wheels = [];
+
+        const paint = new THREE.MeshPhysicalMaterial({
+            color: 0x1c46c8, metalness: 1.0, roughness: 0.45,
+            clearcoat: 1.0, clearcoatRoughness: 0.03,
+        });
+        const details = new THREE.MeshStandardMaterial({ color: 0xdfe2ea, metalness: 1.0, roughness: 0.4 });
+        const glass = new THREE.MeshPhysicalMaterial({
+            color: 0xffffff, metalness: 0.25, roughness: 0, transmission: 1.0,
+        });
+        const darkTrim = new THREE.MeshStandardMaterial({ color: 0x0b0b10, roughness: 0.55, metalness: 0.4 });
+
+        function buildFallbackCar() {
+            const fpaint = new THREE.MeshPhysicalMaterial({
+                color: 0x1c46c8, metalness: 0.85, roughness: 0.28, clearcoat: 1.0, clearcoatRoughness: 0.08,
+            });
+            const chrome = new THREE.MeshStandardMaterial({ color: 0xd8dce6, metalness: 1, roughness: 0.15 });
+            const fglass = new THREE.MeshPhysicalMaterial({
+                color: 0x0a0f18, metalness: 0.2, roughness: 0.05, clearcoat: 1, opacity: 0.96, transparent: true,
+            });
+            const add = (geo, mat, x, y, z, rx = 0) => {
+                const m = new THREE.Mesh(geo, mat);
+                m.position.set(x, y, z); m.rotation.x = rx; car.add(m); return m;
+            };
+            add(new RoundedBoxGeometry(2.05, 0.34, 4.7, 4, 0.1), darkTrim, 0, 0.42, 0);
+            add(new RoundedBoxGeometry(2.0, 0.5, 4.55, 5, 0.13), fpaint, 0, 0.72, 0);
+            add(new RoundedBoxGeometry(1.88, 0.38, 1.4, 4, 0.12), fpaint, 0, 0.72, 2.0, 0.11);
+            const cab = add(new RoundedBoxGeometry(1.5, 0.62, 2.5, 5, 0.24), fglass, 0, 1.02, -0.42);
+            cab.scale.set(1, 0.85, 1);
+            add(new RoundedBoxGeometry(1.36, 0.07, 0.85, 3, 0.03), fglass, 0, 1.02, 0.74, -0.52);
+            add(new RoundedBoxGeometry(1.26, 0.07, 1.5, 3, 0.03), fpaint, 0, 1.25, -0.55);
+            add(new RoundedBoxGeometry(1.9, 0.34, 1.1, 4, 0.14), fpaint, 0, 0.98, -1.85);
+            add(new RoundedBoxGeometry(1.9, 0.07, 0.45, 3, 0.03), darkTrim, 0, 1.34, -2.28, -0.09);
+            const headMat = new THREE.MeshStandardMaterial({ color: 0xffffff, emissive: 0xcfe4ff, emissiveIntensity: 3.2 });
+            add(new RoundedBoxGeometry(0.42, 0.1, 0.08, 2, 0.03), headMat, -0.62, 0.82, 2.62);
+            add(new RoundedBoxGeometry(0.42, 0.1, 0.08, 2, 0.03), headMat, 0.62, 0.82, 2.62);
+            add(new RoundedBoxGeometry(1.72, 0.09, 0.06, 2, 0.02),
+                new THREE.MeshStandardMaterial({ color: 0xff2244, emissive: 0xff2244, emissiveIntensity: 2.6 }), 0, 1.02, -2.42);
+            const tyreMat = new THREE.MeshStandardMaterial({ color: 0x0a0a0c, roughness: 0.9 });
+            [[-1.02, 1.55], [1.02, 1.55], [-1.02, -1.5], [1.02, -1.5]].forEach(([x, z]) => {
+                const g = new THREE.Group();
+                const tyre = new THREE.Mesh(new THREE.CylinderGeometry(0.47, 0.47, 0.34, 24), tyreMat);
+                tyre.rotation.z = Math.PI / 2; g.add(tyre);
+                const rim = new THREE.Mesh(new THREE.CylinderGeometry(0.28, 0.28, 0.36, 16), chrome);
+                rim.rotation.z = Math.PI / 2; g.add(rim);
+                g.position.set(x, 0.47, z);
+                car.add(g); wheels.push(g);
+            });
+        }
+
+        const draco = new DRACOLoader();
+        draco.setDecoderPath('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/libs/draco/gltf/');
+        const gltfLoader = new GLTFLoader();
+        gltfLoader.setDRACOLoader(draco);
+        gltfLoader.load(
+            'assets/models/car.glb',
+            (gltf) => {
+                const model = gltf.scene.children[0];
+                const setMat = (name, mat) => {
+                    const o = model.getObjectByName(name);
+                    if (o) o.material = mat;
+                };
+                setMat('body', paint);
+                ['rim_fl', 'rim_fr', 'rim_rl', 'rim_rr', 'trim'].forEach((n) => setMat(n, details));
+                setMat('glass', glass);
+                wheels = ['wheel_fl', 'wheel_fr', 'wheel_rl', 'wheel_rr']
+                    .map((n) => model.getObjectByName(n)).filter(Boolean);
+                // baked ambient-occlusion shadow plate under the car
+                new THREE.TextureLoader().load('assets/models/car_ao.png', (aoTex) => {
+                    const shadow = new THREE.Mesh(
+                        new THREE.PlaneGeometry(0.655 * 4, 1.3 * 4),
+                        new THREE.MeshBasicMaterial({
+                            map: aoTex, blending: THREE.MultiplyBlending, toneMapped: false, transparent: true,
+                        })
+                    );
+                    shadow.rotation.x = -Math.PI / 2;
+                    shadow.renderOrder = 2;
+                    model.add(shadow);
+                });
+                car.add(model);
+            },
+            undefined,
+            () => buildFallbackCar()
+        );
+
+        car.rotation.y = 0.6;
+
+        /* ---------- Interaction: drag + scroll + idle ---------- */
+        let targetRot = 0.6, rot = 0.6, dragging = false, lastX = 0, vel = 0, idleAt = 0;
+        let scrollExtra = 0;
+
+        canvas.addEventListener('pointerdown', (e) => {
+            dragging = true; lastX = e.clientX; vel = 0;
+            canvas.classList.add('is-dragging');
+            canvas.setPointerCapture && canvas.setPointerCapture(e.pointerId);
+            hint && hint.classList.add('is-gone');
+        });
+        canvas.addEventListener('pointermove', (e) => {
+            if (!dragging) return;
+            const dx = e.clientX - lastX;
+            lastX = e.clientX;
+            targetRot += dx * 0.012;
+            vel = dx * 0.012;
+            idleAt = performance.now() + 3200;
+        });
+        const stop = () => { dragging = false; canvas.classList.remove('is-dragging'); };
+        canvas.addEventListener('pointerup', stop);
+        canvas.addEventListener('pointercancel', stop);
+
+        // Scroll = roll: the car does a full turn while its stage crosses the viewport
+        let scrollTick = false;
+        addEventListener('scroll', () => {
+            if (scrollTick) return;
+            scrollTick = true;
+            requestAnimationFrame(() => {
+                scrollTick = false;
+                const r = stage.getBoundingClientRect();
+                const vh = innerHeight || 1;
+                const p = Math.min(1, Math.max(0, (vh - r.top) / (vh + r.height)));
+                scrollExtra = p * Math.PI * 2;
+                wheelRoll = p * 22;
+                if (p > 0.65 && hint) hint.classList.add('is-gone');
+            });
+        }, { passive: true });
+
+        let wheelRoll = 0;
+
+        /* ---------- Render loop ---------- */
+        const clock = new THREE.Clock();
+        let visible = true;
+        if ('IntersectionObserver' in window) {
+            new IntersectionObserver((en) => { visible = en[0].isIntersecting; }).observe(stage);
+        }
+        document.addEventListener('visibilitychange', () => { visible = visible && !document.hidden; });
+
+        function resize() {
+            const w = stage.clientWidth, h = stage.clientHeight;
+            renderer.setSize(w, h, false);
+            camera.aspect = w / h;
+            // pull camera back on narrow stages so the car fits
+            camera.position.z = w < 420 ? 10.6 : w < 640 ? 9.4 : 8.4;
+            camera.updateProjectionMatrix();
+        }
+        addEventListener('resize', resize);
+        resize();
+
+        function frame(t) {
+            requestAnimationFrame(frame);
+            if (!visible || document.hidden) return;
+            const dt = Math.min(clock.getDelta(), 0.05);
+
+            if (!dragging) {
+                if (Math.abs(vel) > 0.0005) { targetRot += vel; vel *= 0.94; }
+                else if (!reduced && t > idleAt) targetRot += dt * 0.22; // idle turntable
+            }
+            rot += (targetRot - rot) * 0.12;
+            car.rotation.y = rot + scrollExtra;
+
+            const spin = reduced ? wheelRoll : wheelRoll + t * 0.0011;
+            wheels.forEach((w) => { w.rotation.x = spin; });
+
+            // gentle body breathing + pedestal shimmer
+            if (!reduced) {
+                car.position.y = Math.sin(t * 0.0012) * 0.03;
+                pedestal.material.opacity = 0.55 + Math.sin(t * 0.002) * 0.15;
+                underglow.intensity = 3.5 + Math.sin(t * 0.0023) * 1;
+            }
+            renderer.render(scene, camera);
+        }
+        requestAnimationFrame(frame);
+    </script>
+
+
+    <!-- Alex AI Companion — kept on this page, where the playful register fits.
+         Sprites are the 300px WebP set (assets/alex/<pose>.webp). -->
+    <style>
+    #alex-companion {
+      position: fixed;
+      right: 24px;
+      bottom: 24px;
+      width: 96px;
+      height: 132px;
+      z-index: 190;
+      border: 0;
+      padding: 0;
+      background: none;
+      cursor: pointer;
+      transition: transform 0.3s var(--ease), opacity 0.5s var(--ease);
+      animation: alexFloat 3.4s ease-in-out infinite;
+    }
+    #alex-companion:hover,
+    #alex-companion:focus-visible { transform: scale(1.06); }
+    #alex-companion.is-dormant { opacity: 0.5; }
+    #alex-companion.is-hidden { opacity: 0; pointer-events: none; }
+
+    @keyframes alexFloat {
+      0%, 100% { transform: translateY(0); }
+      50%      { transform: translateY(-8px); }
+    }
+
+    .alex-character-img {
+      width: 100%; height: 100%;
+      object-fit: contain; object-position: bottom center;
+      filter: drop-shadow(0 10px 26px rgba(0, 0, 0, 0.45));
+      transition: opacity 0.25s ease;
+      pointer-events: none;
+    }
+
+    @media (max-width: 768px) {
+      #alex-companion { width: 74px; height: 102px; right: 16px; bottom: 16px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      #alex-companion { animation: none; }
+    }
+    </style>
+    <script>
+    (function () {
+      'use strict';
+
+      var DIR = 'assets/alex/';
+      var SECTION_POSE = { garage: 'gaming', hobbies: 'relaxing' };
+
+      var Alex = {
+        pose: null,
+        section: 'garage',
+        hovering: false,
+        chatOpen: false,
+        lastActivity: Date.now(),
+
+        init: function () {
+          this.build();
+          this.watchSections();
+          this.watchHover();
+          this.watchChat();
+          this.watchIdle();
+        },
+
+        build: function () {
+          var b = document.createElement('button');
+          b.id = 'alex-companion';
+          b.type = 'button';
+          b.title = 'Chat with Alex';
+          b.setAttribute('aria-label', 'Chat with Alex about Indrajit');
+          b.innerHTML = '<img class="alex-character-img" id="alex-img" alt="" ' +
+            'src="' + DIR + 'waving.webp" width="300" height="450" decoding="async">';
+          b.addEventListener('click', this.openChat.bind(this));
+          document.body.appendChild(b);
+          this.el = b;
+          this.img = b.querySelector('#alex-img');
+          this.pose = 'waving';
+        },
+
+        set: function (pose) {
+          if (!pose || pose === this.pose) return;
+          this.pose = pose;
+          this.img.src = DIR + pose + '.webp';
+        },
+
+        rest: function () {
+          this.set(SECTION_POSE[this.section] || 'idle');
+        },
+
+        /* Whichever section crosses the middle of the viewport wins — #hobbies
+           is far taller than the viewport, so a ratio threshold never fires. */
+        watchSections: function () {
+          var self = this;
+          var nodes = Object.keys(SECTION_POSE)
+            .map(function (id) { return document.getElementById(id); })
+            .filter(Boolean);
+          if (!nodes.length) return;
+
+          var ticking = false;
+          var pick = function () {
+            ticking = false;
+            var mid = window.innerHeight / 2;
+            for (var i = 0; i < nodes.length; i++) {
+              var r = nodes[i].getBoundingClientRect();
+              if (r.top <= mid && r.bottom >= mid) {
+                if (self.section !== nodes[i].id) {
+                  self.section = nodes[i].id;
+                  if (!self.hovering && !self.chatOpen) self.rest();
+                }
+                return;
+              }
+            }
+          };
+
+          window.addEventListener('scroll', function () {
+            if (!ticking) { ticking = true; requestAnimationFrame(pick); }
+          }, { passive: true });
+          window.addEventListener('resize', pick, { passive: true });
+          pick();
+        },
+
+        watchHover: function () {
+          var self = this;
+          var cycle = ['excited', 'surprised', 'relaxing', 'sleeping'];
+          var i = 0, timer = null;
+
+          var enter = function () {
+            self.hovering = true;
+            self.lastActivity = Date.now();
+            i = 0;
+            self.set(cycle[0]);
+            timer = setInterval(function () {
+              i = (i + 1) % cycle.length;
+              self.set(cycle[i]);
+            }, 1400);
+          };
+          var leave = function () {
+            self.hovering = false;
+            if (timer) { clearInterval(timer); timer = null; }
+            if (!self.chatOpen) self.rest();
+          };
+
+          this.el.addEventListener('mouseenter', enter);
+          this.el.addEventListener('mouseleave', leave);
+          this.el.addEventListener('focus', enter);
+          this.el.addEventListener('blur', leave);
+          this.el.addEventListener('touchstart', enter, { passive: true });
+          this.el.addEventListener('touchend', function () {
+            setTimeout(leave, 900);
+          }, { passive: true });
+        },
+
+        watchChat: function () {
+          var self = this;
+          setInterval(function () {
+            var panel = document.querySelector('.alex-panel');
+            if (!panel) return;
+            var open = panel.classList.contains('is-open');
+            if (open === self.chatOpen) return;
+            self.chatOpen = open;
+            self.set(open ? 'explaining' : (SECTION_POSE[self.section] || 'idle'));
+          }, 500);
+        },
+
+        watchIdle: function () {
+          var self = this;
+          ['mousemove', 'touchstart', 'scroll', 'keydown'].forEach(function (ev) {
+            document.addEventListener(ev, function () {
+              self.lastActivity = Date.now();
+              self.el.classList.remove('is-dormant');
+            }, { passive: true });
+          });
+          setInterval(function () {
+            if (self.hovering || self.chatOpen) return;
+            var idle = Date.now() - self.lastActivity;
+            if (idle > 45000) {
+              self.set('sleeping');
+              self.el.classList.add('is-dormant');
+            } else if (idle > 20000) {
+              self.set('sitting');
+            }
+          }, 3000);
+        },
+
+        openChat: function () {
+          // the chatbot's own FAB is display:none — clicking it still opens the panel
+          var fab = document.querySelector('.alex-fab');
+          if (fab) fab.click();
+        }
+      };
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', Alex.init.bind(Alex));
+      } else {
+        Alex.init();
+      }
+    })();
+    </script>
+
+    <!-- Alex AI Chatbot -->
+    <link rel="stylesheet" href="chatbot/chatbot.css">
+    <script defer src="chatbot/chatbot.js"></script>
+</body>
+
+</html>
