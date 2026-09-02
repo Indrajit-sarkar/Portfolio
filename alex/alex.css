@@ -1,0 +1,585 @@
+/* ═══════════════════════════════════════════════════════════
+   Alex AI Companion - Core Styles
+   ═══════════════════════════════════════════════════════════ */
+
+#alex-companion {
+  position: fixed;
+  width: 100px;
+  height: 110px;
+  z-index: 99999;
+  pointer-events: none;
+  transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  will-change: transform;
+  visibility: visible !important;
+  opacity: 1 !important;
+  display: block !important;
+  background: rgba(255, 0, 0, 0.3); /* DEBUG: Red background */
+}
+
+#alex-companion * {
+  pointer-events: auto;
+  visibility: visible !important;
+}
+
+.alex-character {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transform-origin: bottom center;
+  cursor: pointer;
+  background: rgba(0, 255, 0, 0.3); /* DEBUG: Green background */
+}
+
+/* ── Character Body ─────────────────────────────────────── */
+.alex-body {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 60px;
+  height: 80px;
+}
+
+.alex-head {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #2d3748 0%, #1a202c 100%);
+  border-radius: 50% 50% 45% 45%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  animation: alex-breathe 3s ease-in-out infinite;
+}
+
+.alex-hair {
+  position: absolute;
+  top: -8px;
+  left: -5px;
+  width: 50px;
+  height: 30px;
+  background: #1a1a2e;
+  border-radius: 50% 50% 0 0;
+  animation: alex-hair-move 4s ease-in-out infinite;
+}
+
+.alex-glasses {
+  position: absolute;
+  top: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 12px;
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.alex-glass {
+  width: 12px;
+  height: 12px;
+  background: rgba(100, 200, 255, 0.3);
+  border: 2px solid #4a5568;
+  border-radius: 50%;
+  box-shadow: inset 0 2px 4px rgba(100, 200, 255, 0.5);
+}
+
+.alex-eyes {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 24px;
+  height: 8px;
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+}
+
+.alex-eye {
+  width: 6px;
+  height: 6px;
+  background: #1a1a2e;
+  border-radius: 50%;
+  animation: alex-blink 4s ease-in-out infinite;
+}
+
+.alex-mouth {
+  position: absolute;
+  top: 28px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 6px;
+  border-bottom: 2px solid #4a5568;
+  border-radius: 0 0 12px 12px;
+}
+
+.alex-torso {
+  position: absolute;
+  top: 38px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 36px;
+  height: 30px;
+  background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+  border-radius: 8px 8px 4px 4px;
+  box-shadow: 0 2px 8px rgba(30, 64, 175, 0.4);
+}
+
+.alex-hoodie {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+  border-radius: 8px 8px 4px 4px;
+  overflow: hidden;
+}
+
+.alex-hoodie::before {
+  content: 'AI';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  font-size: 10px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.6);
+  font-family: 'Courier New', monospace;
+}
+
+.alex-backpack {
+  position: absolute;
+  top: 40px;
+  left: -8px;
+  width: 16px;
+  height: 20px;
+  background: linear-gradient(135deg, #374151 0%, #1f2937 100%);
+  border-radius: 4px;
+  box-shadow: -2px 2px 6px rgba(0, 0, 0, 0.3);
+  animation: alex-backpack-bounce 2s ease-in-out infinite;
+}
+
+.alex-arms {
+  position: absolute;
+  top: 42px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 44px;
+  height: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.alex-arm {
+  width: 10px;
+  height: 24px;
+  background: linear-gradient(180deg, #1e40af 0%, #1e3a8a 100%);
+  border-radius: 6px;
+  transform-origin: top center;
+}
+
+.alex-arm-left {
+  animation: alex-arm-wave 2s ease-in-out infinite;
+}
+
+.alex-legs {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 24px;
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.alex-leg {
+  width: 10px;
+  height: 24px;
+  background: linear-gradient(180deg, #1f2937 0%, #111827 100%);
+  border-radius: 4px 4px 8px 8px;
+}
+
+.alex-shoes {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 32px;
+  height: 8px;
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+}
+
+.alex-shoe {
+  width: 12px;
+  height: 8px;
+  background: #1a1a2e;
+  border-radius: 4px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Robot Companion ────────────────────────────────────── */
+.alex-robot {
+  position: absolute;
+  top: 20px;
+  right: -30px;
+  width: 24px;
+  height: 28px;
+  animation: alex-robot-float 3s ease-in-out infinite;
+}
+
+.alex-robot-body {
+  position: relative;
+  width: 24px;
+  height: 20px;
+  background: linear-gradient(135deg, #60a5fa 0%, #3b82f6 100%);
+  border-radius: 8px;
+  box-shadow: 0 0 12px rgba(59, 130, 246, 0.6), 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.alex-robot-eyes {
+  position: absolute;
+  top: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 16px;
+  height: 6px;
+  display: flex;
+  gap: 4px;
+  justify-content: center;
+}
+
+.alex-robot-eye {
+  width: 5px;
+  height: 5px;
+  background: #0ff;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #0ff;
+  animation: alex-robot-blink 3s ease-in-out infinite;
+}
+
+.alex-robot-antenna {
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 2px;
+  height: 8px;
+  background: #60a5fa;
+}
+
+.alex-robot-antenna::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 6px;
+  background: #0ff;
+  border-radius: 50%;
+  box-shadow: 0 0 10px #0ff;
+}
+
+/* ── Laptop Accessory ───────────────────────────────────── */
+.alex-laptop {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 28px;
+  height: 20px;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s;
+}
+
+.alex-laptop.active {
+  opacity: 1;
+}
+
+.alex-laptop-screen {
+  width: 28px;
+  height: 16px;
+  background: linear-gradient(180deg, #1e3a8a 0%, #1e40af 100%);
+  border: 2px solid #374151;
+  border-radius: 2px;
+  position: relative;
+}
+
+.alex-laptop-screen::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  right: 2px;
+  bottom: 2px;
+  background: rgba(100, 200, 255, 0.1);
+  border-radius: 1px;
+}
+
+.alex-laptop-base {
+  width: 28px;
+  height: 4px;
+  background: #374151;
+  border-radius: 0 0 2px 2px;
+  margin-top: -1px;
+}
+
+/* ── Speech Bubble ──────────────────────────────────────── */
+.alex-speech {
+  position: absolute;
+  top: -60px;
+  left: 50%;
+  transform: translateX(-50%) scale(0);
+  min-width: 120px;
+  max-width: 200px;
+  padding: 8px 12px;
+  background: var(--glass-bg);
+  backdrop-filter: var(--glass-blur);
+  border: 1px solid var(--glass-line);
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  pointer-events: none;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  z-index: 10;
+}
+
+.alex-speech.active {
+  transform: translateX(-50%) scale(1);
+  opacity: 1;
+  animation: alex-speech-bounce 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.alex-speech::after {
+  content: '';
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 8px solid transparent;
+  border-right: 8px solid transparent;
+  border-top: 8px solid var(--glass-bg);
+}
+
+.alex-speech-text {
+  font-size: 12px;
+  color: var(--ink);
+  line-height: 1.4;
+  text-align: center;
+}
+
+.alex-speech-button {
+  display: block;
+  margin: 6px auto 0;
+  padding: 4px 12px;
+  background: var(--grad);
+  border: none;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+
+.alex-speech-button:hover {
+  transform: scale(1.05);
+}
+
+/* ── Sleep State ────────────────────────────────────────── */
+.alex-zzz {
+  position: absolute;
+  top: -40px;
+  left: 50%;
+  font-size: 16px;
+  opacity: 0;
+  animation: alex-zzz-float 2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+/* ── Animations ─────────────────────────────────────────── */
+@keyframes alex-breathe {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-2px); }
+}
+
+@keyframes alex-blink {
+  0%, 48%, 52%, 100% { height: 6px; }
+  50% { height: 1px; }
+}
+
+@keyframes alex-hair-move {
+  0%, 100% { transform: rotate(-2deg); }
+  50% { transform: rotate(2deg); }
+}
+
+@keyframes alex-arm-wave {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-20deg); }
+}
+
+@keyframes alex-backpack-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-2px); }
+}
+
+@keyframes alex-robot-float {
+  0%, 100% { transform: translateY(0) rotate(-5deg); }
+  50% { transform: translateY(-8px) rotate(5deg); }
+}
+
+@keyframes alex-robot-blink {
+  0%, 48%, 52%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+@keyframes alex-speech-bounce {
+  0% { transform: translateX(-50%) scale(0); }
+  50% { transform: translateX(-50%) scale(1.1); }
+  100% { transform: translateX(-50%) scale(1); }
+}
+
+@keyframes alex-zzz-float {
+  0% { 
+    opacity: 0;
+    transform: translateY(0) translateX(-50%);
+  }
+  50% { 
+    opacity: 1;
+    transform: translateY(-20px) translateX(-50%);
+  }
+  100% { 
+    opacity: 0;
+    transform: translateY(-40px) translateX(-50%);
+  }
+}
+
+/* ── Walking Animation ──────────────────────────────────── */
+.alex-walking .alex-leg:nth-child(1) {
+  animation: alex-walk-leg-1 0.6s ease-in-out infinite;
+}
+
+.alex-walking .alex-leg:nth-child(2) {
+  animation: alex-walk-leg-2 0.6s ease-in-out infinite;
+}
+
+@keyframes alex-walk-leg-1 {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-15deg); }
+}
+
+@keyframes alex-walk-leg-2 {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(15deg); }
+}
+
+/* ── Running Animation ──────────────────────────────────── */
+.alex-running .alex-character {
+  animation: alex-run-bounce 0.3s ease-in-out infinite;
+}
+
+.alex-running .alex-leg:nth-child(1) {
+  animation: alex-run-leg-1 0.3s ease-in-out infinite;
+}
+
+.alex-running .alex-leg:nth-child(2) {
+  animation: alex-run-leg-2 0.3s ease-in-out infinite;
+}
+
+@keyframes alex-run-bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-4px); }
+}
+
+@keyframes alex-run-leg-1 {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(-25deg); }
+}
+
+@keyframes alex-run-leg-2 {
+  0%, 100% { transform: rotate(0deg); }
+  50% { transform: rotate(25deg); }
+}
+
+/* ── Celebration ────────────────────────────────────────── */
+.alex-celebrating .alex-character {
+  animation: alex-celebrate-jump 0.6s ease-in-out infinite;
+}
+
+.alex-celebrating .alex-arm {
+  animation: alex-celebrate-arms 0.6s ease-in-out infinite;
+}
+
+@keyframes alex-celebrate-jump {
+  0%, 100% { transform: translateY(0) scale(1); }
+  50% { transform: translateY(-20px) scale(1.05); }
+}
+
+@keyframes alex-celebrate-arms {
+  0%, 100% { transform: rotate(0deg); }
+  25% { transform: rotate(-45deg); }
+  75% { transform: rotate(45deg); }
+}
+
+/* ── Pointing ───────────────────────────────────────────── */
+.alex-pointing .alex-arm-right {
+  transform: rotate(-45deg);
+  transform-origin: top left;
+}
+
+/* ── Sleeping ───────────────────────────────────────────── */
+.alex-sleeping .alex-head {
+  transform: translateX(-50%) rotate(15deg);
+}
+
+.alex-sleeping .alex-eye {
+  height: 1px;
+}
+
+/* ── Typing ─────────────────────────────────────────────── */
+.alex-typing .alex-laptop {
+  opacity: 1;
+}
+
+.alex-typing .alex-arm {
+  animation: alex-typing-arms 0.4s ease-in-out infinite;
+}
+
+@keyframes alex-typing-arms {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(2px); }
+}
+
+/* ── Mobile Responsive ──────────────────────────────────── */
+@media (max-width: 768px) {
+  #alex-companion {
+    width: 80px;
+    height: 90px;
+  }
+  
+  .alex-speech {
+    max-width: 160px;
+    font-size: 11px;
+  }
+}
+
+/* ── Reduced Motion ─────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  #alex-companion *,
+  .alex-character *,
+  .alex-robot * {
+    animation: none !important;
+    transition: none !important;
+  }
+}
