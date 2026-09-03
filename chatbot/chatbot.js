@@ -32,6 +32,7 @@
 
   var WELCOME = "Hello! I'm Alex, Indrajit's AI assistant. I can answer questions about his education, experience, projects, technical skills, certifications, and portfolio. You can also say **\"Hey Alex\"** to talk to me!";
   var GREETING_REPLY = "Hi! How may I help you?";
+  var GREETING_REPLY_REPEAT = "Ummhmm?";
 
   /* ── Voice support detection ────────────────────────────────── */
   var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -54,6 +55,7 @@
   /* ── State ──────────────────────────────────────────────────── */
   var isOpen      = false;
   var hasOpened   = false;
+  var hasGreeted  = false;  // track if wake word greeting already played
   var isLoading   = false;
   var history     = [];
   var voiceState  = VOICE_IDLE;
@@ -466,9 +468,12 @@
     // Set state
     setVoiceState(VOICE_GREETING);
 
-    // Say greeting and then start listening
-    addMsg(GREETING_REPLY, true);
-    speak(GREETING_REPLY, function () {
+    // First time: full greeting. Subsequent times: short acknowledgement
+    var greetMsg = hasGreeted ? GREETING_REPLY_REPEAT : GREETING_REPLY;
+    hasGreeted = true;
+
+    addMsg(greetMsg, true);
+    speak(greetMsg, function () {
       startActiveListening();
     });
   }

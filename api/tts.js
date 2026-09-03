@@ -33,7 +33,7 @@ module.exports = async function handler(req, res) {
       `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
       {
         text: trimmed,
-        model_id: 'eleven_flash_v2_5',
+        model_id: 'eleven_multilingual_v2',
         voice_settings: {
           stability: 0.5,
           similarity_boost: 0.75
