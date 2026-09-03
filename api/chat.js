@@ -111,10 +111,10 @@ module.exports = async function handler(req, res) {
     let responseText;
 
     if (provider === 'groq') {
-      // Groq API — free-tier model
-      console.log('[Alex Chat] Calling Groq with model: openai/gpt-oss-20b');
+
+      console.log('[Alex Chat] Calling Groq with model: openai/gpt-oss-120b');
       const groqResponse = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
-        model: 'openai/gpt-oss-20b',
+        model: 'openai/gpt-oss-120b',
         messages: [
           { role: 'system', content: systemPrompt },
           ...validatedHistory.map(h => ({
