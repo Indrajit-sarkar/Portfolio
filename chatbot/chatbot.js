@@ -789,7 +789,6 @@
     panel.setAttribute('aria-hidden', String(!isOpen));
 
     if (isOpen) {
-      orbStart();
       inputEl.focus();
       if (!hasOpened) {
         hasOpened = true;
@@ -800,7 +799,6 @@
         startWakeWordListening();
       }
     } else {
-      orbStop();
       fab.focus();
       // Stop everything
       stopWakeWordListening();
