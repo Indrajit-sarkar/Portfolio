@@ -63,15 +63,15 @@ module.exports = async function handler(req, res) {
     // Validate and sanitize history
     var validatedHistory = [];
     if (Array.isArray(rawHistory) && rawHistory.length > 0) {
-      var trimmed = rawHistory.slice(-20);
+      var trimmed = rawHistory.slice(-10);
       for (var i = 0; i < trimmed.length; i++) {
         var msg = trimmed[i];
         var role = (msg.role === 'model') ? 'model' : 'user';
         var text = '';
         if (msg.parts && Array.isArray(msg.parts) && msg.parts[0] && msg.parts[0].text) {
-          text = String(msg.parts[0].text);
+          text = String(msg.parts[0].text).slice(0, 500);
         } else if (typeof msg.content === 'string') {
-          text = msg.content;
+          text = msg.content.slice(0, 500);
         }
         if (text.trim()) {
           validatedHistory.push({ role: role, parts: [{ text: text }] });
@@ -115,9 +115,9 @@ module.exports = async function handler(req, res) {
 
     if (provider === 'groq') {
 
-      console.log('[Alex Chat] Calling Groq with model: openai/gpt-oss-120b');
+      console.log('[Alex Chat] Calling Groq with model: openai/gpt-oss-20b');
       const groqResponse = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
-        model: 'openai/gpt-oss-120b',
+        model: 'openai/gpt-oss-20b',
         messages: [
           { role: 'system', content: systemPrompt },
           ...validatedHistory.map(h => ({
@@ -126,14 +126,14 @@ module.exports = async function handler(req, res) {
           })),
           { role: 'user', content: message }
         ],
-        temperature: 0.7,
-        max_tokens: 1024
+        temperature: 0.5,
+        max_tokens: 400
       }, {
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'
         },
-        timeout: 25000 // 25s timeout (Vercel limit is 30s)
+        timeout: 15000 // 15s timeout — model is fast enough
       });
       responseText = groqResponse.data.choices[0].message.content;
 

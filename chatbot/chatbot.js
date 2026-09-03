@@ -754,7 +754,7 @@
 
     // push to history
     history.push({ role: 'user', parts: [{ text: msg }] });
-    if (history.length > 20) history = history.slice(-20);
+    if (history.length > 10) history = history.slice(-10);
 
     // UI: loading state
     isLoading = true;
@@ -780,7 +780,7 @@
       var reply = data.reply || "I don't have that information.";
       addMsg(reply, true, false);
       history.push({ role: 'model', parts: [{ text: reply }] });
-      if (history.length > 20) history = history.slice(-20);
+      if (history.length > 10) history = history.slice(-10);
 
       // Only speak if the question was asked via voice
       if (fromVoice) {
