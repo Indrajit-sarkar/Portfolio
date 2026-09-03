@@ -25,15 +25,9 @@
   /* ── Config ─────────────────────────────────────────────────── */
   var CHIPS = [
     'Tell me about Indrajit',
-    'Where did he study?',
-    'What skills does he have?',
     'Show his projects',
-    'What certifications does he have?',
-    'How can I contact him?',
-    'What technologies does he use?',
-    'Does he know Azure AI?',
-    'Does he know LangChain?',
-    'Does he have cloud experience?'
+    'What skills does he have?',
+    'How can I contact him?'
   ];
 
   var WELCOME = "Hello! I'm Alex, Indrajit's AI assistant. I can answer questions about his education, experience, projects, technical skills, certifications, and portfolio. You can also say **\"Hey Alex\"** to talk to me!";
