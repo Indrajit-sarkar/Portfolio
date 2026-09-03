@@ -64,7 +64,7 @@
   var bestVoice   = null; // Cached best TTS voice
 
   /* ── Refs ───────────────────────────────────────────────────── */
-  var fab, panel, msgBody, chipsWrap, inputEl, sendBtn, micBtn, muteBtn, stateBadge, orbContainer, orbCanvas;
+  var fab, panel, msgBody, chipsWrap, inputEl, sendBtn, micBtn, muteBtn, stateBadge;
 
   /* ── Helpers ────────────────────────────────────────────────── */
   function esc(s) {
@@ -353,257 +353,24 @@
 
   /* ── Voice State Management ─────────────────────────────────── */
 
-  /* ═══════════════════════════════════════════════════════════════
-     SIRI ORB — Canvas-based animated voice orb
-     Reacts to voiceState with smooth color/shape transitions.
-     ═══════════════════════════════════════════════════════════════ */
-  var orbCtx = null;
-  var orbAnimId = null;
-  var orbTime = 0;
-  var orbCurrentState = VOICE_IDLE;
-  var orbTargetState = VOICE_IDLE;
-  var orbTransition = 1; // 0..1 (1 = fully transitioned)
-  var orbPaused = true;
 
-  // State color palettes: [primary, secondary, glow]
-  var ORB_COLORS = {};
-  ORB_COLORS[VOICE_IDLE]       = { c1: [192,163,119], c2: [167,135,102], glow: [192,163,119] };
-  ORB_COLORS[VOICE_GREETING]   = { c1: [192,163,119], c2: [91,140,255],  glow: [192,163,119] };
-  ORB_COLORS[VOICE_LISTENING]  = { c1: [52,211,153],  c2: [91,140,255],  glow: [52,211,153]  };
-  ORB_COLORS[VOICE_PROCESSING] = { c1: [255,138,61],  c2: [192,163,119], glow: [255,138,61]  };
-  ORB_COLORS[VOICE_SPEAKING]   = { c1: [139,92,246],  c2: [91,140,255],  glow: [139,92,246]  };
-
-  // Interpolate between two [r,g,b] arrays
-  function lerpColor(a, b, t) {
-    return [
-      Math.round(a[0] + (b[0] - a[0]) * t),
-      Math.round(a[1] + (b[1] - a[1]) * t),
-      Math.round(a[2] + (b[2] - a[2]) * t)
-    ];
-  }
-  function rgb(c, alpha) {
-    return alpha !== undefined
-      ? 'rgba(' + c[0] + ',' + c[1] + ',' + c[2] + ',' + alpha + ')'
-      : 'rgb(' + c[0] + ',' + c[1] + ',' + c[2] + ')';
-  }
-
-  // Simple noise function for organic motion
-  function orbNoise(x, y) {
-    var n = Math.sin(x * 12.9898 + y * 78.233) * 43758.5453;
-    return n - Math.floor(n);
-  }
-
-  function orbDraw() {
-    if (!orbCtx || !orbCanvas) return;
-
-    var dpr = window.devicePixelRatio || 1;
-    var w = orbCanvas.clientWidth;
-    var h = orbCanvas.clientHeight;
-    if (orbCanvas.width !== w * dpr || orbCanvas.height !== h * dpr) {
-      orbCanvas.width = w * dpr;
-      orbCanvas.height = h * dpr;
-    }
-    var ctx = orbCtx;
-    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
-    ctx.clearRect(0, 0, w, h);
-
-    var cx = w / 2;
-    var cy = h / 2;
-    var baseR = Math.min(w, h) * 0.3; // base orb radius
-    var dt = 0.016;
-    orbTime += dt;
-
-    // Smooth state transition
-    if (orbTransition < 1) {
-      orbTransition = Math.min(1, orbTransition + dt * 2.5); // ~400ms
-    }
-    var easeT = orbTransition < 1
-      ? orbTransition * orbTransition * (3 - 2 * orbTransition) // smoothstep
-      : 1;
-
-    var fromCol = ORB_COLORS[orbCurrentState] || ORB_COLORS[VOICE_IDLE];
-    var toCol = ORB_COLORS[orbTargetState] || ORB_COLORS[VOICE_IDLE];
-    var c1 = lerpColor(fromCol.c1, toCol.c1, easeT);
-    var c2 = lerpColor(fromCol.c2, toCol.c2, easeT);
-    var glowC = lerpColor(fromCol.glow, toCol.glow, easeT);
-
-    // If transition done, snap current state
-    if (orbTransition >= 1 && orbCurrentState !== orbTargetState) {
-      orbCurrentState = orbTargetState;
-    }
-
-    var state = orbTargetState;
-    var t = orbTime;
-
-    // ---- OUTER GLOW ----
-    var glowR = baseR * 1.8;
-    var glowGrad = ctx.createRadialGradient(cx, cy, baseR * 0.5, cx, cy, glowR);
-    glowGrad.addColorStop(0, rgb(glowC, 0.15));
-    glowGrad.addColorStop(0.5, rgb(glowC, 0.06));
-    glowGrad.addColorStop(1, rgb(glowC, 0));
-    ctx.fillStyle = glowGrad;
-    ctx.beginPath();
-    ctx.arc(cx, cy, glowR, 0, Math.PI * 2);
-    ctx.fill();
-
-    // ---- MAIN ORB ----
-    ctx.save();
-    ctx.translate(cx, cy);
-
-    // Breathing scale
-    var breathe = 1;
-    if (state === VOICE_IDLE) {
-      breathe = 1 + Math.sin(t * 1.2) * 0.04;
-    } else if (state === VOICE_PROCESSING) {
-      breathe = 1 + Math.sin(t * 3) * 0.06 + Math.sin(t * 7) * 0.02;
-    } else if (state === VOICE_SPEAKING) {
-      breathe = 1 + Math.sin(t * 4) * 0.05 + Math.sin(t * 9) * 0.03;
-    } else if (state === VOICE_LISTENING) {
-      breathe = 1 + Math.sin(t * 2.5) * 0.07;
-    }
-
-    // Draw the deformed orb with radial points
-    var segments = 120;
-    ctx.beginPath();
-    for (var si = 0; si <= segments; si++) {
-      var angle = (si / segments) * Math.PI * 2;
-      var r = baseR * breathe;
-
-      // Add waveform deformation based on state
-      if (state === VOICE_LISTENING) {
-        r += Math.sin(angle * 6 + t * 5) * baseR * 0.12;
-        r += Math.sin(angle * 3 + t * 3.3) * baseR * 0.08;
-        r += Math.cos(angle * 9 + t * 7) * baseR * 0.04;
-      } else if (state === VOICE_SPEAKING) {
-        r += Math.sin(angle * 4 + t * 4) * baseR * 0.1;
-        r += Math.cos(angle * 7 + t * 6) * baseR * 0.06;
-        r += Math.sin(angle * 11 + t * 8) * baseR * 0.03;
-      } else if (state === VOICE_PROCESSING) {
-        r += Math.sin(angle * 5 + t * 6) * baseR * 0.05;
-        r += Math.cos(angle * 8 + t * 4) * baseR * 0.03;
-      } else {
-        // idle: very subtle organic wobble
-        r += Math.sin(angle * 3 + t * 0.8) * baseR * 0.02;
-        r += Math.cos(angle * 5 + t * 1.1) * baseR * 0.01;
-      }
-
-      var x = Math.cos(angle) * r;
-      var y = Math.sin(angle) * r;
-      if (si === 0) ctx.moveTo(x, y);
-      else ctx.lineTo(x, y);
-    }
-    ctx.closePath();
-
-    // Gradient fill (rotating)
-    var gradAngle = t * (state === VOICE_PROCESSING ? 2 : state === VOICE_IDLE ? 0.3 : 1);
-    var gx1 = Math.cos(gradAngle) * baseR;
-    var gy1 = Math.sin(gradAngle) * baseR;
-    var grad = ctx.createLinearGradient(-gx1, -gy1, gx1, gy1);
-    grad.addColorStop(0, rgb(c1, 0.85));
-    grad.addColorStop(0.5, rgb(c2, 0.7));
-    grad.addColorStop(1, rgb(c1, 0.85));
-    ctx.fillStyle = grad;
-    ctx.fill();
-
-    // Inner glow / highlight
-    var innerGrad = ctx.createRadialGradient(
-      -baseR * 0.2, -baseR * 0.25, 0,
-      0, 0, baseR * 0.9
-    );
-    innerGrad.addColorStop(0, 'rgba(255,255,255,0.25)');
-    innerGrad.addColorStop(0.4, 'rgba(255,255,255,0.05)');
-    innerGrad.addColorStop(1, 'rgba(255,255,255,0)');
-    ctx.fillStyle = innerGrad;
-    ctx.fill();
-
-    // Glass rim
-    ctx.strokeStyle = 'rgba(255,255,255,0.12)';
-    ctx.lineWidth = 1.5;
-    ctx.stroke();
-
-    // ---- PARTICLES (processing & speaking) ----
-    if (state === VOICE_PROCESSING || state === VOICE_SPEAKING) {
-      var particleCount = state === VOICE_PROCESSING ? 8 : 5;
-      for (var pi = 0; pi < particleCount; pi++) {
-        var pa = (pi / particleCount) * Math.PI * 2 + t * (state === VOICE_PROCESSING ? 2.5 : 1.5);
-        var pr = baseR * (1.3 + Math.sin(t * 3 + pi * 2) * 0.2);
-        var px = Math.cos(pa) * pr;
-        var py = Math.sin(pa) * pr;
-        var ps = 1.5 + Math.sin(t * 5 + pi) * 1;
-
-        ctx.fillStyle = rgb(glowC, 0.5 + Math.sin(t * 4 + pi) * 0.3);
-        ctx.beginPath();
-        ctx.arc(px, py, ps, 0, Math.PI * 2);
-        ctx.fill();
-      }
-    }
-
-    // ---- SIRI-STYLE WAVEFORM BARS (speaking) ----
-    if (state === VOICE_SPEAKING) {
-      var barCount = 5;
-      var barWidth = 3;
-      var barSpacing = 8;
-      var totalW = barCount * barWidth + (barCount - 1) * barSpacing;
-      var startX = -totalW / 2;
-      for (var bi = 0; bi < barCount; bi++) {
-        var bh = 6 + Math.sin(t * 6 + bi * 1.2) * 10 + Math.cos(t * 8 + bi * 0.7) * 5;
-        var bx = startX + bi * (barWidth + barSpacing);
-        var by = baseR + 12;
-        ctx.fillStyle = rgb(c1, 0.6);
-        ctx.beginPath();
-        ctx.roundRect(bx, by - bh / 2, barWidth, bh, 2);
-        ctx.fill();
-      }
-    }
-
-    // ---- LISTENING RIPPLES ----
-    if (state === VOICE_LISTENING) {
-      for (var ri = 0; ri < 3; ri++) {
-        var rippleT = ((t * 0.6 + ri * 0.33) % 1);
-        var rippleR = baseR * (1.2 + rippleT * 0.8);
-        var rippleA = (1 - rippleT) * 0.2;
-        ctx.strokeStyle = rgb(c1, rippleA);
-        ctx.lineWidth = 1.5;
-        ctx.beginPath();
-        ctx.arc(0, 0, rippleR, 0, Math.PI * 2);
-        ctx.stroke();
-      }
-    }
-
-    ctx.restore();
-  }
-
-  function orbAnimate() {
-    if (orbPaused) { orbAnimId = null; return; }
-    orbDraw();
-    orbAnimId = requestAnimationFrame(orbAnimate);
-  }
-
-  function orbStart() {
-    if (!orbCanvas) return;
-    orbPaused = false;
-    if (!orbAnimId) orbAnimate();
-  }
-
-  function orbStop() {
-    orbPaused = true;
-    if (orbAnimId) {
-      cancelAnimationFrame(orbAnimId);
-      orbAnimId = null;
-    }
-  }
-
-  function orbSetState(newState) {
-    if (newState === orbTargetState) return;
-    orbCurrentState = orbTargetState; // snap current to where we were going
-    orbTargetState = newState;
-    orbTransition = 0; // start new transition
-  }
 
 
   function setVoiceState(state) {
     voiceState = state;
-    orbSetState(state); // update orb animation
+
+    // Edge glow — toggle classes on the panel
+    if (panel) {
+      panel.classList.remove('glow-listening', 'glow-processing', 'glow-speaking');
+      if (state === VOICE_LISTENING || state === VOICE_GREETING) {
+        panel.classList.add('glow-listening');
+      } else if (state === VOICE_PROCESSING) {
+        panel.classList.add('glow-processing');
+      } else if (state === VOICE_SPEAKING) {
+        panel.classList.add('glow-speaking');
+      }
+    }
+
     if (!stateBadge) return;
 
     // Update badge
@@ -869,16 +636,9 @@
     footer.appendChild(sendBtn);
 
     // Assemble panel
-    // Orb container
-    orbContainer = document.createElement('div');
-    orbContainer.className = 'alex-orb-wrap';
-    orbCanvas = document.createElement('canvas');
-    orbCanvas.className = 'alex-orb-canvas';
-    orbContainer.appendChild(orbCanvas);
-    orbCtx = orbCanvas.getContext('2d');
+    // Edge glow is pure CSS — no DOM needed here
 
     panel.appendChild(header);
-    panel.appendChild(orbContainer);
     panel.appendChild(stateBadge);
     panel.appendChild(msgBody);
     panel.appendChild(chipsWrap);
@@ -1021,8 +781,7 @@
     panel.setAttribute('aria-hidden', String(!isOpen));
 
     if (isOpen) {
-      orbStart();
-      inputEl.focus();
+        inputEl.focus();
       if (!hasOpened) {
         hasOpened = true;
         addMsg(WELCOME, true, true); // don't auto-speak welcome
@@ -1032,7 +791,7 @@
         startWakeWordListening();
       }
     } else {
-      orbStop();
+      // edge glow handled by CSS classes
       fab.focus();
       // Stop everything
       stopWakeWordListening();
