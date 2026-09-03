@@ -99,16 +99,40 @@
     text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
     text = text.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
     text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+    // Headings
+    text = text.replace(/^### (.+)$/gm, '<strong style="font-size:1.05em">$1</strong>');
+    text = text.replace(/^## (.+)$/gm, '<strong style="font-size:1.1em">$1</strong>');
+    text = text.replace(/^# (.+)$/gm, '<strong style="font-size:1.15em">$1</strong>');
 
     var lines = text.split('\n');
     var out = [];
-    var inUl = false, inOl = false, inPre = false;
+    var inUl = false, inOl = false, inPre = false, inTable = false;
 
     for (var i = 0; i < lines.length; i++) {
       var ln = lines[i];
       if (ln.indexOf('<pre>') !== -1) inPre = true;
       if (ln.indexOf('</pre>') !== -1) { inPre = false; out.push(ln); continue; }
       if (inPre) { out.push(ln); continue; }
+
+      // Table detection: lines starting and ending with |
+      var isTableRow = /^\|(.+)\|\s*$/.test(ln.trim());
+      var isSeparator = /^\|[\s\-:|]+\|\s*$/.test(ln.trim());
+
+      if (isTableRow || isSeparator) {
+        if (inUl) { out.push('</ul>'); inUl = false; }
+        if (inOl) { out.push('</ol>'); inOl = false; }
+        if (isSeparator) { continue; } // skip --- separator rows
+        if (!inTable) { out.push('<table class="alex-table">'); inTable = true; }
+        var cells = ln.trim().split('|').filter(function(c) { return c.trim() !== ''; });
+        var tag = !inTable || out[out.length - 1] === '<table class="alex-table">' ? 'th' : 'td';
+        // First row after table start = header
+        if (out[out.length - 1] === '<table class="alex-table">') tag = 'th';
+        out.push('<tr>' + cells.map(function(c) { return '<' + tag + '>' + c.trim() + '</' + tag + '>'; }).join('') + '</tr>');
+        continue;
+      } else if (inTable) {
+        out.push('</table>');
+        inTable = false;
+      }
 
       var ulM = ln.match(/^[\-\*]\s+(.*)/);
       var olM = ln.match(/^\d+\.\s+(.*)/);
@@ -129,9 +153,10 @@
     }
     if (inUl) out.push('</ul>');
     if (inOl) out.push('</ol>');
+    if (inTable) out.push('</table>');
 
     var result = out.join('\n');
-    result = result.replace(/\n(?!<\/?(?:ul|ol|li|pre|code))/g, '<br>');
+    result = result.replace(/\n(?!<\/?(?:ul|ol|li|pre|code|table|tr|th|td))/g, '<br>');
     result = result.replace(/(<br>)+$/g, '');
     return result;
   }

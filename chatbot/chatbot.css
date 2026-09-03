@@ -485,3 +485,31 @@
   .alex-chip { font-size: 0.72rem; padding: 6px 10px; }
   .alex-input { font-size: 0.84rem; }
 }
+
+/* ── Table rendering ─────────────────── */
+.alex-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 0.5rem 0;
+  font-size: 0.8rem;
+}
+.alex-table th,
+.alex-table td {
+  padding: 0.35rem 0.5rem;
+  border: 1px solid rgba(255,255,255,0.1);
+  text-align: left;
+}
+.alex-table th {
+  background: rgba(192,163,119,0.15);
+  font-weight: 600;
+  color: #c0a377;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.alex-table td {
+  color: rgba(255,255,255,0.8);
+}
+.alex-table tr:nth-child(even) td {
+  background: rgba(255,255,255,0.02);
+}
