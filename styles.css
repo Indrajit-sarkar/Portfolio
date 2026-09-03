@@ -1254,7 +1254,7 @@ html.intro-done .intro { display: none; }
 
 /* GitHub button inside project cards */
 .proj-mini-github {
-    position: absolute; top: 0.9rem; right: 0.9rem;
+    position: absolute; bottom: 1rem; right: 1rem; top: auto;
     width: 34px; height: 34px; border-radius: 50%;
     display: grid; place-items: center;
     background: var(--glass-bg-strong); border: 1px solid var(--glass-line);
