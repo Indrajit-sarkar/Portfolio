@@ -616,6 +616,10 @@
 
   /* ── API Call ───────────────────────────────────────────────── */
   function send(text, fromVoice) {
+    // Stop any ongoing speech immediately when user sends a new message
+    if (HAS_TTS) { speechSynthesis.cancel(); }
+    setVoiceState(VOICE_IDLE);
+
     var msg = (text || '').trim();
     if (!msg || isLoading) return;
 
@@ -729,6 +733,8 @@
 
     // Enter / Shift+Enter
     inputEl.addEventListener('keydown', function (e) {
+    // Stop Alex speaking when user starts typing
+    if (HAS_TTS && speechSynthesis.speaking) { speechSynthesis.cancel(); setVoiceState(VOICE_IDLE); }
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         send(inputEl.value, false);
