@@ -327,3 +327,58 @@
         display: none;
     }
 }
+
+/* ---------- DISABLE liquid effects on .edu-card ----------
+   Edu-cards have their own dark background with internal
+   photos — liquid glass pseudo-elements break image layout. */
+.edu-card,
+.edu-card:hover {
+    isolation: auto !important;
+    animation: none !important;
+}
+.edu-card::before,
+.edu-card:hover::before {
+    display: none !important;
+}
+.edu-card::after,
+.edu-card:hover::after {
+    display: none !important;
+}
+.edu-card > .edu-bg,
+.edu-card > .edu-body {
+    position: static !important;
+    z-index: auto !important;
+}
+[data-theme="light"] .edu-card::before,
+[data-theme="light"] .edu-card::after,
+[data-theme="light"] .edu-card:hover {
+    display: none !important;
+}
+
+/* ---------- DISABLE liquid effects on .exp-card.glass ----------
+   Exp-cards use position:sticky for parallax stacking.
+   isolation:isolate + position:relative breaks sticky. */
+.exp-card.glass,
+.exp-card.glass:hover {
+    position: sticky !important;
+    isolation: auto !important;
+    animation: none !important;
+}
+.exp-card.glass::before,
+.exp-card.glass:hover::before {
+    display: none !important;
+}
+.exp-card.glass::after,
+.exp-card.glass:hover::after {
+    display: none !important;
+}
+
+/* ---------- FIX proj-mini arrow visibility ----------
+   The arrow links at bottom of project cards were cut off
+   by overflow:hidden. Let them show. */
+.proj-mini.glass {
+    overflow: visible !important;
+}
+.proj-mini.glass > .proj-mini-arrow {
+    z-index: 3 !important;
+}
