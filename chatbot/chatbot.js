@@ -380,7 +380,7 @@
     wakeWordRec = new SpeechRecognition();
     wakeWordRec.continuous = true;
     wakeWordRec.interimResults = true;
-    wakeWordRec.lang = 'en-US';
+    wakeWordRec.lang = 'en-IN';          // Indian English
     wakeWordRec.maxAlternatives = 3;
 
     wakeWordRec.onresult = function (e) {
@@ -459,10 +459,10 @@
     setVoiceState(VOICE_LISTENING);
 
     activeRec = new SpeechRecognition();
-    activeRec.continuous = false;
+    activeRec.continuous = true;       // keep listening for full sentences
     activeRec.interimResults = true;
-    activeRec.lang = 'en-US';
-    activeRec.maxAlternatives = 1;
+    activeRec.lang = 'en-IN';          // Indian English for better accent recognition
+    activeRec.maxAlternatives = 3;     // more alternatives = better accuracy
 
     var finalTranscript = '';
     var interimTranscript = '';
@@ -472,10 +472,17 @@
       finalTranscript = '';
       interimTranscript = '';
       for (var i = 0; i < e.results.length; i++) {
+        // Pick the highest-confidence alternative
+        var best = e.results[i][0];
+        for (var a = 1; a < e.results[i].length; a++) {
+          if (e.results[i][a].confidence > best.confidence) {
+            best = e.results[i][a];
+          }
+        }
         if (e.results[i].isFinal) {
-          finalTranscript += e.results[i][0].transcript;
+          finalTranscript += best.transcript;
         } else {
-          interimTranscript += e.results[i][0].transcript;
+          interimTranscript += best.transcript;
         }
       }
       inputEl.value = finalTranscript + interimTranscript;
@@ -486,7 +493,7 @@
       clearTimeout(silenceTimer);
       silenceTimer = setTimeout(function () {
         stopActiveListening();
-      }, 4000);
+      }, 5000);
     };
 
     activeRec.onerror = function (e) {
