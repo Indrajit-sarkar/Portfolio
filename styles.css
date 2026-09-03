@@ -625,7 +625,6 @@ html.intro-lock, html.intro-lock body { overflow: hidden; }
 .sn-outline {
     color: transparent;
     -webkit-text-stroke: max(1.1px, 0.13vw) var(--ink);
-    text-stroke: max(1.1px, 0.13vw) var(--ink);
 }
 .sn-solid { color: var(--ink); }
 

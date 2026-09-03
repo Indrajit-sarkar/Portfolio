@@ -1,0 +1,274 @@
+/* ============================================================
+   GESTURE CONTROL UI — Fully responsive across all devices
+   Phone, Tablet, Laptop — Portrait & Landscape
+   ============================================================ */
+
+/* ── Toggle Button (bottom-left floating) ── */
+#gesture-toggle {
+  position: fixed;
+  bottom: calc(24px + env(safe-area-inset-bottom, 0px));
+  left: calc(24px + env(safe-area-inset-left, 0px));
+  z-index: 9999;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  background: rgba(12, 12, 11, 0.75);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.3s, color 0.3s, border-color 0.3s, transform 0.3s, box-shadow 0.3s;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+#gesture-toggle:hover {
+  background: rgba(91, 140, 255, 0.15);
+  border-color: rgba(91, 140, 255, 0.4);
+  color: #5b8cff;
+  transform: scale(1.08);
+}
+#gesture-toggle.active {
+  background: rgba(91, 140, 255, 0.2);
+  border-color: rgba(91, 140, 255, 0.6);
+  color: #5b8cff;
+  box-shadow: 0 0 20px rgba(91, 140, 255, 0.25), 0 4px 16px rgba(0, 0, 0, 0.3);
+  animation: gesture-pulse 2s ease-in-out infinite;
+}
+@keyframes gesture-pulse {
+  0%, 100% { box-shadow: 0 0 20px rgba(91, 140, 255, 0.25), 0 4px 16px rgba(0, 0, 0, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(91, 140, 255, 0.4), 0 4px 16px rgba(0, 0, 0, 0.3); }
+}
+
+/* Light theme */
+[data-theme="light"] #gesture-toggle {
+  background: rgba(255, 255, 255, 0.8);
+  border-color: rgba(0, 0, 0, 0.1);
+  color: rgba(0, 0, 0, 0.6);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+}
+[data-theme="light"] #gesture-toggle:hover { background: rgba(91, 140, 255, 0.1); color: #3b6cf0; }
+[data-theme="light"] #gesture-toggle.active { background: rgba(91, 140, 255, 0.12); border-color: rgba(91, 140, 255, 0.5); color: #3b6cf0; }
+
+/* ── Camera Preview ── */
+#gesture-preview {
+  position: fixed;
+  top: calc(80px + env(safe-area-inset-top, 0px));
+  left: calc(16px + env(safe-area-inset-left, 0px));
+  z-index: 9998;
+  width: min(240px, 40vw);
+  height: min(180px, 30vw);
+  border-radius: clamp(8px, 2vw, 16px);
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: #000;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transform: translateY(-10px) scale(0.95);
+  pointer-events: none;
+  transition: opacity 0.4s ease, transform 0.4s ease;
+}
+#gesture-preview.visible {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+  pointer-events: auto;
+}
+#gesture-preview canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+.gesture-preview-close {
+  position: absolute;
+  top: 4px; right: 4px;
+  width: clamp(20px, 4vw, 28px);
+  height: clamp(20px, 4vw, 28px);
+  border-radius: 50%;
+  border: none;
+  background: rgba(0, 0, 0, 0.6);
+  color: #fff;
+  font-size: clamp(10px, 2vw, 14px);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 0.2s;
+  z-index: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+.gesture-preview-close:hover { background: rgba(255, 60, 60, 0.7); }
+
+/* ── Virtual Cursor ── */
+#gesture-cursor {
+  position: fixed;
+  width: clamp(20px, 4vw, 28px);
+  height: clamp(20px, 4vw, 28px);
+  border-radius: 50%;
+  border: 2px solid rgba(91, 140, 255, 0.8);
+  background: rgba(91, 140, 255, 0.15);
+  pointer-events: none;
+  z-index: 9997;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  transition: opacity 0.3s, width 0.15s, height 0.15s, background 0.15s, border-color 0.15s;
+  will-change: left, top;
+}
+#gesture-cursor.active { opacity: 1; }
+#gesture-cursor.clicking {
+  width: clamp(14px, 3vw, 20px);
+  height: clamp(14px, 3vw, 20px);
+  background: rgba(91, 140, 255, 0.5);
+  border-color: #5b8cff;
+}
+#gesture-cursor.paused {
+  border-color: rgba(255, 140, 0, 0.7);
+  background: rgba(255, 140, 0, 0.1);
+}
+#gesture-cursor.zooming {
+  width: clamp(28px, 5vw, 40px);
+  height: clamp(28px, 5vw, 40px);
+  border-color: rgba(52, 211, 153, 0.8);
+  background: rgba(52, 211, 153, 0.15);
+  box-shadow: 0 0 16px rgba(52, 211, 153, 0.3);
+}
+
+/* ── Gesture Label (bottom center) ── */
+#gesture-label {
+  position: fixed;
+  bottom: calc(84px + env(safe-area-inset-bottom, 0px));
+  left: 50%;
+  transform: translateX(-50%) translateY(10px);
+  z-index: 9997;
+  padding: clamp(6px, 1.5vw, 10px) clamp(12px, 3vw, 24px);
+  border-radius: 99px;
+  background: rgba(12, 12, 11, 0.85);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  font-size: clamp(0.72rem, 2vw, 0.9rem);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  max-width: 90vw;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s, transform 0.3s;
+}
+#gesture-label.visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+[data-theme="light"] #gesture-label {
+  background: rgba(255, 255, 255, 0.9);
+  border-color: rgba(0, 0, 0, 0.08);
+  color: #1a1a1a;
+}
+
+/* ============================================================
+   RESPONSIVE BREAKPOINTS
+   ============================================================ */
+
+/* ── Tablets (≤1024px) ── */
+@media (max-width: 1024px) {
+  #gesture-preview {
+    width: min(200px, 35vw);
+    height: min(150px, 26vw);
+  }
+}
+
+/* ── Phones (≤768px) ── */
+@media (max-width: 768px) {
+  #gesture-toggle {
+    bottom: calc(20px + 76px + env(safe-area-inset-bottom, 0px));
+    width: 44px;
+    height: 44px;
+  }
+  #gesture-preview {
+    width: min(150px, 42vw);
+    height: min(112px, 31vw);
+    top: calc(64px + env(safe-area-inset-top, 0px));
+    left: calc(8px + env(safe-area-inset-left, 0px));
+    border-radius: 10px;
+  }
+  #gesture-label {
+    bottom: calc(110px + env(safe-area-inset-bottom, 0px));
+  }
+}
+
+/* ── Small phones (≤480px) ── */
+@media (max-width: 480px) {
+  #gesture-toggle {
+    width: 40px;
+    height: 40px;
+    left: calc(12px + env(safe-area-inset-left, 0px));
+  }
+  #gesture-toggle svg {
+    width: 18px;
+    height: 18px;
+  }
+  #gesture-preview {
+    width: min(130px, 45vw);
+    height: min(98px, 34vw);
+    top: calc(56px + env(safe-area-inset-top, 0px));
+    left: calc(6px + env(safe-area-inset-left, 0px));
+    border-radius: 8px;
+  }
+  #gesture-cursor {
+    width: 18px;
+    height: 18px;
+  }
+}
+
+/* ── Landscape orientation (short height) ── */
+@media (max-height: 500px) and (orientation: landscape) {
+  #gesture-toggle {
+    bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+    left: calc(12px + env(safe-area-inset-left, 0px));
+    width: 38px;
+    height: 38px;
+  }
+  #gesture-preview {
+    top: calc(12px + env(safe-area-inset-top, 0px));
+    left: auto;
+    right: calc(12px + env(safe-area-inset-right, 0px));
+    width: min(180px, 25vw);
+    height: min(135px, 40vh);
+  }
+  #gesture-label {
+    bottom: calc(60px + env(safe-area-inset-bottom, 0px));
+    font-size: 0.72rem;
+  }
+}
+
+/* ── Tablet landscape ── */
+@media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+  #gesture-preview {
+    top: calc(70px + env(safe-area-inset-top, 0px));
+    width: min(200px, 22vw);
+    height: min(150px, 30vh);
+  }
+}
+
+/* ── Ultra-wide / large desktops (≥1600px) ── */
+@media (min-width: 1600px) {
+  #gesture-preview {
+    width: 280px;
+    height: 210px;
+  }
+  #gesture-cursor {
+    width: 32px;
+    height: 32px;
+  }
+}
+
+/* ── Reduced motion ── */
+@media (prefers-reduced-motion: reduce) {
+  #gesture-toggle.active { animation: none !important; }
+  #gesture-cursor { transition: none !important; }
+}
