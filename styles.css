@@ -1250,7 +1250,20 @@ html.intro-done .intro { display: none; }
     font-size: 0.95rem;
     transition: transform 0.4s var(--ease), background 0.3s, color 0.3s;
 }
-.proj-mini:hover .proj-mini-arrow { transform: rotate(45deg); background: var(--blue); color: #fff; }
+.proj-mini:hover .proj-mini-arrow { transform: rotate(45deg); background: var(--blue); color: #fff; border-color: var(--blue); }
+
+/* GitHub button inside project cards */
+.proj-mini-github {
+    position: absolute; bottom: 0.9rem; right: 0.9rem;
+    width: 40px; height: 40px; border-radius: 50%;
+    display: grid; place-items: center;
+    background: var(--glass-bg-strong); border: 1px solid var(--glass-line);
+    color: var(--ink);
+    transition: background 0.3s, color 0.3s, transform 0.3s, border-color 0.3s;
+    z-index: 3;
+}
+.proj-mini:hover .proj-mini-github { background: #333; color: #fff; border-color: #555; transform: scale(1.1); }
+[data-theme="light"] .proj-mini:hover .proj-mini-github { background: #24292e; color: #fff; border-color: #24292e; }
 
 /* ============================================================
    SKILLS

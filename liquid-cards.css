@@ -259,7 +259,8 @@
 
 .proj-mini.glass > .proj-mini-media,
 .proj-mini.glass > .proj-mini-info,
-.proj-mini.glass > .proj-mini-arrow {
+.proj-mini.glass > .proj-mini-arrow,
+.proj-mini.glass > .proj-mini-github {
     position: relative;
     z-index: 2;
 }
@@ -335,6 +336,8 @@
 .edu-card:hover {
     isolation: auto !important;
     animation: none !important;
+    position: relative !important;
+    overflow: hidden !important;
 }
 .edu-card::before,
 .edu-card:hover::before {
@@ -346,7 +349,7 @@
 }
 .edu-card > .edu-bg,
 .edu-card > .edu-body {
-    position: static !important;
+    position: relative !important;
     z-index: auto !important;
 }
 [data-theme="light"] .edu-card::before,
@@ -379,6 +382,7 @@
 .proj-mini.glass {
     overflow: visible !important;
 }
-.proj-mini.glass > .proj-mini-arrow {
+.proj-mini.glass > .proj-mini-arrow,
+.proj-mini.glass > .proj-mini-github {
     z-index: 3 !important;
 }
