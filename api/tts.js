@@ -1,5 +1,3 @@
-const axios = require('axios');
-
 module.exports = async function handler(req, res) {
   // CORS
   res.setHeader('Access-Control-Allow-Origin', '*');
@@ -8,10 +6,10 @@ module.exports = async function handler(req, res) {
   if (req.method === 'OPTIONS') return res.status(200).end();
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  // Hardcoded key (move to env var ELEVENLABS_API_KEY later for security)
-  const apiKey = process.env.ELEVENLABS_API_KEY || 'sk_14e31eb6294a4cabd8391b8a16308218cd95429d1a8bb19c';
+  // Use the same Groq API key already set for LLM
+  const apiKey = process.env.LLM_API_KEY;
   if (!apiKey) {
-    console.error('[TTS] Missing ELEVENLABS_API_KEY');
+    console.error('[TTS] Missing LLM_API_KEY');
     return res.status(500).json({ error: 'TTS not configured' });
   }
 
@@ -20,46 +18,45 @@ module.exports = async function handler(req, res) {
     return res.status(400).json({ error: 'Missing text' });
   }
 
-  // Limit text to 500 chars to conserve free tier quota (10K chars/month)
+  // Limit text to 500 chars
   const trimmed = text.slice(0, 500);
 
-  // Voice: "Rachel" — warm, professional female voice (built-in, free tier)
-  const voiceId = '21m00Tcm4TlvDq8ikWAM';
-
   try {
-    console.log(`[TTS] Synthesizing ${trimmed.length} chars, key starts with: ${apiKey.slice(0, 6)}...`);
+    console.log(`[TTS] Groq Orpheus: synthesizing ${trimmed.length} chars`);
 
-    const response = await axios.post(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
-      {
-        text: trimmed,
-        model_id: 'eleven_multilingual_v2',
-        voice_settings: {
-          stability: 0.5,
-          similarity_boost: 0.75
-        }
+    const response = await fetch('https://api.groq.com/openai/v1/audio/speech', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
       },
-      {
-        headers: {
-          'xi-api-key': apiKey,
-          'Content-Type': 'application/json'
-        },
-        responseType: 'arraybuffer',
-        timeout: 15000
-      }
-    );
+      body: JSON.stringify({
+        model: 'canopylabs/orpheus-v1-english',
+        input: trimmed,
+        voice: 'hannah',
+        response_format: 'wav'
+      })
+    });
 
-    console.log(`[TTS] Success: ${response.data.byteLength} bytes`);
-    res.setHeader('Content-Type', 'audio/mpeg');
+    if (!response.ok) {
+      const errText = await response.text();
+      console.error(`[TTS] Groq error ${response.status}:`, errText.slice(0, 300));
+      return res.status(response.status).json({
+        error: 'TTS synthesis failed',
+        status: response.status,
+        detail: errText.slice(0, 200)
+      });
+    }
+
+    const audioBuffer = Buffer.from(await response.arrayBuffer());
+    console.log(`[TTS] Success: ${audioBuffer.byteLength} bytes`);
+
+    res.setHeader('Content-Type', 'audio/wav');
     res.setHeader('Cache-Control', 'public, max-age=3600');
-    return res.status(200).send(Buffer.from(response.data));
+    return res.status(200).send(audioBuffer);
 
   } catch (error) {
-    const status = error.response?.status || 500;
-    const errData = error.response?.data
-      ? Buffer.from(error.response.data).toString('utf-8').slice(0, 500)
-      : error.message;
-    console.error(`[TTS] Error ${status}:`, errData);
-    return res.status(status).json({ error: 'TTS synthesis failed', status: status, detail: String(errData).slice(0, 200) });
+    console.error('[TTS] Error:', error.message);
+    return res.status(500).json({ error: 'TTS synthesis failed', detail: error.message });
   }
 };

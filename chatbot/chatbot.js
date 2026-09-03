@@ -255,8 +255,8 @@
 
     setVoiceState(VOICE_SPEAKING);
 
-    // Call our server-side ElevenLabs proxy
-    console.log('[Alex TTS] Calling /api/tts with', plain.length, 'chars');
+    // Call our server-side Groq Orpheus TTS proxy
+    console.log('[Alex TTS] Calling /api/tts (Groq Orpheus) with', plain.length, 'chars');
     fetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
