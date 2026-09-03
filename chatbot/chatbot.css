@@ -513,3 +513,43 @@
 .alex-table tr:nth-child(even) td {
   background: rgba(255,255,255,0.02);
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   SIRI ORB — Animated voice visualization
+   ═══════════════════════════════════════════════════════════════ */
+.alex-orb-wrap {
+  position: relative;
+  width: 100%;
+  height: 120px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  overflow: hidden;
+  flex-shrink: 0;
+  transition: height 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.alex-orb-canvas {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+/* Compact orb on small screens */
+@media (max-width: 420px) {
+  .alex-orb-wrap {
+    height: 90px;
+  }
+}
+
+/* Subtle separator below orb */
+.alex-orb-wrap::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 16px;
+  right: 16px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-line), transparent);
+}
