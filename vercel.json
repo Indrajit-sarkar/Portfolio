@@ -3,9 +3,14 @@
     "api/chat.js": {
       "memory": 256,
       "maxDuration": 30
+    },
+    "api/tts.js": {
+      "memory": 256,
+      "maxDuration": 15
     }
   },
   "rewrites": [
-    { "source": "/api/chat", "destination": "/api/chat" }
+    { "source": "/api/chat", "destination": "/api/chat" },
+    { "source": "/api/tts", "destination": "/api/tts" }
   ]
 }

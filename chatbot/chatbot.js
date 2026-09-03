@@ -237,38 +237,99 @@
   }
 
   /* ── TTS: Speak text aloud ──────────────────────────────────── */
+  /* ── Audio playback state for ElevenLabs TTS ── */
+  var currentAudio = null;
+
   function speak(text, onEnd) {
-    if (!HAS_TTS || isMuted) {
+    if (isMuted) {
       if (onEnd) onEnd();
       return;
     }
-    // Cancel any ongoing speech
-    speechSynthesis.cancel();
+    // Stop any currently playing audio
+    stopSpeaking();
 
     var plain = stripForTTS(text);
     if (!plain) { if (onEnd) onEnd(); return; }
 
-    var utter = new SpeechSynthesisUtterance(plain);
-    var voice = pickBestVoice();
-    if (voice) utter.voice = voice;
-    utter.rate = 1.0;
-    utter.pitch = 1.0;
-    utter.volume = 1.0;
-
-    utter.onend = function () {
-      setVoiceState(VOICE_IDLE);
-      if (onEnd) onEnd();
-    };
-    utter.onerror = function () {
-      setVoiceState(VOICE_IDLE);
-      if (onEnd) onEnd();
-    };
-
     setVoiceState(VOICE_SPEAKING);
-    speechSynthesis.speak(utter);
+
+    // Call our server-side ElevenLabs proxy
+    console.log('[Alex TTS] Calling /api/tts with', plain.length, 'chars');
+    fetch('/api/tts', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ text: plain })
+    })
+    .then(function (res) {
+      if (!res.ok) throw new Error('TTS failed: ' + res.status);
+      return res.blob();
+    })
+    .then(function (blob) {
+      console.log('[Alex TTS] Got audio blob:', blob.size, 'bytes');
+      var url = URL.createObjectURL(blob);
+      currentAudio = new Audio(url);
+      currentAudio.onended = function () {
+        URL.revokeObjectURL(url);
+        currentAudio = null;
+        setVoiceState(VOICE_IDLE);
+        if (onEnd) onEnd();
+      };
+      currentAudio.onerror = function () {
+        URL.revokeObjectURL(url);
+        currentAudio = null;
+        setVoiceState(VOICE_IDLE);
+        // Fallback to browser TTS if ElevenLabs fails
+        if (HAS_TTS) {
+          var utter = new SpeechSynthesisUtterance(plain);
+          var voice = pickBestVoice();
+          if (voice) utter.voice = voice;
+          utter.onend = function () { setVoiceState(VOICE_IDLE); if (onEnd) onEnd(); };
+          speechSynthesis.speak(utter);
+          setVoiceState(VOICE_SPEAKING);
+        } else {
+          if (onEnd) onEnd();
+        }
+      };
+      currentAudio.play().catch(function () {
+        // Autoplay blocked — fallback to browser TTS
+        if (HAS_TTS) {
+          var utter2 = new SpeechSynthesisUtterance(plain);
+          var voice2 = pickBestVoice();
+          if (voice2) utter2.voice = voice2;
+          utter2.onend = function () { setVoiceState(VOICE_IDLE); if (onEnd) onEnd(); };
+          speechSynthesis.speak(utter2);
+        } else {
+          setVoiceState(VOICE_IDLE);
+          if (onEnd) onEnd();
+        }
+      });
+    })
+    .catch(function (err) {
+      console.warn('[Alex TTS] ElevenLabs failed, falling back to browser TTS:', err);
+      // ElevenLabs unavailable — fallback to browser TTS
+      if (HAS_TTS) {
+        var utter3 = new SpeechSynthesisUtterance(plain);
+        var voice3 = pickBestVoice();
+        if (voice3) utter3.voice = voice3;
+        utter3.onend = function () { setVoiceState(VOICE_IDLE); if (onEnd) onEnd(); };
+        utter3.onerror = function () { setVoiceState(VOICE_IDLE); if (onEnd) onEnd(); };
+        speechSynthesis.speak(utter3);
+        setVoiceState(VOICE_SPEAKING);
+      } else {
+        setVoiceState(VOICE_IDLE);
+        if (onEnd) onEnd();
+      }
+    });
   }
 
   function stopSpeaking() {
+    // Stop ElevenLabs audio
+    if (currentAudio) {
+      currentAudio.pause();
+      currentAudio.currentTime = 0;
+      currentAudio = null;
+    }
+    // Also stop browser TTS fallback
     if (HAS_TTS) speechSynthesis.cancel();
   }
 
@@ -617,7 +678,7 @@
   /* ── API Call ───────────────────────────────────────────────── */
   function send(text, fromVoice) {
     // Stop any ongoing speech immediately when user sends a new message
-    if (HAS_TTS) { speechSynthesis.cancel(); }
+    stopSpeaking();
     setVoiceState(VOICE_IDLE);
 
     var msg = (text || '').trim();
@@ -664,15 +725,11 @@
       history.push({ role: 'model', parts: [{ text: reply }] });
       if (history.length > 20) history = history.slice(-20);
 
-      // Speak the reply (if came from voice or auto-speak enabled)
-      if (fromVoice || voiceState === VOICE_PROCESSING) {
-        speak(reply, function () {
-          // After speaking, go back to wake word listening
-          if (isOpen) startWakeWordListening();
-        });
-      } else {
-        setVoiceState(VOICE_IDLE);
-      }
+      // Always speak the reply aloud (ElevenLabs with browser fallback)
+      speak(reply, function () {
+        // After speaking, go back to wake word listening if voice-initiated
+        if (isOpen && HAS_VOICE) startWakeWordListening();
+      });
     })
     .catch(function () {
       hideTyping();
@@ -734,7 +791,7 @@
     // Enter / Shift+Enter
     inputEl.addEventListener('keydown', function (e) {
     // Stop Alex speaking when user starts typing
-    if (HAS_TTS && speechSynthesis.speaking) { speechSynthesis.cancel(); setVoiceState(VOICE_IDLE); }
+    stopSpeaking(); setVoiceState(VOICE_IDLE);
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
         send(inputEl.value, false);
