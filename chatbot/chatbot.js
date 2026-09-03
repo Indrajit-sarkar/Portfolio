@@ -32,7 +32,7 @@
 
   var WELCOME = "Hello! I'm Alex, Indrajit's AI assistant. I can answer questions about his education, experience, projects, technical skills, certifications, and portfolio. You can also say **\"Hey Alex\"** to talk to me!";
   var GREETING_REPLY = "Hi! How may I help you?";
-  var GREETING_REPLY_REPEAT = "Ummhmm?";
+  var GREETING_REPLY_REPEAT = "Hmm Hmm?";
 
   /* ── Voice support detection ────────────────────────────────── */
   var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
