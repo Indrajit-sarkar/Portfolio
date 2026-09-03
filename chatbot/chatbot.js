@@ -64,6 +64,8 @@
   var activeRec   = null; // SpeechRecognition for active listening
   var silenceTimer = null;
   var bestVoice   = null; // Cached best TTS voice
+  var currentAbort = null;  // AbortController for in-flight API/TTS requests
+  var currentTTSAbort = null; // AbortController for in-flight TTS fetch
 
   /* ── Refs ───────────────────────────────────────────────────── */
   var fab, panel, msgBody, chipsWrap, inputEl, sendBtn, micBtn, muteBtn, stateBadge;
@@ -257,10 +259,12 @@
 
     // Call our server-side Groq Orpheus TTS proxy
     console.log('[Alex TTS] Calling /api/tts (Groq Orpheus) with', plain.length, 'chars');
+    currentTTSAbort = new AbortController();
     fetch('/api/tts', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ text: plain })
+      body: JSON.stringify({ text: plain }),
+      signal: currentTTSAbort.signal
     })
     .then(function (res) {
       if (!res.ok) throw new Error('TTS failed: ' + res.status);
@@ -307,8 +311,13 @@
       });
     })
     .catch(function (err) {
-      console.warn('[Alex TTS] ElevenLabs failed, falling back to browser TTS:', err);
-      // ElevenLabs unavailable — fallback to browser TTS
+      // If user interrupted (abort), do nothing
+      if (err && err.name === 'AbortError') {
+        console.log('[Alex TTS] Aborted by user interrupt');
+        return;
+      }
+      console.warn('[Alex TTS] Groq TTS failed, falling back to browser TTS:', err);
+      // Groq TTS unavailable — fallback to browser TTS
       if (HAS_TTS) {
         var utter3 = new SpeechSynthesisUtterance(plain);
         var voice3 = pickBestVoice();
@@ -325,7 +334,10 @@
   }
 
   function stopSpeaking() {
-    // Stop ElevenLabs audio
+    // Abort in-flight TTS request
+    if (currentTTSAbort) { currentTTSAbort.abort(); currentTTSAbort = null; }
+
+    // Stop playing audio
     if (currentAudio) {
       currentAudio.pause();
       currentAudio.currentTime = 0;
@@ -457,7 +469,9 @@
   function handleWakeWord() {
     // Stop passive listening
     stopWakeWordListening();
+    // Interrupt everything — stop speech, abort in-flight requests
     stopSpeaking();
+    if (currentAbort) { currentAbort.abort(); currentAbort = null; }
 
     // Open panel if not open
     if (!isOpen) togglePanel();
@@ -536,7 +550,7 @@
       clearTimeout(silenceTimer);
       var text = (finalTranscript || inputEl.value || '').trim();
       if (text) {
-        send(text);
+        send(text, true);  // true = from voice
       } else {
         setVoiceState(VOICE_IDLE);
         if (isOpen) startWakeWordListening();
@@ -718,6 +732,8 @@
   function send(text, fromVoice) {
     // Stop any ongoing speech immediately when user sends a new message
     stopSpeaking();
+    // Abort any in-flight chat API request
+    if (currentAbort) { currentAbort.abort(); currentAbort = null; }
     setVoiceState(VOICE_IDLE);
 
     var msg = (text || '').trim();
@@ -748,10 +764,12 @@
     showTyping();
     setVoiceState(VOICE_PROCESSING);
 
+    currentAbort = new AbortController();
     fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload)
+      body: JSON.stringify(payload),
+      signal: currentAbort.signal
     })
     .then(function (res) {
       if (!res.ok) throw new Error(res.status);
@@ -764,13 +782,24 @@
       history.push({ role: 'model', parts: [{ text: reply }] });
       if (history.length > 20) history = history.slice(-20);
 
-      // Always speak the reply aloud (ElevenLabs with browser fallback)
-      speak(reply, function () {
-        // After speaking, go back to wake word listening if voice-initiated
+      // Only speak if the question was asked via voice
+      if (fromVoice) {
+        speak(reply, function () {
+          // After speaking, go back to wake word listening
+          if (isOpen && HAS_VOICE) startWakeWordListening();
+        });
+      } else {
+        setVoiceState(VOICE_IDLE);
         if (isOpen && HAS_VOICE) startWakeWordListening();
-      });
+      }
     })
-    .catch(function () {
+    .catch(function (err) {
+      // If user interrupted (abort), don't show error
+      if (err && err.name === 'AbortError') {
+        hideTyping();
+        setVoiceState(VOICE_IDLE);
+        return;
+      }
       hideTyping();
       var errMsg = "Sorry, I'm having trouble connecting right now. Please try again in a moment.";
       addMsg(errMsg, true, true);
@@ -851,6 +880,7 @@
         } else {
           // Stop anything else and start listening
           stopSpeaking();
+          if (currentAbort) { currentAbort.abort(); currentAbort = null; }
           stopWakeWordListening();
           startActiveListening();
         }
