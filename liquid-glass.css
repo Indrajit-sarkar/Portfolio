@@ -1,0 +1,171 @@
+/* ============================================================
+   LIQUID GLASS OVERLAY STYLES
+   Integrates liquid-glass-js into the portfolio.
+   Works on both dark and light themes.
+   ============================================================ */
+
+/* ---------- Base: hide library's built-in canvas shadow ---------- */
+.glass-container canvas,
+.glass-button canvas {
+    box-shadow: none !important;
+}
+
+/* ---------- Wrapper: liquid-glass elements placed over originals --- */
+.lg-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* The library container element sits behind our content */
+.lg-wrap > .glass-container,
+.lg-wrap > .glass-button {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    pointer-events: none;
+    z-index: 0;
+}
+
+/* Ensure the original content sits above the glass canvas */
+.lg-wrap > .lg-content {
+    position: relative;
+    z-index: 1;
+    pointer-events: auto;
+}
+
+/* ---------- Theme Toggle (pill switch) ---------- */
+#themeToggle.lg-enhanced {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    overflow: visible;
+}
+#themeToggle.lg-enhanced .glass-container {
+    position: absolute;
+    inset: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    pointer-events: none;
+    z-index: 0;
+    border-radius: 99px;
+}
+#themeToggle.lg-enhanced .tt-knob {
+    position: relative;
+    z-index: 2;
+}
+
+/* ---------- Navigation Resume Button ---------- */
+.nav-resume.lg-enhanced {
+    background: transparent !important;
+    border-color: transparent !important;
+    box-shadow: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    overflow: visible;
+    position: relative;
+}
+.nav-resume.lg-enhanced > .glass-container {
+    position: absolute;
+    inset: -1px;
+    width: calc(100% + 2px);
+    height: calc(100% + 2px);
+    pointer-events: none;
+    z-index: 0;
+    border-radius: 99px;
+}
+.nav-resume.lg-enhanced > span,
+.nav-resume.lg-enhanced > svg {
+    position: relative;
+    z-index: 1;
+}
+
+/* ---------- "Get in touch" primary CTA ---------- */
+.btn-primary.lg-enhanced {
+    background: transparent !important;
+    box-shadow: none !important;
+    overflow: visible;
+    position: relative;
+}
+/* Keep the gradient text visible */
+.btn-primary.lg-enhanced::after {
+    display: none;
+}
+.btn-primary.lg-enhanced > .glass-container {
+    position: absolute;
+    inset: -1px;
+    width: calc(100% + 2px);
+    height: calc(100% + 2px);
+    pointer-events: none;
+    z-index: 0;
+    border-radius: 99px;
+}
+
+/* Text on primary buttons should stay white for contrast */
+.btn-primary.lg-enhanced {
+    color: var(--ink);
+    text-shadow: none;
+}
+
+/* ---------- Project card arrow buttons ---------- */
+.proj-mini-arrow.lg-enhanced {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    overflow: visible;
+}
+.proj-mini-arrow.lg-enhanced > .glass-container {
+    position: absolute;
+    inset: -4px;
+    width: calc(100% + 8px);
+    height: calc(100% + 8px);
+    pointer-events: none;
+    z-index: 0;
+    border-radius: 50%;
+}
+
+/* ---------- Alex Mute Toggle ---------- */
+.alex-mute.lg-enhanced {
+    background: transparent !important;
+    overflow: visible;
+    position: relative;
+}
+.alex-mute.lg-enhanced > .glass-container {
+    position: absolute;
+    inset: -2px;
+    width: calc(100% + 4px);
+    height: calc(100% + 4px);
+    pointer-events: none;
+    z-index: 0;
+    border-radius: 50%;
+}
+.alex-mute.lg-enhanced > svg {
+    position: relative;
+    z-index: 1;
+}
+
+/* ---------- Light theme adjustments ---------- */
+[data-theme="light"] .lg-enhanced .glass-container canvas {
+    opacity: 0.85;
+}
+
+/* ---------- Prevent glass from blocking interactions ---------- */
+.glass-container,
+.glass-button {
+    pointer-events: none !important;
+}
+.glass-container canvas {
+    pointer-events: none !important;
+}
+
+/* ---------- Responsive: disable on very small screens ---------- */
+@media (max-width: 480px) {
+    .glass-container canvas {
+        display: none;
+    }
+}

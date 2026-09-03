@@ -1,0 +1,329 @@
+/* ============================================================
+   LIQUID GLASS / LIQUID METAL CARD EFFECTS
+   Inspired by WebGL liquid-logo fragment shaders — adapted
+   to pure CSS for broad compatibility.
+   
+   Targets:
+     .proj-mini.glass        — project mini cards
+     .exp-card.glass         — experience cards
+     .contact-card.glass     — contact card
+     .ach-card.glass         — achievement cards
+     .edu-card               — education cards
+     .vol-card               — volunteer cards
+   ============================================================ */
+
+/* ---------- Animatable custom properties ---------- */
+@property --liquid-angle {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+}
+
+@property --liquid-shimmer {
+    syntax: '<percentage>';
+    inherits: false;
+    initial-value: -100%;
+}
+
+@property --liquid-hue {
+    syntax: '<angle>';
+    inherits: false;
+    initial-value: 0deg;
+}
+
+/* ---------- Keyframes ---------- */
+
+/* Slow continuous rotation for the border gradient */
+@keyframes liquid-rotate {
+    to { --liquid-angle: 360deg; }
+}
+
+/* Continuous hue drift for the metallic edge */
+@keyframes liquid-hue-drift {
+    to { --liquid-hue: 360deg; }
+}
+
+/* Shimmer sweep across the card surface on hover */
+@keyframes liquid-shimmer-sweep {
+    0%   { --liquid-shimmer: -100%; }
+    100% { --liquid-shimmer: 200%; }
+}
+
+/* Subtle breathing for the border glow at rest */
+@keyframes liquid-breathe {
+    0%, 100% { opacity: 0.3; }
+    50%      { opacity: 0.5; }
+}
+
+/* ---------- Shared liquid glass base ---------- */
+
+.proj-mini.glass,
+.exp-card.glass,
+.contact-card.glass,
+.ach-card.glass,
+.edu-card,
+.vol-card {
+    /* Ensure stacking context */
+    position: relative;
+    isolation: isolate;
+    overflow: hidden;
+
+    /* Run the angle + hue animations continuously */
+    animation: liquid-rotate 8s linear infinite,
+               liquid-hue-drift 12s linear infinite;
+
+    /* Smooth hover transitions */
+    transition: transform 0.5s var(--ease, cubic-bezier(0.22, 1, 0.36, 1)),
+                border-color 0.5s ease,
+                box-shadow 0.5s ease;
+}
+
+/* ---- Animated liquid border glow (::before) ---- 
+   A conic-gradient that rotates, creating the flowing
+   liquid-metal edge shimmer. Masked to only show the 
+   border ring. */
+
+.proj-mini.glass::before,
+.exp-card.glass::before,
+.contact-card.glass::before,
+.ach-card.glass::before,
+.edu-card::before,
+.vol-card::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none;
+
+    /* Flowing conic gradient — liquid metal colors */
+    background: conic-gradient(
+        from var(--liquid-angle),
+        transparent 0%,
+        hsl(calc(220 + var(--liquid-hue)) 60% 70% / 0.55)  10%,
+        hsl(calc(280 + var(--liquid-hue)) 50% 72% / 0.45)  20%,
+        transparent 30%,
+        hsl(calc(180 + var(--liquid-hue)) 55% 68% / 0.4)   45%,
+        transparent 55%,
+        hsl(calc(40 + var(--liquid-hue))  65% 75% / 0.5)   65%,
+        hsl(calc(320 + var(--liquid-hue)) 50% 70% / 0.4)   78%,
+        transparent 88%,
+        hsl(calc(220 + var(--liquid-hue)) 60% 70% / 0.55)  100%
+    );
+
+    /* Mask: only show the border ring (~2px edge) */
+    -webkit-mask: linear-gradient(#000, #000) content-box,
+                  linear-gradient(#000, #000);
+    mask: linear-gradient(#000, #000) content-box,
+          linear-gradient(#000, #000);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    padding: 1.5px;
+
+    /* Subtle breathing at rest */
+    animation: liquid-breathe 4s ease-in-out infinite;
+    transition: opacity 0.5s ease;
+}
+
+/* ---- Surface shimmer layer (::after) ----
+   A diagonal metallic gradient sweep that activates
+   on hover, simulating light refracting through liquid glass. */
+
+.proj-mini.glass::after,
+.exp-card.glass::after,
+.contact-card.glass::after,
+.ach-card.glass::after,
+.edu-card::after,
+.vol-card::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    border-radius: inherit;
+    pointer-events: none;
+
+    /* Metallic shimmer gradient */
+    background: linear-gradient(
+        115deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.03) calc(var(--liquid-shimmer) - 10%),
+        rgba(255, 255, 255, 0.09) var(--liquid-shimmer),
+        rgba(200, 220, 255, 0.14) calc(var(--liquid-shimmer) + 4%),
+        rgba(255, 255, 255, 0.09) calc(var(--liquid-shimmer) + 10%),
+        rgba(255, 255, 255, 0.03) calc(var(--liquid-shimmer) + 20%),
+        transparent 100%
+    );
+
+    opacity: 0;
+    transition: opacity 0.5s ease;
+}
+
+/* ---------- Hover: ENHANCE everything ---------- */
+
+.proj-mini.glass:hover,
+.exp-card.glass:hover,
+.contact-card.glass:hover,
+.ach-card.glass:hover,
+.edu-card:hover,
+.vol-card:hover {
+    /* Intensify shadow with colored glow */
+    box-shadow: var(--lg-inset, inset 0 1px 0 rgba(243, 242, 238, 0.22)),
+                var(--shadow, 0 24px 60px -24px rgba(0, 0, 0, 0.7)),
+                0 0 30px -8px hsla(calc(220 + var(--liquid-hue)) 60% 60% / 0.15);
+
+    /* Speed up rotation on hover */
+    animation: liquid-rotate 4s linear infinite,
+               liquid-hue-drift 8s linear infinite;
+}
+
+/* Border glow goes full opacity on hover */
+.proj-mini.glass:hover::before,
+.exp-card.glass:hover::before,
+.contact-card.glass:hover::before,
+.ach-card.glass:hover::before,
+.edu-card:hover::before,
+.vol-card:hover::before {
+    opacity: 1;
+    animation: none; /* Stop the breathe, hold at full opacity */
+}
+
+/* Surface shimmer activates on hover */
+.proj-mini.glass:hover::after,
+.exp-card.glass:hover::after,
+.contact-card.glass:hover::after,
+.ach-card.glass:hover::after,
+.edu-card:hover::after,
+.vol-card:hover::after {
+    opacity: 1;
+    animation: liquid-shimmer-sweep 1.8s ease-in-out forwards;
+}
+
+/* ---------- Light theme adjustments ---------- */
+[data-theme="light"] .proj-mini.glass::before,
+[data-theme="light"] .exp-card.glass::before,
+[data-theme="light"] .contact-card.glass::before,
+[data-theme="light"] .ach-card.glass::before,
+[data-theme="light"] .edu-card::before,
+[data-theme="light"] .vol-card::before {
+    background: conic-gradient(
+        from var(--liquid-angle),
+        transparent 0%,
+        hsl(calc(220 + var(--liquid-hue)) 45% 55% / 0.4)  10%,
+        hsl(calc(280 + var(--liquid-hue)) 35% 58% / 0.3)  20%,
+        transparent 30%,
+        hsl(calc(180 + var(--liquid-hue)) 40% 52% / 0.25) 45%,
+        transparent 55%,
+        hsl(calc(40 + var(--liquid-hue))  50% 60% / 0.35) 65%,
+        hsl(calc(320 + var(--liquid-hue)) 35% 55% / 0.25) 78%,
+        transparent 88%,
+        hsl(calc(220 + var(--liquid-hue)) 45% 55% / 0.4)  100%
+    );
+}
+
+[data-theme="light"] .proj-mini.glass::after,
+[data-theme="light"] .exp-card.glass::after,
+[data-theme="light"] .contact-card.glass::after,
+[data-theme="light"] .ach-card.glass::after,
+[data-theme="light"] .edu-card::after,
+[data-theme="light"] .vol-card::after {
+    background: linear-gradient(
+        115deg,
+        transparent 0%,
+        rgba(120, 100, 80, 0.04) calc(var(--liquid-shimmer) - 10%),
+        rgba(100, 80, 60, 0.11) var(--liquid-shimmer),
+        rgba(140, 120, 100, 0.16) calc(var(--liquid-shimmer) + 4%),
+        rgba(100, 80, 60, 0.11) calc(var(--liquid-shimmer) + 10%),
+        rgba(120, 100, 80, 0.04) calc(var(--liquid-shimmer) + 20%),
+        transparent 100%
+    );
+}
+
+[data-theme="light"] .proj-mini.glass:hover,
+[data-theme="light"] .exp-card.glass:hover,
+[data-theme="light"] .contact-card.glass:hover,
+[data-theme="light"] .ach-card.glass:hover,
+[data-theme="light"] .edu-card:hover,
+[data-theme="light"] .vol-card:hover {
+    box-shadow: var(--lg-inset, inset 0 1px 0 rgba(255, 255, 255, 0.95)),
+                var(--shadow, 0 24px 60px -30px rgba(40, 34, 22, 0.28)),
+                0 0 28px -8px hsla(calc(220 + var(--liquid-hue)) 40% 50% / 0.12);
+}
+
+/* ---------- Fix z-index so card content stays above glow layers ---------- */
+
+.exp-card.glass > .exp-body,
+.exp-card.glass > .exp-media {
+    position: relative;
+    z-index: 2;
+}
+
+.proj-mini.glass > .proj-mini-media,
+.proj-mini.glass > .proj-mini-info,
+.proj-mini.glass > .proj-mini-arrow {
+    position: relative;
+    z-index: 2;
+}
+
+.ach-card.glass > img,
+.ach-card.glass > .ach-info {
+    position: relative;
+    z-index: 2;
+}
+
+.contact-card.glass > .contact-info,
+.contact-card.glass > .contact-form {
+    position: relative;
+    z-index: 2;
+}
+
+.edu-card > .edu-bg,
+.edu-card > .edu-body {
+    position: relative;
+    z-index: 2;
+}
+
+.vol-card > img,
+.vol-card > .vol-info {
+    position: relative;
+    z-index: 2;
+}
+
+/* ---------- Reduced motion: respect user preference ---------- */
+@media (prefers-reduced-motion: reduce) {
+    .proj-mini.glass,
+    .exp-card.glass,
+    .contact-card.glass,
+    .ach-card.glass,
+    .edu-card,
+    .vol-card {
+        animation: none !important;
+    }
+
+    .proj-mini.glass::before,
+    .exp-card.glass::before,
+    .contact-card.glass::before,
+    .ach-card.glass::before,
+    .edu-card::before,
+    .vol-card::before {
+        opacity: 0.35;
+        animation: none !important;
+    }
+
+    .proj-mini.glass:hover::before,
+    .exp-card.glass:hover::before,
+    .contact-card.glass:hover::before,
+    .ach-card.glass:hover::before,
+    .edu-card:hover::before,
+    .vol-card:hover::before {
+        opacity: 0.65;
+    }
+
+    .proj-mini.glass::after,
+    .exp-card.glass::after,
+    .contact-card.glass::after,
+    .ach-card.glass::after,
+    .edu-card::after,
+    .vol-card::after {
+        display: none;
+    }
+}

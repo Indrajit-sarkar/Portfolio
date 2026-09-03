@@ -350,7 +350,7 @@
                         poster="assets/video/gaming-loop-poster.webp"
                         autoplay loop muted playsinline preload="metadata"
                         aria-label="Gameplay footage on loop"></video>
-                    <button class="game-play-btn" id="gamePlayBtn" aria-label="Play Mini Militia fullscreen">
+                    <button class="game-play-btn" id="gamePlayBtn" aria-label="Play Sketch Ops fullscreen">
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
                             <path d="M8 5v14l11-7z"/>
                         </svg>
@@ -804,14 +804,14 @@
         <p>© <span id="year">2026</span> Indrajit Sarkar</p>
     </footer>
 
-    <!-- Mini Militia Fullscreen Modal -->
+    <!-- Sketch Ops Fullscreen Modal -->
     <div class="voxel-fullscreen" id="voxelFullscreen">
         <button class="voxel-close-btn" id="voxelCloseBtn" aria-label="Close game">
             <svg viewBox="0 0 24 24" fill="currentColor">
                 <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
             </svg>
         </button>
-        <iframe id="voxelFullscreenIframe" src="" title="Mini Militia — doodle combat game"></iframe>
+        <iframe id="voxelFullscreenIframe" src="" title="Sketch Ops — Jetpack Combat"></iframe>
     </div>
 
     <!-- ---------- Page interactions (no dependencies) ---------- -->
@@ -895,7 +895,7 @@
 
     <!-- ---------- VOXELCRAFT MODAL HANDLER ---------- -->
     <script>
-        // Mini Militia game modal (opens on Play Now)
+        // Sketch Ops game modal (opens on Play Now)
         document.addEventListener('DOMContentLoaded', () => {
             const gamePlayBtn = document.getElementById('gamePlayBtn');
             const shell = document.getElementById('voxelFullscreen');
@@ -910,7 +910,7 @@
             };
 
             gamePlayBtn.addEventListener('click', () => {
-                frame.src = 'minimilitia.html';
+                frame.src = 'sketch-ops.html';
                 shell.classList.add('active');
                 document.body.style.overflow = 'hidden';
                 // hand keyboard focus to the game so WASD reaches it
@@ -923,7 +923,7 @@
             });
             // the game's own exit button posts back to us
             window.addEventListener('message', (e) => {
-                if (e.data === 'mm:exit') close();
+                if (e.data === 'so:exit') close();
             });
         });
     </script>

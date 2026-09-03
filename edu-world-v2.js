@@ -20,16 +20,16 @@ const clock = new THREE.Clock();
 const STOPS = [
     { at: 0,   yr: '2012 — 2018 · School Captain', name: 'Allwin Public School',
       deg: 'Schooling', place: 'Ganganagar, Bengaluru', tag: 'Where it started',
-      accent: 0x8b5cf6 },
+      desc: 'Passout 2018 · Led student council & organised school events', accent: 0x8b5cf6 },
     { at: 62,  yr: '2018 — 2020', name: 'UAS and VC PU College',
       deg: 'Pre-University · CEBA', place: 'Bengaluru', tag: 'Commerce & basics',
-      accent: 0xff8a3d },
-    { at: 124, yr: 'Aug 2020 — Nov 2023', name: 'Indian Academy Degree College',
+      desc: 'Commerce, Economics, Business Studies & Accountancy', accent: 0xff8a3d },
+    { at: 124, yr: 'Aug 2020 — Nov 2023', name: 'Indian Academy Degree College (Autonomous)',
       deg: 'Bachelor of Computer Applications', place: 'Bengaluru', tag: 'First real code',
-      accent: 0x34d399 },
+      desc: 'BCA · Foundation in programming, databases & software engineering', accent: 0x34d399 },
     { at: 186, yr: 'Feb 2024 — Nov 2025', name: 'Atria Institute of Technology',
       deg: 'Master of Computer Applications', place: 'Bengaluru', tag: 'Azure & AI',
-      accent: 0x5b8cff }
+      desc: 'MCA · Completed 2025 · Azure AI, cloud & advanced computing', accent: 0x5b8cff }
 ];
 const ROAD_END = STOPS[STOPS.length - 1].at + 26;
 
@@ -41,6 +41,7 @@ const cards = STOPS.map((s) => {
         `<p class="ew-yr">${s.yr}</p>` +
         `<h3>${s.deg}</h3>` +
         `<p>${s.name}<br>${s.place}</p>` +
+        (s.desc ? `<p class="ew-desc">${s.desc}</p>` : '') +
         `<span class="ew-tag">${s.tag}</span>`;
     cardWrap.appendChild(el);
     return el;

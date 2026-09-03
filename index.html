@@ -29,6 +29,11 @@
         imagesrcset="assets/hero/portrait-bw-700.webp 700w, assets/hero/portrait-bw-1100.webp 1100w"
         imagesizes="(max-width: 900px) 78vw, min(54vw, 44rem)">
     <link rel="stylesheet" href="styles.css?v=5">
+    <link rel="stylesheet" href="liquid-cards.css?v=1">
+
+    <!-- Liquid Glass Effect -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/dashersw/liquid-glass-js@main/glass.css">
+    <link rel="stylesheet" href="liquid-glass.css">
 
     <script>
         /* Applied before first paint so a returning visitor never sees the curtain flash. */
@@ -311,7 +316,7 @@
                                 <span class="edu-status">✓ Completed</span>
                             </div>
                             <h3 class="edu-degree">Bachelor of Computer Applications</h3>
-                            <p class="edu-school"><a href="https://iadc.ac.in" target="_blank" rel="noopener">Indian Academy Degree College, Bengaluru</a></p>
+                            <p class="edu-school"><a href="https://iadc.ac.in" target="_blank" rel="noopener">Indian Academy Degree College (Autonomous), Bengaluru</a></p>
                             <p class="edu-dates">Aug 2020 — Nov 2023</p>
                             <figure class="edu-photo">
                                 <img src="assets/opt/indian-academy-graduation-photo-640.webp" alt="Graduation at Indian Academy Degree College" loading="lazy" decoding="async" data-lightbox="edu">
@@ -328,7 +333,7 @@
                                 <span class="edu-logo"><img src="assets/opt/uas-logo-640.webp" alt="UAS and VC PU College logo" loading="lazy" decoding="async"></span>
                                 <span class="edu-status">✓ Completed</span>
                             </div>
-                            <h3 class="edu-degree">Pre-University · CEBA</h3>
+                            <h3 class="edu-degree">Pre-University (PUC) · CEBA</h3>
                             <p class="edu-school"><a href="https://www.uasbangalore.edu.in" target="_blank" rel="noopener">UAS and VC PU College, Bengaluru</a></p>
                             <p class="edu-dates">2018 — 2020</p>
                             <figure class="edu-photo">
@@ -1397,6 +1402,13 @@
     <!-- Alex AI Chatbot -->
     <link rel="stylesheet" href="chatbot/chatbot.css">
     <script defer src="chatbot/chatbot.js"></script>
+
+    <!-- Liquid Glass Effect (CDN + custom integration) -->
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/dashersw/liquid-glass-js@main/container.js"></script>
+    <script src="https://cdn.jsdelivr.net/gh/dashersw/liquid-glass-js@main/button.js"></script>
+    <script src="liquid-glass.js"></script>
+
 </body>
 
 </html>

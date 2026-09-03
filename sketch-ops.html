@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
     <meta name="theme-color" content="#8ec7e0">
-    <title>Mini Militia — Doodle Combat</title>
+    <title>Sketch Ops — Jetpack Combat</title>
     <link rel="icon" href="assets/opt/logo-640.webp" type="image/webp">
     <style>
         *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
@@ -133,8 +133,8 @@
 
         <div class="screen" id="start">
             <div class="card">
-                <h1>Mini <span>Militia</span></h1>
-                <p>Doodle-army deathmatch. Jetpack, shoot, and out-fly four bots.
+                <h1>Sketch <span>Ops</span></h1>
+                <p>Jetpack-fuelled deathmatch. Fly, shoot, and out-manoeuvre four bots.
                    First to <b>15 kills</b> or best score when the clock runs out.</p>
                 <div class="keys" id="hintKeys">
                     <div><b>A / D</b> or <b>←→</b> — move &nbsp;·&nbsp; <b>W / Space</b> — jetpack</div>
@@ -148,7 +148,7 @@
 
         <div class="screen hide" id="over">
             <div class="card">
-                <h1 id="overTitle">Match Over</h1>
+                <h1 id="overTitle">Op Complete</h1>
                 <div class="stat">You <b id="fKills">0</b> &nbsp;—&nbsp; Bots <b id="fDeaths">0</b></div>
                 <p id="overMsg"></p>
                 <button class="cta" id="btnAgain">Rematch</button>
@@ -573,8 +573,8 @@
             const win = p.kills >= KILL_TARGET || p.kills > bot;
             document.getElementById('overTitle').innerHTML = win ? 'Victory<span>!</span>' : 'Defeated';
             document.getElementById('overMsg').textContent = win
-                ? 'You out-flew the doodle army.'
-                : 'The bots had the better day. Try the jetpack more.';
+                ? 'You dominated the battlefield.'
+                : 'The squad had the upper hand. Try the jetpack more.';
             document.getElementById('over').classList.remove('hide');
         }
 
@@ -908,7 +908,7 @@
             running = true; over = false; tPrev = performance.now();
         }
         function exitGame() {
-            if (window.parent && window.parent !== window) window.parent.postMessage('mm:exit', '*');
+            if (window.parent && window.parent !== window) window.parent.postMessage('so:exit', '*');
             else history.length > 1 ? history.back() : location.href = 'Hobbies.html';
         }
 
