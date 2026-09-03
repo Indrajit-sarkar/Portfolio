@@ -515,10 +515,29 @@
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   SIRI EDGE GLOW — Apple-style flowing border light
+   SIRI ORB — Animated voice visualization
    ═══════════════════════════════════════════════════════════════ */
 
-/* CSS custom property for rotating the gradient */
+
+
+
+/* Compact orb on small screens */
+@media (max-width: 420px) {
+  
+}
+
+/* Subtle separator below orb */
+.alex-orb-wrap::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 16px;
+  right: 16px;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--glass-line), transparent);
+}
+
+/* ── Siri-style Edge Glow (replaces orb) ─────────── */
 @property --glow-angle {
   syntax: '<angle>';
   initial-value: 0deg;
@@ -534,12 +553,12 @@
   50% { opacity: 1; filter: blur(18px); }
 }
 
-/* The outer glow — pseudo-element behind the panel */
+/* Outer glow — blurred conic gradient */
 .alex-panel::before {
   content: '';
   position: absolute;
   inset: -3px;
-  border-radius: inherit;
+  border-radius: 26px;
   background: conic-gradient(
     from var(--glow-angle),
     #c0a377, #ff6b3d, #ff3d6b, #8b5cf6, #5b8cff, #c0a377
@@ -547,9 +566,9 @@
   filter: blur(14px);
   opacity: 0;
   z-index: -1;
+  animation: glow-rotate 3s linear infinite;
   transition: opacity 0.4s ease, filter 0.4s ease;
   pointer-events: none;
-  animation: glow-rotate 3s linear infinite;
 }
 
 /* Inner edge highlight — thin bright border */
@@ -557,113 +576,89 @@
   content: '';
   position: absolute;
   inset: 0;
-  border-radius: inherit;
-  border: 1.5px solid transparent;
+  border-radius: 24px;
+  padding: 1.5px;
   background: conic-gradient(
     from var(--glow-angle),
-    rgba(192,163,119,0.6), rgba(255,107,61,0.6), rgba(255,61,107,0.6),
-    rgba(139,92,246,0.6), rgba(91,140,255,0.6), rgba(192,163,119,0.6)
-  ) border-box;
-  -webkit-mask: linear-gradient(#fff 0 0) padding-box, linear-gradient(#fff 0 0);
+    #c0a377, #ff6b3d, #ff3d6b, #8b5cf6, #5b8cff, #c0a377
+  );
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
   -webkit-mask-composite: xor;
   mask-composite: exclude;
   opacity: 0;
   z-index: 1;
+  animation: glow-rotate 3s linear infinite;
   transition: opacity 0.4s ease;
   pointer-events: none;
-  animation: glow-rotate 3s linear infinite;
 }
 
-/* Make sure panel can show overflow for the glow */
+/* Ensure panel can show pseudo-elements */
 .alex-panel {
   position: relative;
   overflow: visible;
-  isolation: isolate;
 }
-/* But clip content inside */
-.alex-panel > * {
-  position: relative;
-  z-index: 2;
+.alex-panel.is-open {
+  overflow: visible;
 }
 
-/* ── LISTENING state: vibrant multi-color, fast rotation ── */
+/* ── State: Listening ── */
 .alex-panel.glow-listening::before {
-  opacity: 1;
+  opacity: 0.85;
   filter: blur(15px);
-  animation: glow-rotate 2.5s linear infinite;
+  animation-duration: 2.5s;
 }
 .alex-panel.glow-listening::after {
-  opacity: 1;
-  animation: glow-rotate 2.5s linear infinite;
+  opacity: 0.9;
+  animation-duration: 2.5s;
 }
-/* Extra outer glow via box-shadow */
 .alex-panel.glow-listening {
-  box-shadow:
-    0 0 30px rgba(192,163,119,0.2),
-    0 0 60px rgba(139,92,246,0.15),
-    0 0 90px rgba(91,140,255,0.1);
+  box-shadow: 0 0 30px rgba(192,163,119,0.3), 0 0 60px rgba(139,92,246,0.15);
 }
 
-/* ── PROCESSING state: slower, warm amber tones ── */
+/* ── State: Processing ── */
 .alex-panel.glow-processing::before {
-  opacity: 0.75;
+  opacity: 0.55;
   filter: blur(12px);
+  animation-duration: 4s;
   background: conic-gradient(
     from var(--glow-angle),
-    #c0a377, #ff8a3d, #e8a050, #c0a377, #ddb870, #ff8a3d, #c0a377
+    #c0a377, #ff8a3d, #c0a377, #a78766, #c0a377
   );
-  animation: glow-rotate 4s linear infinite;
 }
 .alex-panel.glow-processing::after {
   opacity: 0.6;
+  animation-duration: 4s;
   background: conic-gradient(
     from var(--glow-angle),
-    rgba(192,163,119,0.5), rgba(255,138,61,0.5), rgba(232,160,80,0.5),
-    rgba(192,163,119,0.5), rgba(221,184,112,0.5), rgba(255,138,61,0.5), rgba(192,163,119,0.5)
-  ) border-box;
-  animation: glow-rotate 4s linear infinite;
+    #c0a377, #ff8a3d, #c0a377, #a78766, #c0a377
+  );
 }
 .alex-panel.glow-processing {
-  box-shadow:
-    0 0 25px rgba(255,138,61,0.2),
-    0 0 50px rgba(192,163,119,0.15);
+  box-shadow: 0 0 25px rgba(192,163,119,0.25);
 }
 
-/* ── SPEAKING state: pulsing purple/blue, vibrant ── */
+/* ── State: Speaking ── */
 .alex-panel.glow-speaking::before {
+  opacity: 0.75;
+  filter: blur(16px);
+  animation: glow-rotate 3s linear infinite, glow-pulse 1.5s ease-in-out infinite;
   background: conic-gradient(
     from var(--glow-angle),
-    #8b5cf6, #5b8cff, #34d399, #5b8cff, #8b5cf6, #ff6b3d, #8b5cf6
+    #8b5cf6, #5b8cff, #34d399, #5b8cff, #8b5cf6
   );
-  animation: glow-rotate 3s linear infinite, glow-pulse 2s ease-in-out infinite;
 }
 .alex-panel.glow-speaking::after {
   opacity: 0.8;
+  animation-duration: 3s;
   background: conic-gradient(
     from var(--glow-angle),
-    rgba(139,92,246,0.6), rgba(91,140,255,0.6), rgba(52,211,153,0.4),
-    rgba(91,140,255,0.6), rgba(139,92,246,0.6), rgba(255,107,61,0.4), rgba(139,92,246,0.6)
-  ) border-box;
-  animation: glow-rotate 3s linear infinite;
+    #8b5cf6, #5b8cff, #34d399, #5b8cff, #8b5cf6
+  );
 }
 .alex-panel.glow-speaking {
-  box-shadow:
-    0 0 30px rgba(139,92,246,0.25),
-    0 0 60px rgba(91,140,255,0.15),
-    0 0 90px rgba(52,211,153,0.1);
+  box-shadow: 0 0 35px rgba(139,92,246,0.3), 0 0 60px rgba(91,140,255,0.15);
 }
 
-/* ── Mobile adjustments ── */
-@media (max-width: 420px) {
-  .alex-panel::before {
-    inset: -2px;
-    filter: blur(10px);
-  }
-  .alex-panel.glow-listening,
-  .alex-panel.glow-processing,
-  .alex-panel.glow-speaking {
-    box-shadow:
-      0 0 20px rgba(192,163,119,0.15),
-      0 0 40px rgba(139,92,246,0.1);
-  }
-}
+/* ── Remove old orb styles ── */
+.alex-orb-wrap,
+.alex-orb-canvas { display: none !important; }

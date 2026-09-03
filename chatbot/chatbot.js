@@ -353,13 +353,19 @@
 
   /* ── Voice State Management ─────────────────────────────────── */
 
-
+  /* ═══════════════════════════════════════════════════════════════
+     SIRI ORB — Canvas-based animated voice orb
+     Reacts to voiceState with smooth color/shape transitions.
+     ═══════════════════════════════════════════════════════════════ */
+  var orbAnimId = null;
+  var orbTime = 0;
+    // Orb removed — using CSS edge glow on .alex-panel instead
 
 
   function setVoiceState(state) {
     voiceState = state;
 
-    // Edge glow — toggle classes on the panel
+    // Edge glow: toggle state classes on panel
     if (panel) {
       panel.classList.remove('glow-listening', 'glow-processing', 'glow-speaking');
       if (state === VOICE_LISTENING || state === VOICE_GREETING) {
@@ -636,9 +642,11 @@
     footer.appendChild(sendBtn);
 
     // Assemble panel
-    // Edge glow is pure CSS — no DOM needed here
+    // Orb container
+    // Orb DOM removed — edge glow uses CSS pseudo-elements on panel
 
     panel.appendChild(header);
+    // orbContainer removed
     panel.appendChild(stateBadge);
     panel.appendChild(msgBody);
     panel.appendChild(chipsWrap);
@@ -781,7 +789,8 @@
     panel.setAttribute('aria-hidden', String(!isOpen));
 
     if (isOpen) {
-        inputEl.focus();
+      orbStart();
+      inputEl.focus();
       if (!hasOpened) {
         hasOpened = true;
         addMsg(WELCOME, true, true); // don't auto-speak welcome
@@ -791,7 +800,7 @@
         startWakeWordListening();
       }
     } else {
-      // edge glow handled by CSS classes
+      orbStop();
       fab.focus();
       // Stop everything
       stopWakeWordListening();
