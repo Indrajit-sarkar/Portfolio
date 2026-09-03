@@ -1,9 +1,10 @@
 /* ============================================================
    LIQUID GLASS — Apple-style glass overlay styles
-   Works with dashersw/liquid-glass-js library
+   Only for: theme toggle, resume button, CTA buttons
+   Does NOT touch nav bar or nav links.
    ============================================================ */
 
-/* ── Glass containers: sit behind content, don't block clicks ── */
+/* ── Glass containers: don't block clicks ── */
 .glass-container,
 .glass-button {
   pointer-events: none !important;
@@ -11,10 +12,11 @@
 .glass-container canvas,
 .glass-button canvas {
   pointer-events: none !important;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18) !important;
+  /* Subtle glass shadow — not too heavy */
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
 }
 
-/* ── Theme Toggle: liquid glass pill ── */
+/* ── Theme Toggle ── */
 #themeToggle[data-lg-applied] {
   background: transparent !important;
   border-color: rgba(255, 255, 255, 0.06) !important;
@@ -28,30 +30,7 @@
   z-index: 3;
 }
 
-/* ── Nav Menu: liquid glass container ── */
-.nav-menu[data-lg-applied] {
-  background: transparent !important;
-  border-color: rgba(255, 255, 255, 0.04) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: none !important;
-}
-
-/* ── Nav Inner bar: glass container ── */
-.nav-inner[data-lg-applied] {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* ── Nav Links: glass pill tabs ── */
-.nav-link[data-lg-applied] {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-}
-
-/* ── Resume Button: glass pill ── */
+/* ── Resume Button ── */
 .nav-resume[data-lg-applied] {
   background: transparent !important;
   border-color: rgba(255, 255, 255, 0.08) !important;
@@ -65,8 +44,9 @@
   z-index: 2;
 }
 
-/* ── CTA Buttons: glass pill ── */
-.btn-primary[data-lg-applied] {
+/* ── CTA / Primary Buttons ── */
+.btn-primary[data-lg-applied],
+.btn-ghost[data-lg-applied] {
   background: transparent !important;
   backdrop-filter: none !important;
   -webkit-backdrop-filter: none !important;
@@ -74,38 +54,27 @@
   overflow: visible;
   border: 1px solid rgba(255, 255, 255, 0.1);
 }
-.btn-primary[data-lg-applied] > * {
+.btn-primary[data-lg-applied] > *,
+.btn-ghost[data-lg-applied] > * {
   position: relative;
   z-index: 2;
 }
-/* Keep text visible on glass buttons */
-.btn-primary[data-lg-applied] {
-  color: var(--ink) !important;
+
+/* ── Light theme: reduce glass intensity ── */
+[data-theme="light"] [data-lg-applied] .glass-container canvas {
+  opacity: 0.7;
 }
 
-/* ── Light theme: slightly reduce glass canvas opacity ── */
-[data-theme="light"] [data-lg-applied] .glass-container canvas,
-[data-theme="light"] [data-lg-applied] .glass-button canvas {
-  opacity: 0.75;
-}
-
-/* ── Hover enhancement: brighten glass on hover ── */
-[data-lg-applied]:hover > .glass-container canvas,
-[data-lg-applied]:hover > .glass-button canvas {
-  filter: brightness(1.1);
+/* ── Hover: brighten glass ── */
+[data-lg-applied]:hover > .glass-container canvas {
+  filter: brightness(1.15);
   transition: filter 0.3s ease;
 }
 
-/* ── Disable glass on small screens (perf) ── */
+/* ── Disable on small screens for performance ── */
 @media (max-width: 480px) {
   .glass-container canvas,
   .glass-button canvas {
     display: none !important;
   }
-}
-
-/* ── Prevent glass overflow on fixed nav ── */
-.nav[data-lg-applied],
-.nav-inner[data-lg-applied] {
-  overflow: visible !important;
 }
