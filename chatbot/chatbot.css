@@ -593,12 +593,8 @@
 }
 
 /* Ensure panel can show pseudo-elements */
-.alex-panel {
-  position: relative;
-  overflow: visible;
-}
-.alex-panel.is-open {
-  overflow: visible;
+.alex-panel, .alex-panel.is-open {
+  overflow: visible !important;
 }
 
 /* ── State: Listening ── */
