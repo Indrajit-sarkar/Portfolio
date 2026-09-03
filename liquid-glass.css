@@ -1,7 +1,6 @@
 /* ============================================================
    LIQUID GLASS — Apple-style glass overlay styles
-   Only for: theme toggle, resume button, CTA buttons
-   Does NOT touch nav bar or nav links.
+   Applied to card surfaces only. Buttons are untouched.
    ============================================================ */
 
 /* ── Glass containers: don't block clicks ── */
@@ -12,60 +11,15 @@
 .glass-container canvas,
 .glass-button canvas {
   pointer-events: none !important;
-  /* Subtle glass shadow — not too heavy */
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.12) !important;
-}
-
-/* ── Theme Toggle ── */
-#themeToggle[data-lg-applied] {
-  background: transparent !important;
-  border-color: rgba(255, 255, 255, 0.06) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: none !important;
-  overflow: visible;
-}
-#themeToggle[data-lg-applied] .tt-knob {
-  position: relative;
-  z-index: 3;
-}
-
-/* ── Resume Button ── */
-.nav-resume[data-lg-applied] {
-  background: transparent !important;
-  border-color: rgba(255, 255, 255, 0.08) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: none !important;
-  overflow: visible;
-}
-.nav-resume[data-lg-applied] > * {
-  position: relative;
-  z-index: 2;
-}
-
-/* ── CTA / Primary Buttons ── */
-.btn-primary[data-lg-applied],
-.btn-ghost[data-lg-applied] {
-  background: transparent !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
-  box-shadow: none !important;
-  overflow: visible;
-  border: 1px solid rgba(255, 255, 255, 0.1);
-}
-.btn-primary[data-lg-applied] > *,
-.btn-ghost[data-lg-applied] > * {
-  position: relative;
-  z-index: 2;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
 }
 
 /* ── Light theme: reduce glass intensity ── */
 [data-theme="light"] [data-lg-applied] .glass-container canvas {
-  opacity: 0.7;
+  opacity: 0.6;
 }
 
-/* ── Hover: brighten glass ── */
+/* ── Hover: brighten glass on cards ── */
 [data-lg-applied]:hover > .glass-container canvas {
   filter: brightness(1.15);
   transition: filter 0.3s ease;

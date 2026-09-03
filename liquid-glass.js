@@ -2,8 +2,8 @@
    Liquid Glass Integration — Apple-style glass effects
    Uses dashersw/liquid-glass-js (Container + Button classes)
    
-   ONLY applied to: theme toggle, resume button, CTA buttons.
-   NOT applied to: nav bar, nav links (breaks scroll behavior).
+   Applied ONLY to large surfaces where glass refraction
+   looks good. NOT on small buttons (breaks visibility).
    ============================================================ */
 (function () {
   'use strict';
@@ -33,11 +33,9 @@
     glassEl.style.zIndex = '0';
     glassEl.style.borderRadius = (config.borderRadius || 48) + 'px';
 
-    // Ensure target is a positioning context
     var pos = getComputedStyle(targetEl).position;
     if (pos === 'static') targetEl.style.position = 'relative';
 
-    // Elevate existing children above glass
     Array.from(targetEl.children).forEach(function (child) {
       if (child !== glassEl) {
         child.style.position = child.style.position || 'relative';
@@ -47,15 +45,16 @@
       }
     });
 
-    // Insert glass as first child (behind everything)
     targetEl.insertBefore(glassEl, targetEl.firstChild);
 
-    // Make original BG transparent so glass shows through
-    targetEl.style.background = 'transparent';
-    targetEl.style.backgroundColor = 'transparent';
-    targetEl.style.backdropFilter = 'none';
-    targetEl.style.webkitBackdropFilter = 'none';
-    targetEl.style.boxShadow = 'none';
+    // Only make BG transparent if explicitly requested
+    if (config.clearBg) {
+      targetEl.style.background = 'transparent';
+      targetEl.style.backgroundColor = 'transparent';
+      targetEl.style.backdropFilter = 'none';
+      targetEl.style.webkitBackdropFilter = 'none';
+      targetEl.style.boxShadow = 'none';
+    }
 
     requestAnimationFrame(function () {
       c.updateSizeFromDOM();
@@ -95,38 +94,17 @@
     }
     console.log('[liquid-glass] Initializing glass effects…');
 
-    // 1. THEME TOGGLE — Glass pill behind the dark/light switch
-    var themeToggle = document.querySelector('#themeToggle');
-    if (themeToggle) {
-      glassOverlay(themeToggle, { type: 'pill', tintOpacity: 0.20, borderRadius: 99 });
-      var knob = themeToggle.querySelector('.tt-knob');
-      if (knob) {
-        knob.style.position = 'relative';
-        knob.style.zIndex = '3';
-      }
-    }
+    // Glass on larger card-like elements where it actually looks good
+    // Do NOT apply to small buttons — it kills their background/visibility
 
-    // 2. RESUME BUTTON — Glass pill
-    var resumeBtn = document.querySelector('.nav-resume');
-    if (resumeBtn) {
-      glassOverlay(resumeBtn, { type: 'pill', tintOpacity: 0.18, borderRadius: 99 });
-    }
-
-    // 3. CTA BUTTONS — "Get in touch" etc.
-    document.querySelectorAll('.btn-primary').forEach(function (btn) {
-      glassOverlay(btn, { type: 'pill', tintOpacity: 0.22, borderRadius: 99 });
-    });
-
-    // 4. "Resume" ghost button in hero
-    document.querySelectorAll('.btn-ghost').forEach(function (btn) {
-      // Only the hero ones, not the nav
-      if (!btn.classList.contains('nav-resume') && !btn.closest('.nav-actions')) {
-        glassOverlay(btn, { type: 'pill', tintOpacity: 0.15, borderRadius: 99 });
-      }
+    // Glass overlay on .glass cards (project cards, contact card, etc.)
+    // These already have transparent backgrounds so glass refraction shines
+    document.querySelectorAll('.proj-mini.glass, .contact-card.glass, .exp-card.glass').forEach(function (card) {
+      glassOverlay(card, { type: 'rounded', tintOpacity: 0.12, borderRadius: 16 });
     });
 
     watchTheme();
-    console.log('[liquid-glass] ✓ Glass effects applied.');
+    console.log('[liquid-glass] ✓ Glass effects applied to cards.');
   }
 
   /* ── Boot ── */
