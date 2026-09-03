@@ -23,35 +23,32 @@ module.exports = async function handler(req, res) {
   const trimmed = text.slice(0, 500);
 
   // Voice: "Rachel" — warm, professional female voice (built-in, free tier)
-  const voiceId = '21m00Tcm4TlvDq8ikWAM';  // Rachel
-  const modelId = 'eleven_flash_v2_5';  // fastest, cheapest, works on free tier
+  const voiceId = '21m00Tcm4TlvDq8ikWAM';
 
   try {
-    console.log(`[TTS] Synthesizing ${trimmed.length} chars with ElevenLabs`);
+    console.log(`[TTS] Synthesizing ${trimmed.length} chars, key starts with: ${apiKey.slice(0, 6)}...`);
 
     const response = await axios.post(
-      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}?output_format=mp3_22050_32`,
+      `https://api.elevenlabs.io/v1/text-to-speech/${voiceId}`,
       {
         text: trimmed,
-        model_id: modelId,
+        model_id: 'eleven_flash_v2_5',
         voice_settings: {
           stability: 0.5,
-          similarity_boost: 0.75,
-          style: 0.3,
-          use_speaker_boost: true
+          similarity_boost: 0.75
         }
       },
       {
         headers: {
           'xi-api-key': apiKey,
-          'Content-Type': 'application/json',
-          'Accept': 'audio/mpeg'
+          'Content-Type': 'application/json'
         },
         responseType: 'arraybuffer',
         timeout: 15000
       }
     );
 
+    console.log(`[TTS] Success: ${response.data.byteLength} bytes`);
     res.setHeader('Content-Type', 'audio/mpeg');
     res.setHeader('Cache-Control', 'public, max-age=3600');
     return res.status(200).send(Buffer.from(response.data));
@@ -62,6 +59,6 @@ module.exports = async function handler(req, res) {
       ? Buffer.from(error.response.data).toString('utf-8').slice(0, 500)
       : error.message;
     console.error(`[TTS] Error ${status}:`, errData);
-    return res.status(status).json({ error: 'TTS synthesis failed' });
+    return res.status(status).json({ error: 'TTS synthesis failed', status: status, detail: String(errData).slice(0, 200) });
   }
 };
