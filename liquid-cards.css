@@ -347,7 +347,12 @@
 .edu-card:hover::after {
     display: none !important;
 }
-.edu-card > .edu-bg,
+/* Restore original positioning for edu-card children */
+.edu-card > .edu-bg {
+    position: absolute !important;
+    inset: 0 !important;
+    z-index: 0 !important;
+}
 .edu-card > .edu-body {
     position: relative !important;
     z-index: auto !important;
