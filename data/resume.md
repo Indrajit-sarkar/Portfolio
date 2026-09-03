@@ -216,3 +216,49 @@ Results-driven IT professional with almost 2 years of experience in infrastructu
 4. **Skit on Farmers' Importance**: Theatrical performance highlighting farmers' vital role in national food security.
 5. **Visit to Grace Foundation**: Community outreach connecting with underprivileged communities.
 6. **Grocery & Clothes Donation**: Organized and participated in distributing essential supplies to families in need.
+
+---
+
+## Research Publications
+
+### 1. Agentic AI Between Capability and Reliability (August 2026)
+- **Author**: Indrajit Sarkar (Independent Researcher)
+- **ORCID**: https://orcid.org/0009-0000-3038-6379
+- **Type**: Review Article (60 pages)
+- **Topic**: Comprehensive structured review of autonomous AI agent systems built on large language models
+- **Key Findings**:
+  - Capability is no longer the scarce resource — reliability under composition and governance under autonomy are the binding constraints
+  - On curated benchmarks, agents approach or exceed human baselines (SWE-bench: ~20% to ~80% solved in under a year)
+  - On live interfaces and extended horizons, the same systems complete only 7–50% of tasks
+  - Proposes a Capability-Reliability-Governance framework for evaluating agentic AI systems
+  - Introduces a minimum reporting standard for agent evaluation
+  - Six falsifiable propositions for the research agenda through 2030
+- **Topics Covered**: Reference architecture for agentic systems, design patterns, memory/planning/orchestration subsystems, multi-agent systems, tool use (Model Context Protocol), security/privacy/alignment, deployment economics, workforce transformation, interoperability protocols
+- **Keywords**: Agentic AI, large language model agents, multi-agent systems, agent evaluation, long-horizon reliability, tool use, Model Context Protocol, AI governance, IT service management, workforce transformation
+- **Link**: Available on Indrajit's portfolio under Research section
+
+### 2. Quantum Computing at the Threshold of Utility (August 2026)
+- **Author**: Indrajit Sarkar (Independent Researcher)
+- **Type**: Review Article (25 pages) — Quantum Information Science and Technology
+- **Topic**: Critical review of quantum computing hardware, algorithms, cryptographic implications, and commercial readiness (2024–2026)
+- **Key Findings**:
+  - Scientific quantum advantage is now demonstrable but economic advantage is not
+  - The interval between the two is governed by logical error rates, compilation overheads, and availability of trained personnel
+  - Superconducting processors report error per layered gate of ~2.15 × 10⁻³ at 100-qubit scale
+  - Trapped-ion systems achieved 99.921% two-qubit fidelity
+  - Neutral-atom arrays crossed the thousand-qubit line with coherence times approaching a minute
+  - Post-quantum cryptographic standards (NIST) are now being finalized
+  - At least one major financial institution withdrew from quantum research after resource estimation showed target problem beyond plausible machines
+- **Topics Covered**: Six physical qubit modalities, algorithmic families and limitations, software/cloud ecosystems, cryptographic migration timeline, error-correction progress (surface codes to qLDPC), market structure and investment
+- **Keywords**: Quantum computing, qubit modalities, quantum error correction, fault tolerance, variational algorithms, post-quantum cryptography, quantum advantage, technology readiness
+- **Link**: Available on Indrajit's portfolio under Research section
+
+---
+
+## Hobbies & Interests
+- Voxel Craft (3D low-poly world building)
+- Mini Militia Gaming
+- Research & Writing
+- Cycling
+- Football
+- Photography

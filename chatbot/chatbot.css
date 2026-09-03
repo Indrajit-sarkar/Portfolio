@@ -1,15 +1,15 @@
-/* ═══════════════════════════════════════════════════════════
-   Alex AI Chatbot — Styles
+/* ═══════════════════════════════════════════════════════════════
+   Alex AI Chatbot — Styles (Voice-Enabled)
    Reuses existing site CSS variables for seamless theme integration.
    z-index: 500 (above all existing site elements, max=400)
-   ═══════════════════════════════════════════════════════════ */
+   ═══════════════════════════════════════════════════════════════ */
 
-/* ── Floating Action Button ─────────────────────────────── */
+/* ── Floating Action Button ─────────────────────────────────── */
 .alex-fab {
   display: none !important; /* Hidden - Alex triggers chat instead */
 }
 
-/* ── Chat Panel ─────────────────────────────────────────── */
+/* ── Chat Panel ─────────────────────────────────────────────── */
 .alex-panel {
   position: fixed;
   bottom: 96px;
@@ -40,7 +40,7 @@
   transform: scale(1) translateY(0);
 }
 
-/* ── Header ─────────────────────────────────────────────── */
+/* ── Header ─────────────────────────────────────────────────── */
 .alex-header {
   display: flex;
   align-items: center;
@@ -98,10 +98,57 @@
 .alex-close:hover { background: var(--glass-bg-strong); color: var(--ink); }
 .alex-close:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
 
-/* ── Message Body ───────────────────────────────────────── */
+/* ── Mute Toggle ────────────────────────────────────────────── */
+.alex-mute {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s, color 0.2s;
+  padding: 0;
+}
+.alex-mute svg { width: 16px; height: 16px; }
+.alex-mute:hover { background: var(--glass-bg-strong); color: var(--ink); }
+.alex-mute.is-muted { color: var(--stone); }
+.alex-mute:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+
+/* ── Voice State Badge ──────────────────────────────────────── */
+.alex-state-badge {
+  position: absolute;
+  top: 58px;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  font-family: var(--font-m);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  color: var(--ink);
+  background: var(--glass-bg-strong);
+  border: 1px solid var(--glass-line);
+  border-radius: 99px;
+  padding: 4px 12px;
+  z-index: 2;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease, transform 0.3s var(--spring);
+  white-space: nowrap;
+}
+.alex-state-badge.is-visible {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+}
+
+/* ── Message Body ───────────────────────────────────────────── */
 .alex-body {
   flex: 1;
-  min-height: 0; /* Critical for flexbox scrolling */
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   padding: 16px;
@@ -118,7 +165,7 @@
 .alex-body::-webkit-scrollbar-track { background: transparent; }
 .alex-body::-webkit-scrollbar-thumb { background: rgba(128, 128, 150, 0.35); border-radius: 99px; }
 
-/* ── Messages ───────────────────────────────────────────── */
+/* ── Messages ───────────────────────────────────────────────── */
 .alex-msg {
   display: flex;
   flex-direction: column;
@@ -159,11 +206,33 @@
   color: var(--ink-3);
   margin-top: 4px;
   padding: 0 2px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 .alex-msg--user .alex-msg-time { align-self: flex-end; }
 .alex-msg--bot  .alex-msg-time { align-self: flex-start; }
 
-/* ── Markdown inside bubbles ────────────────────────────── */
+/* ── Replay Button (on bot messages) ────────────────────────── */
+.alex-replay {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--ink-3);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  transition: color 0.2s, background 0.2s;
+}
+.alex-replay svg { width: 12px; height: 12px; }
+.alex-replay:hover { color: var(--khaki); background: var(--glass-bg); }
+.alex-replay:focus-visible { outline: 2px solid var(--violet); outline-offset: 1px; }
+
+/* ── Markdown inside bubbles ────────────────────────────────── */
 .alex-msg-bubble strong { font-weight: 600; }
 .alex-msg-bubble em     { font-style: italic; }
 
@@ -209,7 +278,7 @@
 .alex-msg-bubble li { margin-bottom: 3px; }
 .alex-msg-bubble li:last-child { margin-bottom: 0; }
 
-/* ── Typing Indicator ───────────────────────────────────── */
+/* ── Typing Indicator ───────────────────────────────────────── */
 .alex-typing {
   display: flex;
   align-items: center;
@@ -239,7 +308,7 @@
   40%           { transform: scale(1);   opacity: 1; }
 }
 
-/* ── Suggested Chips ────────────────────────────────────── */
+/* ── Suggested Chips ────────────────────────────────────────── */
 .alex-chips {
   display: flex;
   flex-wrap: wrap;
@@ -269,7 +338,7 @@
   outline-offset: 2px;
 }
 
-/* ── Footer / Input ─────────────────────────────────────── */
+/* ── Footer / Input ─────────────────────────────────────────── */
 .alex-footer {
   display: flex;
   align-items: flex-end;
@@ -300,6 +369,48 @@
 .alex-input:focus { border-color: var(--blue); }
 .alex-input:disabled { opacity: 0.5; }
 
+/* ── Mic Button ─────────────────────────────────────────────── */
+.alex-mic {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  border: 1px solid var(--glass-line);
+  background: var(--glass-bg);
+  color: var(--ink-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: transform 0.2s var(--spring), border-color 0.2s, color 0.2s, background 0.2s, box-shadow 0.3s;
+  padding: 0;
+  outline: none;
+  position: relative;
+}
+.alex-mic svg { width: 18px; height: 18px; }
+.alex-mic:hover:not(:disabled) {
+  border-color: var(--khaki);
+  color: var(--ink);
+  transform: scale(1.05);
+}
+.alex-mic:active:not(:disabled) { transform: scale(0.92); }
+.alex-mic:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+.alex-mic:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* Listening state — pulsing glow */
+.alex-mic.is-listening {
+  border-color: #ef4444;
+  color: #ef4444;
+  background: rgba(239, 68, 68, 0.1);
+  animation: alex-mic-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes alex-mic-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.4); }
+  50%      { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0); }
+}
+
+/* ── Send Button ────────────────────────────────────────────── */
 .alex-send {
   width: 40px;
   height: 40px;
@@ -322,19 +433,21 @@
 .alex-send:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
 .alex-send:disabled { opacity: 0.4; cursor: not-allowed; }
 
-/* ── Reduced Motion ─────────────────────────────────────── */
+/* ── Reduced Motion ─────────────────────────────────────────── */
 @media (prefers-reduced-motion: reduce) {
   .alex-fab,
   .alex-panel,
   .alex-msg,
   .alex-typing,
-  .alex-typing .alex-dot {
+  .alex-typing .alex-dot,
+  .alex-mic.is-listening,
+  .alex-state-badge {
     animation: none !important;
     transition: none !important;
   }
 }
 
-/* ── Responsive ─────────────────────────────────────────── */
+/* ── Responsive ─────────────────────────────────────────────── */
 @media (max-width: 768px) {
   .alex-fab  { bottom: 20px; right: 20px; }
   .alex-panel {
@@ -344,7 +457,6 @@
   }
 }
 
-/* Account for existing bottom-nav at <=720px */
 @media (max-width: 720px) {
   .alex-fab {
     bottom: calc(20px + 76px + env(safe-area-inset-bottom, 0px));
@@ -355,7 +467,6 @@
   }
 }
 
-/* Full-screen on small phones */
 @media (max-width: 600px) {
   .alex-panel {
     inset: 0;

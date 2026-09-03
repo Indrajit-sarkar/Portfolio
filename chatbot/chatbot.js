@@ -1,16 +1,28 @@
-/* ═══════════════════════════════════════════════════════════
-   Alex AI Chatbot — Widget
+/* ═══════════════════════════════════════════════════════════════
+   Alex AI Chatbot — Voice-Enabled Widget
    Self-contained IIFE. Injects all DOM. No globals.
-   ═══════════════════════════════════════════════════════════ */
+   
+   Features:
+   - Text chat (existing)
+   - Wake word: "Hey Alex" / "Hi Alex" (SpeechRecognition)
+   - Voice input: mic button (SpeechRecognition)
+   - Voice output: TTS (SpeechSynthesis, best available voice)
+   - State machine: IDLE → GREETING → LISTENING → PROCESSING → SPEAKING → IDLE
+   ═══════════════════════════════════════════════════════════════ */
 (function () {
   'use strict';
 
-  /* ── SVG Icons ──────────────────────────────────────────── */
+  /* ── SVG Icons ──────────────────────────────────────────────── */
   var ICON_SPARKLE = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.936A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></svg>';
   var ICON_CLOSE  = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
   var ICON_SEND   = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"/><polyline points="5 12 12 5 19 12"/></svg>';
+  var ICON_MIC    = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M5 10a7 7 0 0 0 14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>';
+  var ICON_MIC_OFF = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="2" y1="2" x2="22" y2="22"/><path d="M18.89 13.23A7.12 7.12 0 0 0 19 12m-9-8v5l4.28 4.28"/><path d="M5 10a7 7 0 0 0 11.36 5.36"/><rect x="9" y="2" width="6" height="11" rx="3"/><line x1="12" y1="19" x2="12" y2="22"/></svg>';
+  var ICON_VOLUME = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/></svg>';
+  var ICON_MUTE   = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/></svg>';
+  var ICON_REPLAY = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/></svg>';
 
-  /* ── Suggested Questions ────────────────────────────────── */
+  /* ── Config ─────────────────────────────────────────────────── */
   var CHIPS = [
     'Tell me about Indrajit',
     'Where did he study?',
@@ -24,19 +36,43 @@
     'Does he have cloud experience?'
   ];
 
-  /* ── Welcome Message ────────────────────────────────────── */
-  var WELCOME = "Hello! I'm Alex, Indrajit's AI assistant. I can answer questions about his education, experience, projects, technical skills, certifications, and portfolio.";
+  var WELCOME = "Hello! I'm Alex, Indrajit's AI assistant. I can answer questions about his education, experience, projects, technical skills, certifications, and portfolio. You can also say **\"Hey Alex\"** to talk to me!";
+  var GREETING_REPLY = "Hi! How may I help you?";
 
-  /* ── State ──────────────────────────────────────────────── */
-  var isOpen    = false;
-  var hasOpened = false;
-  var isLoading = false;
-  var history   = []; // {role:'user'|'model', parts:[{text}]}
+  /* ── Voice support detection ────────────────────────────────── */
+  var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  var speechSynthesis = window.speechSynthesis;
+  var HAS_VOICE = !!SpeechRecognition;
+  var HAS_TTS = !!speechSynthesis;
 
-  /* ── Refs (set during init) ─────────────────────────────── */
-  var fab, panel, msgBody, chipsWrap, inputEl, sendBtn;
+  /* ── Voice State Machine ────────────────────────────────────── */
+  // IDLE: passive wake-word listening (if panel open) or not listening
+  // GREETING: Alex says greeting, then transitions to LISTENING
+  // LISTENING: active STT capturing user question
+  // PROCESSING: waiting for API response
+  // SPEAKING: TTS reading response
+  var VOICE_IDLE       = 'idle';
+  var VOICE_GREETING   = 'greeting';
+  var VOICE_LISTENING  = 'listening';
+  var VOICE_PROCESSING = 'processing';
+  var VOICE_SPEAKING   = 'speaking';
 
-  /* ── Helpers ────────────────────────────────────────────── */
+  /* ── State ──────────────────────────────────────────────────── */
+  var isOpen      = false;
+  var hasOpened   = false;
+  var isLoading   = false;
+  var history     = [];
+  var voiceState  = VOICE_IDLE;
+  var isMuted     = false;
+  var wakeWordRec = null; // SpeechRecognition for passive wake word
+  var activeRec   = null; // SpeechRecognition for active listening
+  var silenceTimer = null;
+  var bestVoice   = null; // Cached best TTS voice
+
+  /* ── Refs ───────────────────────────────────────────────────── */
+  var fab, panel, msgBody, chipsWrap, inputEl, sendBtn, micBtn, muteBtn, stateBadge;
+
+  /* ── Helpers ────────────────────────────────────────────────── */
   function esc(s) {
     var d = document.createElement('div');
     d.appendChild(document.createTextNode(s));
@@ -54,34 +90,22 @@
     });
   }
 
-  /* ── Markdown ───────────────────────────────────────────── */
+  /* ── Markdown ───────────────────────────────────────────────── */
   function md(raw) {
     var text = esc(raw);
-
-    // fenced code blocks  ```lang\n...\n```
     text = text.replace(/```(?:[a-zA-Z]*)\n([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
     text = text.replace(/```([\s\S]*?)```/g, '<pre><code>$1</code></pre>');
-
-    // inline code
     text = text.replace(/`([^`\n]+)`/g, '<code>$1</code>');
-
-    // bold **text**
     text = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-
-    // italic *text*
     text = text.replace(/(?<!\*)\*(?!\*)(.+?)(?<!\*)\*(?!\*)/g, '<em>$1</em>');
-
-    // links [text](url)
     text = text.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
 
-    // process lines for lists and breaks
     var lines = text.split('\n');
     var out = [];
     var inUl = false, inOl = false, inPre = false;
 
     for (var i = 0; i < lines.length; i++) {
       var ln = lines[i];
-
       if (ln.indexOf('<pre>') !== -1) inPre = true;
       if (ln.indexOf('</pre>') !== -1) { inPre = false; out.push(ln); continue; }
       if (inPre) { out.push(ln); continue; }
@@ -100,24 +124,334 @@
       } else {
         if (inUl) { out.push('</ul>'); inUl = false; }
         if (inOl) { out.push('</ol>'); inOl = false; }
-        if (ln.trim() === '') {
-          out.push('');
-        } else {
-          out.push(ln);
-        }
+        out.push(ln.trim() === '' ? '' : ln);
       }
     }
     if (inUl) out.push('</ul>');
     if (inOl) out.push('</ol>');
 
-    // join and convert remaining newlines to <br> (but not after block elements)
     var result = out.join('\n');
     result = result.replace(/\n(?!<\/?(?:ul|ol|li|pre|code))/g, '<br>');
     result = result.replace(/(<br>)+$/g, '');
     return result;
   }
 
-  /* ── DOM Builder ────────────────────────────────────────── */
+  /* Strip markdown/HTML for TTS — plain text only */
+  function stripForTTS(text) {
+    return text
+      .replace(/\*\*(.+?)\*\*/g, '$1')
+      .replace(/\*(.+?)\*/g, '$1')
+      .replace(/`([^`]+)`/g, '$1')
+      .replace(/```[\s\S]*?```/g, '')
+      .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+      .replace(/^[\-\*]\s+/gm, '')
+      .replace(/^\d+\.\s+/gm, '')
+      .replace(/#+\s*/g, '')
+      .trim();
+  }
+
+  /* ── Voice Selection (best neural/natural voice) ────────────── */
+  function pickBestVoice() {
+    if (bestVoice) return bestVoice;
+    if (!HAS_TTS) return null;
+    var voices = speechSynthesis.getVoices();
+    if (!voices.length) return null;
+
+    // Priority list — most natural-sounding voices
+    var prefs = [
+      'microsoft aria',
+      'microsoft jenny',
+      'microsoft zira',
+      'google uk english female',
+      'google us english',
+      'samantha', // macOS
+      'karen',    // macOS Australian
+      'moira',    // macOS Irish
+      'fiona',    // macOS Scottish
+    ];
+
+    // 1. Check preferred voices
+    for (var p = 0; p < prefs.length; p++) {
+      for (var v = 0; v < voices.length; v++) {
+        if (voices[v].name.toLowerCase().indexOf(prefs[p]) !== -1) {
+          bestVoice = voices[v];
+          return bestVoice;
+        }
+      }
+    }
+
+    // 2. Any voice with "Neural" or "Natural" in name
+    for (var n = 0; n < voices.length; n++) {
+      var nm = voices[n].name.toLowerCase();
+      if ((nm.indexOf('neural') !== -1 || nm.indexOf('natural') !== -1) && voices[n].lang.indexOf('en') === 0) {
+        bestVoice = voices[n];
+        return bestVoice;
+      }
+    }
+
+    // 3. Any English female voice
+    for (var f = 0; f < voices.length; f++) {
+      if (voices[f].lang.indexOf('en') === 0 && voices[f].name.toLowerCase().indexOf('female') !== -1) {
+        bestVoice = voices[f];
+        return bestVoice;
+      }
+    }
+
+    // 4. Any English voice
+    for (var e = 0; e < voices.length; e++) {
+      if (voices[e].lang.indexOf('en') === 0) {
+        bestVoice = voices[e];
+        return bestVoice;
+      }
+    }
+
+    // 5. Fallback: first voice
+    bestVoice = voices[0];
+    return bestVoice;
+  }
+
+  // Voices load async in some browsers
+  if (HAS_TTS) {
+    speechSynthesis.onvoiceschanged = function () { bestVoice = null; pickBestVoice(); };
+    // Trigger initial load
+    try { speechSynthesis.getVoices(); } catch (e) {}
+  }
+
+  /* ── TTS: Speak text aloud ──────────────────────────────────── */
+  function speak(text, onEnd) {
+    if (!HAS_TTS || isMuted) {
+      if (onEnd) onEnd();
+      return;
+    }
+    // Cancel any ongoing speech
+    speechSynthesis.cancel();
+
+    var plain = stripForTTS(text);
+    if (!plain) { if (onEnd) onEnd(); return; }
+
+    var utter = new SpeechSynthesisUtterance(plain);
+    var voice = pickBestVoice();
+    if (voice) utter.voice = voice;
+    utter.rate = 1.0;
+    utter.pitch = 1.0;
+    utter.volume = 1.0;
+
+    utter.onend = function () {
+      setVoiceState(VOICE_IDLE);
+      if (onEnd) onEnd();
+    };
+    utter.onerror = function () {
+      setVoiceState(VOICE_IDLE);
+      if (onEnd) onEnd();
+    };
+
+    setVoiceState(VOICE_SPEAKING);
+    speechSynthesis.speak(utter);
+  }
+
+  function stopSpeaking() {
+    if (HAS_TTS) speechSynthesis.cancel();
+  }
+
+  /* ── Chime (synthesized beep for wake word) ─────────────────── */
+  function playChime() {
+    try {
+      var ctx = new (window.AudioContext || window.webkitAudioContext)();
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(880, ctx.currentTime);
+      osc.frequency.setValueAtTime(1100, ctx.currentTime + 0.08);
+      gain.gain.setValueAtTime(0.15, ctx.currentTime);
+      gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.25);
+      osc.start(ctx.currentTime);
+      osc.stop(ctx.currentTime + 0.25);
+    } catch (e) { /* AudioContext not available */ }
+  }
+
+  /* ── Voice State Management ─────────────────────────────────── */
+  function setVoiceState(state) {
+    voiceState = state;
+    if (!stateBadge) return;
+
+    // Update badge
+    var labels = {};
+    labels[VOICE_IDLE]       = '';
+    labels[VOICE_GREETING]   = '✨ Greeting...';
+    labels[VOICE_LISTENING]  = '🎤 Listening...';
+    labels[VOICE_PROCESSING] = '🧠 Thinking...';
+    labels[VOICE_SPEAKING]   = '🔊 Speaking...';
+
+    stateBadge.textContent = labels[state] || '';
+    stateBadge.classList.toggle('is-visible', state !== VOICE_IDLE);
+
+    // Update mic button visual
+    if (micBtn) {
+      micBtn.classList.toggle('is-listening', state === VOICE_LISTENING);
+    }
+  }
+
+  /* ── Wake Word Detection (passive, continuous) ──────────────── */
+  function startWakeWordListening() {
+    if (!HAS_VOICE || wakeWordRec) return;
+
+    wakeWordRec = new SpeechRecognition();
+    wakeWordRec.continuous = true;
+    wakeWordRec.interimResults = true;
+    wakeWordRec.lang = 'en-US';
+    wakeWordRec.maxAlternatives = 3;
+
+    wakeWordRec.onresult = function (e) {
+      for (var i = e.resultIndex; i < e.results.length; i++) {
+        var transcript = e.results[i][0].transcript.toLowerCase().trim();
+        // Check all alternatives too
+        for (var a = 0; a < e.results[i].length; a++) {
+          var alt = e.results[i][a].transcript.toLowerCase().trim();
+          if (alt.indexOf('hey alex') !== -1 || alt.indexOf('hi alex') !== -1 ||
+              alt.indexOf('hey alix') !== -1 || alt.indexOf('hay alex') !== -1 ||
+              alt.indexOf('hey alec') !== -1 || alt.indexOf('he alex') !== -1) {
+            handleWakeWord();
+            return;
+          }
+        }
+      }
+    };
+
+    wakeWordRec.onerror = function (e) {
+      // 'no-speech' and 'aborted' are normal — just restart
+      if (e.error !== 'no-speech' && e.error !== 'aborted') {
+        console.warn('[Alex Voice] Wake word error:', e.error);
+      }
+    };
+
+    wakeWordRec.onend = function () {
+      // Auto-restart if we're supposed to be listening for wake word
+      wakeWordRec = null;
+      if (isOpen && voiceState === VOICE_IDLE) {
+        setTimeout(startWakeWordListening, 300);
+      }
+    };
+
+    try {
+      wakeWordRec.start();
+    } catch (e) {
+      console.warn('[Alex Voice] Could not start wake word listener:', e.message);
+      wakeWordRec = null;
+    }
+  }
+
+  function stopWakeWordListening() {
+    if (wakeWordRec) {
+      try { wakeWordRec.abort(); } catch (e) {}
+      wakeWordRec = null;
+    }
+  }
+
+  function handleWakeWord() {
+    // Stop passive listening
+    stopWakeWordListening();
+    stopSpeaking();
+
+    // Open panel if not open
+    if (!isOpen) togglePanel();
+
+    // Play chime
+    playChime();
+
+    // Set state
+    setVoiceState(VOICE_GREETING);
+
+    // Say greeting and then start listening
+    addMsg(GREETING_REPLY, true);
+    speak(GREETING_REPLY, function () {
+      startActiveListening();
+    });
+  }
+
+  /* ── Active Listening (captures user's question) ────────────── */
+  function startActiveListening() {
+    if (!HAS_VOICE) return;
+    stopWakeWordListening();
+    if (activeRec) return;
+
+    setVoiceState(VOICE_LISTENING);
+
+    activeRec = new SpeechRecognition();
+    activeRec.continuous = false;
+    activeRec.interimResults = true;
+    activeRec.lang = 'en-US';
+    activeRec.maxAlternatives = 1;
+
+    var finalTranscript = '';
+    var interimTranscript = '';
+
+    // Show interim text in the input field
+    activeRec.onresult = function (e) {
+      finalTranscript = '';
+      interimTranscript = '';
+      for (var i = 0; i < e.results.length; i++) {
+        if (e.results[i].isFinal) {
+          finalTranscript += e.results[i][0].transcript;
+        } else {
+          interimTranscript += e.results[i][0].transcript;
+        }
+      }
+      inputEl.value = finalTranscript + interimTranscript;
+      inputEl.style.height = 'auto';
+      inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+
+      // Reset silence timer
+      clearTimeout(silenceTimer);
+      silenceTimer = setTimeout(function () {
+        stopActiveListening();
+      }, 4000);
+    };
+
+    activeRec.onerror = function (e) {
+      if (e.error !== 'no-speech' && e.error !== 'aborted') {
+        console.warn('[Alex Voice] Active listening error:', e.error);
+      }
+      stopActiveListening();
+    };
+
+    activeRec.onend = function () {
+      activeRec = null;
+      clearTimeout(silenceTimer);
+      var text = (finalTranscript || inputEl.value || '').trim();
+      if (text) {
+        send(text);
+      } else {
+        setVoiceState(VOICE_IDLE);
+        if (isOpen) startWakeWordListening();
+      }
+    };
+
+    // 8-second max silence fallback
+    silenceTimer = setTimeout(function () {
+      stopActiveListening();
+    }, 8000);
+
+    try {
+      activeRec.start();
+    } catch (e) {
+      console.warn('[Alex Voice] Could not start active listener:', e.message);
+      activeRec = null;
+      setVoiceState(VOICE_IDLE);
+      if (isOpen) startWakeWordListening();
+    }
+  }
+
+  function stopActiveListening() {
+    clearTimeout(silenceTimer);
+    if (activeRec) {
+      try { activeRec.stop(); } catch (e) {}
+      // onend handler will fire and send the text
+    }
+  }
+
+  /* ── DOM Builder ────────────────────────────────────────────── */
   function buildUI() {
     // FAB
     fab = document.createElement('button');
@@ -133,7 +467,7 @@
     panel.setAttribute('aria-label', 'Chat with Alex');
     panel.setAttribute('aria-hidden', 'true');
 
-    // Header
+    // Header with mute toggle
     var header = document.createElement('div');
     header.className = 'alex-header';
     header.innerHTML =
@@ -142,7 +476,13 @@
         '<div class="alex-header-title">Alex</div>' +
         '<div class="alex-header-subtitle">AI Portfolio Assistant</div>' +
       '</div>' +
+      (HAS_TTS ? '<button class="alex-mute" aria-label="Toggle voice output" title="Toggle voice">' + ICON_VOLUME + '</button>' : '') +
       '<button class="alex-close" aria-label="Close chat">' + ICON_CLOSE + '</button>';
+
+    // State badge
+    stateBadge = document.createElement('div');
+    stateBadge.className = 'alex-state-badge';
+    stateBadge.textContent = '';
 
     // Body
     msgBody = document.createElement('div');
@@ -168,8 +508,18 @@
 
     inputEl = document.createElement('textarea');
     inputEl.className = 'alex-input';
-    inputEl.placeholder = 'Ask about Indrajit...';
+    inputEl.placeholder = HAS_VOICE ? 'Ask about Indrajit... or say "Hey Alex"' : 'Ask about Indrajit...';
     inputEl.rows = 1;
+
+    // Mic button (only if voice is supported)
+    if (HAS_VOICE) {
+      micBtn = document.createElement('button');
+      micBtn.className = 'alex-mic';
+      micBtn.type = 'button';
+      micBtn.setAttribute('aria-label', 'Voice input');
+      micBtn.title = 'Click to speak';
+      micBtn.innerHTML = ICON_MIC;
+    }
 
     sendBtn = document.createElement('button');
     sendBtn.className = 'alex-send';
@@ -178,10 +528,12 @@
     sendBtn.innerHTML = ICON_SEND;
 
     footer.appendChild(inputEl);
+    if (micBtn) footer.appendChild(micBtn);
     footer.appendChild(sendBtn);
 
     // Assemble panel
     panel.appendChild(header);
+    panel.appendChild(stateBadge);
     panel.appendChild(msgBody);
     panel.appendChild(chipsWrap);
     panel.appendChild(footer);
@@ -189,10 +541,13 @@
     // Insert into page
     document.body.appendChild(fab);
     document.body.appendChild(panel);
+
+    // Cache mute button ref
+    muteBtn = panel.querySelector('.alex-mute');
   }
 
-  /* ── Message Bubble ─────────────────────────────────────── */
-  function addMsg(text, isBot) {
+  /* ── Message Bubble ─────────────────────────────────────────── */
+  function addMsg(text, isBot, skipSpeak) {
     var wrap = document.createElement('div');
     wrap.className = 'alex-msg ' + (isBot ? 'alex-msg--bot' : 'alex-msg--user');
 
@@ -204,13 +559,29 @@
     ts.className = 'alex-msg-time';
     ts.textContent = timeNow();
 
+    // Replay button for bot messages (if TTS available)
+    if (isBot && HAS_TTS) {
+      var replay = document.createElement('button');
+      replay.className = 'alex-replay';
+      replay.type = 'button';
+      replay.title = 'Listen to this message';
+      replay.innerHTML = ICON_REPLAY;
+      replay.addEventListener('click', function () {
+        stopSpeaking();
+        speak(text);
+      });
+      ts.appendChild(replay);
+    }
+
     wrap.appendChild(bubble);
     wrap.appendChild(ts);
     msgBody.appendChild(wrap);
     scrollBottom();
+
+    return { text: text, isBot: isBot };
   }
 
-  /* ── Typing Indicator ───────────────────────────────────── */
+  /* ── Typing Indicator ───────────────────────────────────────── */
   function showTyping() {
     var el = document.createElement('div');
     el.className = 'alex-typing';
@@ -224,8 +595,8 @@
     if (el) el.remove();
   }
 
-  /* ── API Call ────────────────────────────────────────────── */
-  function send(text) {
+  /* ── API Call ───────────────────────────────────────────────── */
+  function send(text, fromVoice) {
     var msg = (text || '').trim();
     if (!msg || isLoading) return;
 
@@ -239,7 +610,7 @@
     // user bubble
     addMsg(msg, false);
 
-    // build payload (send history BEFORE adding current message)
+    // build payload
     var payload = { message: msg, history: history.slice() };
 
     // push to history
@@ -250,7 +621,9 @@
     isLoading = true;
     inputEl.disabled = true;
     sendBtn.disabled = true;
+    if (micBtn) micBtn.disabled = true;
     showTyping();
+    setVoiceState(VOICE_PROCESSING);
 
     fetch('/api/chat', {
       method: 'POST',
@@ -264,23 +637,37 @@
     .then(function (data) {
       hideTyping();
       var reply = data.reply || "I don't have that information.";
-      addMsg(reply, true);
+      addMsg(reply, true, false);
       history.push({ role: 'model', parts: [{ text: reply }] });
       if (history.length > 20) history = history.slice(-20);
+
+      // Speak the reply (if came from voice or auto-speak enabled)
+      if (fromVoice || voiceState === VOICE_PROCESSING) {
+        speak(reply, function () {
+          // After speaking, go back to wake word listening
+          if (isOpen) startWakeWordListening();
+        });
+      } else {
+        setVoiceState(VOICE_IDLE);
+      }
     })
     .catch(function () {
       hideTyping();
-      addMsg("Sorry, I'm having trouble connecting right now. Please try again in a moment.", true);
+      var errMsg = "Sorry, I'm having trouble connecting right now. Please try again in a moment.";
+      addMsg(errMsg, true, true);
+      setVoiceState(VOICE_IDLE);
+      if (isOpen && HAS_VOICE) startWakeWordListening();
     })
     .finally(function () {
       isLoading = false;
       inputEl.disabled = false;
       sendBtn.disabled = false;
+      if (micBtn) micBtn.disabled = false;
       inputEl.focus();
     });
   }
 
-  /* ── Panel Toggle ───────────────────────────────────────── */
+  /* ── Panel Toggle ───────────────────────────────────────────── */
   function togglePanel() {
     isOpen = !isOpen;
     panel.classList.toggle('is-open', isOpen);
@@ -291,22 +678,26 @@
       inputEl.focus();
       if (!hasOpened) {
         hasOpened = true;
-        addMsg(WELCOME, true);
+        addMsg(WELCOME, true, true); // don't auto-speak welcome
+      }
+      // Start wake word listening
+      if (HAS_VOICE && voiceState === VOICE_IDLE) {
+        startWakeWordListening();
       }
     } else {
       fab.focus();
+      // Stop everything
+      stopWakeWordListening();
+      stopActiveListening();
+      stopSpeaking();
+      setVoiceState(VOICE_IDLE);
     }
   }
 
-  /* ── Event Binding ──────────────────────────────────────── */
+  /* ── Event Binding ──────────────────────────────────────────── */
   function bindEvents() {
-    // FAB click
     fab.addEventListener('click', togglePanel);
-
-    // Close button
     panel.querySelector('.alex-close').addEventListener('click', togglePanel);
-
-    // Escape key
     document.addEventListener('keydown', function (e) {
       if (e.key === 'Escape' && isOpen) togglePanel();
     });
@@ -321,49 +712,61 @@
     inputEl.addEventListener('keydown', function (e) {
       if (e.key === 'Enter' && !e.shiftKey) {
         e.preventDefault();
-        send(inputEl.value);
+        send(inputEl.value, false);
       }
     });
 
     // Send button
     sendBtn.addEventListener('click', function () {
-      send(inputEl.value);
+      send(inputEl.value, false);
     });
 
-    // Chip clicks (delegated)
+    // Mic button
+    if (micBtn) {
+      micBtn.addEventListener('click', function () {
+        if (voiceState === VOICE_LISTENING) {
+          // Stop listening
+          stopActiveListening();
+        } else {
+          // Stop anything else and start listening
+          stopSpeaking();
+          stopWakeWordListening();
+          startActiveListening();
+        }
+      });
+    }
+
+    // Mute toggle
+    if (muteBtn) {
+      muteBtn.addEventListener('click', function () {
+        isMuted = !isMuted;
+        muteBtn.innerHTML = isMuted ? ICON_MUTE : ICON_VOLUME;
+        muteBtn.title = isMuted ? 'Voice muted' : 'Voice enabled';
+        muteBtn.classList.toggle('is-muted', isMuted);
+        if (isMuted) stopSpeaking();
+      });
+    }
+
+    // Chip clicks
     chipsWrap.addEventListener('click', function (e) {
       if (e.target.classList.contains('alex-chip')) {
-        send(e.target.textContent);
+        send(e.target.textContent, false);
       }
     });
 
-    // CRITICAL: Stop Lenis smooth scroll from interfering with chat scroll
-    // Prevent wheel events from bubbling up to Lenis
-    msgBody.addEventListener('wheel', function(e) {
-      e.stopPropagation();
-    }, { passive: false });
-
-    msgBody.addEventListener('touchmove', function(e) {
-      e.stopPropagation();
-    }, { passive: false });
-
-    // Also stop propagation on the entire panel
-    panel.addEventListener('wheel', function(e) {
-      e.stopPropagation();
-    }, { passive: false });
-
-    panel.addEventListener('touchmove', function(e) {
-      e.stopPropagation();
-    }, { passive: false });
+    // Stop Lenis from interfering
+    msgBody.addEventListener('wheel', function(e) { e.stopPropagation(); }, { passive: false });
+    msgBody.addEventListener('touchmove', function(e) { e.stopPropagation(); }, { passive: false });
+    panel.addEventListener('wheel', function(e) { e.stopPropagation(); }, { passive: false });
+    panel.addEventListener('touchmove', function(e) { e.stopPropagation(); }, { passive: false });
   }
 
-  /* ── Init ────────────────────────────────────────────────── */
+  /* ── Init ───────────────────────────────────────────────────── */
   function init() {
     buildUI();
     bindEvents();
   }
 
-  /* ── Lazy Boot ──────────────────────────────────────────── */
   function boot() {
     if ('requestIdleCallback' in window) {
       window.requestIdleCallback(init);

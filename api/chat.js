@@ -31,8 +31,8 @@ module.exports = async function handler(req, res) {
     const customEndpoint = process.env.CUSTOM_LLM_ENDPOINT; // For self-hosted LLMs
     
     if (!apiKey && provider !== 'custom') {
-      console.error('Missing LLM_API_KEY env var');
-      return res.status(500).json({ error: 'Something went wrong. Please try again.' });
+      console.error('[Alex Chat] Missing LLM_API_KEY environment variable. Provider:', provider);
+      return res.status(500).json({ error: 'API key not configured. Please set LLM_API_KEY.' });
     }
 
     // Knowledge Loading (cached per cold start)
@@ -40,9 +40,10 @@ module.exports = async function handler(req, res) {
       try {
         const resumePath = path.join(process.cwd(), 'data', 'resume.md');
         cachedKnowledge = fs.readFileSync(resumePath, 'utf8');
+        console.log('[Alex Chat] Knowledge loaded:', cachedKnowledge.length, 'chars');
       } catch (err) {
-        console.error('Error loading resume.md:', err.message);
-        return res.status(500).json({ error: 'Something went wrong. Please try again.' });
+        console.error('[Alex Chat] Error loading resume.md:', err.message);
+        return res.status(500).json({ error: 'Knowledge base failed to load.' });
       }
     }
 
@@ -110,9 +111,10 @@ module.exports = async function handler(req, res) {
     let responseText;
 
     if (provider === 'groq') {
-      // Groq API (Free, Fast, Open-source models)
+      // Groq API — free-tier model
+      console.log('[Alex Chat] Calling Groq with model: openai/gpt-oss-20b');
       const groqResponse = await axios.post('https://api.groq.com/openai/v1/chat/completions', {
-        model: 'llama-3.3-70b-versatile', // or 'mixtral-8x7b-32768', 'gemma2-9b-it'
+        model: 'openai/gpt-oss-20b',
         messages: [
           { role: 'system', content: systemPrompt },
           ...validatedHistory.map(h => ({
@@ -127,7 +129,8 @@ module.exports = async function handler(req, res) {
         headers: {
           'Authorization': `Bearer ${apiKey}`,
           'Content-Type': 'application/json'
-        }
+        },
+        timeout: 25000 // 25s timeout (Vercel limit is 30s)
       });
       responseText = groqResponse.data.choices[0].message.content;
 
@@ -171,9 +174,23 @@ module.exports = async function handler(req, res) {
       responseText = result.response.text();
     }
 
+    console.log('[Alex Chat] Success. Reply length:', responseText.length);
     return res.status(200).json({ reply: responseText });
+
   } catch (error) {
-    console.error('Error in chat handler:', error.message || error);
-    return res.status(500).json({ error: 'Something went wrong. Please try again.' });
+    // Enhanced error logging for Vercel
+    const status = error.response?.status || 'N/A';
+    const errData = error.response?.data || {};
+    const errMsg = errData.error?.message || errData.error || error.message || 'Unknown';
+    console.error('[Alex Chat] ERROR:', {
+      status: status,
+      message: errMsg,
+      provider: process.env.LLM_PROVIDER || 'groq',
+      fullError: JSON.stringify(errData).slice(0, 500)
+    });
+    return res.status(500).json({ 
+      error: 'Something went wrong. Please try again.',
+      debug: process.env.NODE_ENV === 'development' ? errMsg : undefined
+    });
   }
 };
