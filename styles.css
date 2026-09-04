@@ -1439,6 +1439,23 @@ html.intro-done .intro { display: none; }
 }
 .cc-info p { font-size: 0.83rem; color: var(--ink-2); margin-top: 0.2rem; }
 
+/* Professional tier — gold badge */
+.cc-pro .cc-badge {
+    background: linear-gradient(135deg, #c9952e, #f5d679 40%, #c9952e 60%, #a67c1a);
+    color: #1a1207;
+    box-shadow: 0 0 18px rgba(201, 149, 46, 0.25);
+}
+.cc-pro .cc-info h4 {
+    color: #c9952e;
+}
+.cc-pro:hover, .cc-pro:focus-visible {
+    border-color: rgba(201, 149, 46, 0.5) !important;
+    box-shadow: var(--lg-inset), 0 8px 30px rgba(201, 149, 46, 0.15);
+}
+[data-theme="light"] .cc-pro .cc-badge {
+    background: linear-gradient(135deg, #b8860b, #f0d060 40%, #b8860b 60%, #8b6914);
+}
+
 /* certifications.html grid cards */
 .cf-badge-slot {
     display: grid; place-items: center;

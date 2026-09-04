@@ -17,7 +17,7 @@
 - **Portfolio Website**: https://indrajit-sarkar.vercel.app
 
 ## Summary
-Results-driven IT professional with almost 2 years of experience in infrastructure management and Azure technologies. Microsoft Certified Azure AI Engineer with expertise in Java, Python, and cloud technologies. Has completed 9 projects and earned 24 certifications.
+Results-driven IT professional with almost 2 years of experience in infrastructure management and Azure technologies. Microsoft Certified Azure AI Engineer with expertise in Java, Python, and cloud technologies. Has completed 9 projects and earned 25 certifications.
 
 ---
 
@@ -165,7 +165,13 @@ Results-driven IT professional with almost 2 years of experience in infrastructu
 
 ---
 
-## Certifications (21 Total)
+## Certifications (25 Total)
+
+### Anthropic — Claude Certified
+22. **Claude Certified Architect — Professional** — Anthropic (Sep 2026, Credly verified)
+23. **Claude Certified Architect — Foundations** — Anthropic (Aug 2026)
+24. **Claude Certified Developer — Foundations** — Anthropic (Aug 2026)
+25. **Claude Certified Associate — Foundations** — Anthropic (Aug 2026)
 
 ### Microsoft Certifications
 1. **AI-102: Azure AI Engineer Associate** — Microsoft

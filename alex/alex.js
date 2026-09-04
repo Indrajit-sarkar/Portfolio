@@ -197,7 +197,7 @@
             
           case 'certifications':
             this.setState('celebrating');
-            this.showSpeech('24 Certifications! 🎓', 2000);
+            this.showSpeech('25 Certifications! 🎓', 2000);
             setTimeout(() => this.setState('idle'), 2000);
             break;
             
