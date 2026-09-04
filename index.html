@@ -21,8 +21,15 @@
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="dns-prefetch" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossorigin>
     <link rel="stylesheet"
         href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@75..125,400..900&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400..700&display=swap">
+
+    <!-- Preload critical font (Archivo) to eliminate render-blocking -->
+    <link rel="preload" href="https://fonts.gstatic.com/s/archivo/v19/k3k6o8UDI-1M0wlSV9XAw6lQkqWY8Q82sJaRE-NWIDdgffTTNDNp8B1oJ0vyVQ.woff2" as="font" type="font/woff2" crossorigin>
 
     <link rel="preload" as="image" fetchpriority="high"
         href="assets/hero/portrait-bw-1100.webp"
@@ -87,7 +94,7 @@
     <header class="nav" id="navBar">
         <div class="nav-inner">
             <a href="#hero" class="nav-logo" aria-label="Home">
-                <img src="assets/opt/logo-640.webp" alt="Indrajit Sarkar logo" width="40" height="53">
+                <img src="assets/opt/logo-640.webp" alt="Indrajit Sarkar logo" width="40" height="53" decoding="async">
                 <span class="nav-name">Indrajit<em>.</em></span>
             </a>
             <nav class="nav-menu" id="navMenu" aria-label="Primary">
@@ -99,6 +106,7 @@
                 <a href="#research" class="nav-link" data-section="research">Research</a>
                 <a href="#skills" class="nav-link" data-section="skills">Skills</a>
                 <a href="#certifications" class="nav-link" data-section="certifications">Certifications</a>
+                
                 <a href="#achievements" class="nav-link" data-section="achievements">Achievements</a>
                 <a href="#volunteer" class="nav-link" data-section="volunteer">Volunteer</a>
                 <a href="Hobbies.html" class="nav-link">Hobbies</a>
@@ -490,7 +498,7 @@
                         <div class="feat-info">
                             <p class="feat-tags">HTML · CSS · JS</p>
                             <h3 class="feat-title">NAS Solution Guide</h3>
-                            <p class="feat-desc">A comprehensive, step-by-step resource for building a powerful private Network-Attached-Storage server — from repurposing an old laptop to configuring a Raspberry Pi, and taking full control of your data.</p>
+                            <p class="feat-desc">A comprehensive, step-by-step resource for building a private Network-Attached-Storage server — built with vanilla HTML, CSS, and JS, it walks users from repurposing old hardware to configuring a Raspberry Pi, deployed on Vercel for instant access.</p>
                             <div class="feat-actions">
                                 <a class="btn btn-primary btn-sm" href="https://nas-solution.vercel.app/" target="_blank" rel="noopener">Live Demo</a>
                                 <a class="btn btn-ghost btn-sm" href="https://github.com/Indrajit-sarkar/NAS-solution" target="_blank" rel="noopener">GitHub ↗</a>
@@ -524,7 +532,7 @@
                         <div class="feat-info">
                             <p class="feat-tags">PHP · HTML · CSS · JS</p>
                             <h3 class="feat-title">Paris Tourism</h3>
-                            <p class="feat-desc">From the golden glow of the Seine at sunset to the hidden secrets of Montmartre — a tourism experience for the city where every street corner tells a story.</p>
+                            <p class="feat-desc">Dynamic tourism web app built with PHP, HTML, CSS, and JavaScript — features interactive destination guides, gallery sections, and server-side content management for a rich city-exploration experience.</p>
                             <div class="feat-actions">
                                 <a class="btn btn-ghost btn-sm" href="https://github.com/Indrajit-sarkar/Paris-Tourism" target="_blank" rel="noopener">GitHub ↗</a>
                             </div>
@@ -564,6 +572,7 @@
                         <div class="proj-mini-info">
                             <h4>Money Manager</h4>
                             <p>PHP · HTML · CSS · JS · SQL</p>
+                            <p class="sec-sub">Full-stack personal finance tracker built with PHP and MySQL — features income/expense logging, category breakdowns, and visual summaries to help users take control of their spending.</p>
                                                     <span class="proj-mini-github" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 .3a12 12 0 00-3.8 23.38c.6.11.82-.26.82-.58v-2.02c-3.34.73-4.04-1.61-4.04-1.61a3.18 3.18 0 00-1.33-1.76c-1.09-.74.08-.73.08-.73a2.52 2.52 0 011.84 1.24 2.56 2.56 0 003.5 1 2.56 2.56 0 01.76-1.6c-2.67-.3-5.47-1.33-5.47-5.93a4.64 4.64 0 011.24-3.22 4.3 4.3 0 01.12-3.18s1-.32 3.3 1.23a11.38 11.38 0 016 0c2.28-1.55 3.28-1.23 3.28-1.23a4.3 4.3 0 01.12 3.18 4.64 4.64 0 011.23 3.22c0 4.61-2.81 5.63-5.48 5.92a2.86 2.86 0 01.82 2.22v3.29c0 .32.21.7.82.58A12 12 0 0012 .3z"/></svg></span>
                         </div>
                     </a>
@@ -572,6 +581,7 @@
                         <div class="proj-mini-info">
                             <h4>AI Assistant</h4>
                             <p>Python · HTML · CSS · JS</p>
+                            <p class="sec-sub">Voice-enabled AI assistant powered by Python NLP and speech recognition — handles natural-language queries, web searches, and system commands through a clean browser-based interface.</p>
                                                     <span class="proj-mini-github" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 .3a12 12 0 00-3.8 23.38c.6.11.82-.26.82-.58v-2.02c-3.34.73-4.04-1.61-4.04-1.61a3.18 3.18 0 00-1.33-1.76c-1.09-.74.08-.73.08-.73a2.52 2.52 0 011.84 1.24 2.56 2.56 0 003.5 1 2.56 2.56 0 01.76-1.6c-2.67-.3-5.47-1.33-5.47-5.93a4.64 4.64 0 011.24-3.22 4.3 4.3 0 01.12-3.18s1-.32 3.3 1.23a11.38 11.38 0 016 0c2.28-1.55 3.28-1.23 3.28-1.23a4.3 4.3 0 01.12 3.18 4.64 4.64 0 011.23 3.22c0 4.61-2.81 5.63-5.48 5.92a2.86 2.86 0 01.82 2.22v3.29c0 .32.21.7.82.58A12 12 0 0012 .3z"/></svg></span>
                         </div>
                     </a>
@@ -580,6 +590,7 @@
                         <div class="proj-mini-info">
                             <h4>Sentiment Analyzer</h4>
                             <p>Python · HTML · CSS · JS</p>
+                            <p class="sec-sub">Real-time text sentiment analysis tool using Python NLP libraries — classifies user input as positive, negative, or neutral with confidence scores, served through a lightweight Flask web app.</p>
                                                     <span class="proj-mini-github" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 .3a12 12 0 00-3.8 23.38c.6.11.82-.26.82-.58v-2.02c-3.34.73-4.04-1.61-4.04-1.61a3.18 3.18 0 00-1.33-1.76c-1.09-.74.08-.73.08-.73a2.52 2.52 0 011.84 1.24 2.56 2.56 0 003.5 1 2.56 2.56 0 01.76-1.6c-2.67-.3-5.47-1.33-5.47-5.93a4.64 4.64 0 011.24-3.22 4.3 4.3 0 01.12-3.18s1-.32 3.3 1.23a11.38 11.38 0 016 0c2.28-1.55 3.28-1.23 3.28-1.23a4.3 4.3 0 01.12 3.18 4.64 4.64 0 011.23 3.22c0 4.61-2.81 5.63-5.48 5.92a2.86 2.86 0 01.82 2.22v3.29c0 .32.21.7.82.58A12 12 0 0012 .3z"/></svg></span>
                         </div>
                     </a>
@@ -588,6 +599,7 @@
                         <div class="proj-mini-info">
                             <h4>ARCADE</h4>
                             <p>HTML · CSS · JS</p>
+                            <p class="sec-sub">Collection of classic browser-based arcade games built with vanilla JavaScript — zero dependencies, responsive canvas animations, and retro aesthetics for a pure-web gaming experience.</p>
                                                     <span class="proj-mini-github" aria-hidden="true"><svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 .3a12 12 0 00-3.8 23.38c.6.11.82-.26.82-.58v-2.02c-3.34.73-4.04-1.61-4.04-1.61a3.18 3.18 0 00-1.33-1.76c-1.09-.74.08-.73.08-.73a2.52 2.52 0 011.84 1.24 2.56 2.56 0 003.5 1 2.56 2.56 0 01.76-1.6c-2.67-.3-5.47-1.33-5.47-5.93a4.64 4.64 0 011.24-3.22 4.3 4.3 0 01.12-3.18s1-.32 3.3 1.23a11.38 11.38 0 016 0c2.28-1.55 3.28-1.23 3.28-1.23a4.3 4.3 0 01.12 3.18 4.64 4.64 0 011.23 3.22c0 4.61-2.81 5.63-5.48 5.92a2.86 2.86 0 01.82 2.22v3.29c0 .32.21.7.82.58A12 12 0 0012 .3z"/></svg></span>
                         </div>
                     </a>
@@ -762,7 +774,7 @@
             <h3 class="sub-title container" data-reveal="up">Claude Certified <span class="hint">— Anthropic, 2026</span></h3>
             <div class="cert-featured container">
                 <div class="cert-claude glass cc-pro" data-reveal="roll">
-                    <img class="cc-badge-img" src="assets/claude-certified-architect-professional.png" alt="Claude Certified Architect – Professional badge" width="120" height="120">
+                    <img class="cc-badge-img" src="assets/claude-certified-architect-professional.png" alt="Claude Certified Architect – Professional badge" width="120" height="120" loading="lazy" decoding="async">
                     <div class="cc-info">
                         <h4>Claude Certified Architect</h4>
                         <p>Anthropic · Professional · Sep 2026</p>
@@ -773,7 +785,7 @@
                     </div>
                 </div>
                 <div class="cert-claude glass" data-reveal="roll" data-reveal-delay="120">
-                    <img class="cc-badge-img" src="assets/claude-certified-architect-foundations.png" alt="Claude Certified Architect – Foundations badge" width="120" height="120">
+                    <img class="cc-badge-img" src="assets/claude-certified-architect-foundations.png" alt="Claude Certified Architect – Foundations badge" width="120" height="120" loading="lazy" decoding="async">
                     <div class="cc-info">
                         <h4>Claude Certified Architect</h4>
                         <p>Anthropic · Foundations · Aug 2026</p>
@@ -784,7 +796,7 @@
                     </div>
                 </div>
                 <div class="cert-claude glass" data-reveal="roll" data-reveal-delay="240">
-                    <img class="cc-badge-img" src="assets/claude-certified-developer-foundations.png" alt="Claude Certified Developer – Foundations badge" width="120" height="120">
+                    <img class="cc-badge-img" src="assets/claude-certified-developer-foundations.png" alt="Claude Certified Developer – Foundations badge" width="120" height="120" loading="lazy" decoding="async">
                     <div class="cc-info">
                         <h4>Claude Certified Developer</h4>
                         <p>Anthropic · Foundations · Aug 2026</p>
@@ -795,7 +807,7 @@
                     </div>
                 </div>
                 <div class="cert-claude glass" data-reveal="roll" data-reveal-delay="360">
-                    <img class="cc-badge-img" src="assets/claude-certified-associate-foundations.png" alt="Claude Certified Associate – Foundations badge" width="120" height="120">
+                    <img class="cc-badge-img" src="assets/claude-certified-associate-foundations.png" alt="Claude Certified Associate – Foundations badge" width="120" height="120" loading="lazy" decoding="async">
                     <div class="cc-info">
                         <h4>Claude Certified Associate</h4>
                         <p>Anthropic · Foundations · Aug 2026</p>
@@ -1054,7 +1066,87 @@
         </section>
     </main>
 
-    <!-- ============ FOOTER ============ -->
+    <!-- ============ TESTIMONIALS ============ -->
+    <section class="section cv-auto" id="testimonials" style="padding: 4rem 0 3rem;">
+        <div class="container">
+            <p class="eyebrow" data-reveal="up">Testimonials</p>
+            <h2 class="sec-title" data-reveal="up">What People Say</h2>
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(min(300px,100%), 1fr)); gap:1.4rem; margin-top:2rem;">
+
+                <div class="glass" style="padding:1.8rem; border-radius:14px;" data-reveal="up">
+                    <span style="font-size:2.5rem; line-height:1; opacity:0.3;">&#10077;</span>
+                    <p style="margin-top:0.5rem; font-size:0.92rem; line-height:1.65; opacity:0.85;">
+                        I worked alongside Indrajit on a few intercollegiate branch events, where he was a key member of the core event management team. During planning sessions, he was always actively engaged&mdash;offering sharp, practical advice that helped shape our overall strategy. He consistently pulled his weight, brought smart ideas to the table, and made sure his part of the execution ran smoothly. His collaborative mindset and reliable input make him a fantastic teammate.
+                    </p>
+                    <div style="margin-top:1.2rem; display:flex; align-items:center; gap:0.75rem;">
+                        <div>
+                            <p style="font-size:0.85rem; font-weight:700;">Tharun Mukundan</p>
+                            <p style="font-size:0.78rem; opacity:0.55;">Web Developer &middot; Angular Full Stack Intern</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass" style="padding:1.8rem; border-radius:14px;" data-reveal="up" data-reveal-delay="120">
+                    <span style="font-size:2.5rem; line-height:1; opacity:0.3;">&#10077;</span>
+                    <p style="margin-top:0.5rem; font-size:0.92rem; line-height:1.65; opacity:0.85;">
+                        I have known Indrajit for 8 years as a friend and a classmate. The simplest thing I can say is that he works very hard without being asked and does excellent work without needing credit for. He is also talented in a way that&rsquo;s easy to underestimate at first.
+                    </p>
+                    <div style="margin-top:1.2rem; display:flex; align-items:center; gap:0.75rem;">
+                        <div>
+                            <p style="font-size:0.85rem; font-weight:700;">Sourabh Dahiya</p>
+                            <p style="font-size:0.78rem; opacity:0.55;">Let&rsquo;s connect and create something remarkable!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass" style="padding:1.8rem; border-radius:14px;" data-reveal="up" data-reveal-delay="240">
+                    <span style="font-size:2.5rem; line-height:1; opacity:0.3;">&#10077;</span>
+                    <p style="margin-top:0.5rem; font-size:0.92rem; line-height:1.65; opacity:0.85;">
+                        I studied at the same college as Indrajit Sarkar, and we developed similar views on personal and professional growth. During that time, he consistently showed a collaborative mindset, strong competence, and a proactive approach to his work. Indrajit works well with others, demonstrates good leadership qualities, and maintains a positive attitude toward learning and improvement. He is dependable, delivers quality results, and completes his responsibilities on time. I&rsquo;m happy to recommend him and believe he would be a valuable addition to any team.
+                    </p>
+                    <div style="margin-top:1.2rem; display:flex; align-items:center; gap:0.75rem;">
+                        <div>
+                            <p style="font-size:0.85rem; font-weight:700;">Syed Khaleel Ahmed</p>
+                            <p style="font-size:0.78rem; opacity:0.55;">CISA &middot; IT Auditor &middot; GRC &middot; SOC 2 &middot; BDO India</p>
+                        </div>
+                    </div>
+                </div>
+
+            
+                <div class="glass" style="padding:1.8rem; border-radius:14px;" data-reveal="up" data-reveal-delay="360">
+                    <span style="font-size:2.5rem; line-height:1; opacity:0.3;">&#10077;</span>
+                    <p style="margin-top:0.5rem; font-size:0.92rem; line-height:1.65; opacity:0.85;">
+                        I&rsquo;ve known Indrajit Sarkar since our time at Indian Academy Degree College (Autonomous), and he is a sincere, hardworking, and dedicated person. He has always shown a strong attitude towards learning and self-improvement. Indrajit is reliable, supportive, and works well with others, making him a great team player. I&rsquo;m confident he will do well in his professional journey, and I wish him all the best for the future.
+                    </p>
+                    <div style="margin-top:1.2rem; display:flex; align-items:center; gap:0.75rem;">
+                        <div>
+                            <p style="font-size:0.85rem; font-weight:700;">Karanam Vikas</p>
+                            <p style="font-size:0.78rem; opacity:0.55;">Cloud &amp; DevOps Engineer &middot; SRE &middot; AWS, Terraform, Docker, Kubernetes</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="glass" style="padding:1.8rem; border-radius:14px;" data-reveal="up" data-reveal-delay="480">
+                    <span style="font-size:2.5rem; line-height:1; opacity:0.3;">&#10077;</span>
+                    <p style="margin-top:0.5rem; font-size:0.92rem; line-height:1.65; opacity:0.85;">
+                        I have had the pleasure of knowing Indrajit for 2 years, and I can confidently say he is one of the most reliable professionals I have worked with. Indrajit consistently brings a positive attitude and a solution-oriented mindset to every challenge. He is not only highly skilled in project management, but he is also an exceptional team player who elevates the morale of those around him. I highly recommend Indrajit to any organization looking for a dedicated and talented individual.
+                    </p>
+                    <div style="margin-top:1.2rem; display:flex; align-items:center; gap:0.75rem;">
+                        <div>
+                            <p style="font-size:0.85rem; font-weight:700;">Sourav Dash</p>
+                            <p style="font-size:0.78rem; opacity:0.55;">Aspiring Java Developer &middot; Backend Development Enthusiast</p>
+                        </div>
+                    </div>
+                </div>
+
+</div>
+            <p style="margin-top:1.2rem; text-align:center;">
+                <a href="https://www.linkedin.com/in/indrajit-sarkar01/details/recommendations/" target="_blank" rel="noopener" style="font-size:0.85rem; font-weight:600; opacity:0.6; text-decoration:none; color:inherit;">View all on LinkedIn &rarr;</a>
+            </p>
+        </div>
+    </section>
+
+<!-- ============ FOOTER ============ -->
 
     <!-- Business Card CTA -->
     <section style="text-align:center; padding: 3rem 0 1rem;">
@@ -1188,6 +1280,7 @@
         research: 'thinking',
         skills: 'sitting',
         certifications: 'excited',
+        insights: 'thinking',
         achievements: 'surprised',
         volunteer: 'help',
         contact: 'waving'
@@ -1425,10 +1518,10 @@
     <script defer src="chatbot/chatbot.js"></script>
 
     <!-- Liquid Glass Effect (CDN + custom integration) -->
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/dashersw/liquid-glass-js@main/container.js"></script>
-    <script src="https://cdn.jsdelivr.net/gh/dashersw/liquid-glass-js@main/button.js"></script>
-    <script src="liquid-glass.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/gh/dashersw/liquid-glass-js@main/container.js"></script>
+    <script defer src="https://cdn.jsdelivr.net/gh/dashersw/liquid-glass-js@main/button.js"></script>
+    <script defer src="liquid-glass.js"></script>
 
     <!-- Gesture Control (MediaPipe Hands) -->
     <script src="gesture-control.js" type="module"></script>

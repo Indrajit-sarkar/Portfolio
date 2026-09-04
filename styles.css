@@ -1866,3 +1866,10 @@ html.intro-done .intro { display: none; }
 @media (min-width: 2000px) {
     .container { width: min(1400px, 100% - 2 * var(--pad)); }
 }
+
+
+/* ---------- Performance: skip rendering off-screen sections ---------- */
+.section:not(:first-of-type) {
+    content-visibility: auto;
+    contain-intrinsic-size: auto 600px;
+}
