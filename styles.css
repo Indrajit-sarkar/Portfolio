@@ -1438,11 +1438,36 @@ html.intro-done .intro { display: none; }
     line-height: 1.05; letter-spacing: -0.01em;
 }
 
+.cc-badge-img {
+    flex: 0 0 auto;
+    width: 82px; height: 82px;
+    object-fit: contain;
+    border-radius: 8px;
+}
+
+.cf-cert-preview {
+    width: 100%;
+    border-radius: 8px 8px 0 0;
+    object-fit: cover;
+    display: block;
+}
+
 .cc-info h4 {
-    font-family: var(--font-d); font-size: 1.02rem; font-weight: 800;
-    font-variation-settings: 'wdth' 100; letter-spacing: -0.01em;
+    font-family: var(--font-d); font-size: 1rem;
+    font-variation-settings: 'wdth' 100, 'wght' 700; letter-spacing: -0.01em;
 }
 .cc-info p { font-size: 0.83rem; color: var(--ink-2); margin-top: 0.2rem; }
+
+.cc-actions {
+    display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.5rem;
+}
+.cc-actions a {
+    font-size: 0.75rem; font-weight: 600; color: var(--accent);
+    text-decoration: none; padding: 0.3rem 0.7rem; width: fit-content;
+    border: 1px solid var(--lg-line); border-radius: 99px;
+    transition: background 0.25s, color 0.25s;
+}
+.cc-actions a:hover { background: var(--accent); color: #fff; }
 
 /* Professional tier — gold badge */
 .cc-pro .cc-badge {
