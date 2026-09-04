@@ -536,3 +536,34 @@
 
 /* ── Siri-style Edge Glow (replaces orb) ─────────── */
 
+
+
+/* ── Edge Glow — box-shadow only (no pseudo-elements) ── */
+@keyframes edge-glow-pulse {
+  0%, 100% { box-shadow: var(--panel-shadow), 0 0 18px -4px var(--glow-color); }
+  50%      { box-shadow: var(--panel-shadow), 0 0 28px -2px var(--glow-color); }
+}
+
+.alex-panel {
+  --panel-shadow: var(--lg-inset, inset 0 1px 0 rgba(243,242,238,0.22)),
+                  0 24px 64px -24px rgba(0,0,0,0.55);
+  --glow-color: transparent;
+}
+
+/* Listening — rainbow pulse */
+.alex-panel.glow-listening {
+  --glow-color: rgba(91, 140, 255, 0.5);
+  animation: edge-glow-pulse 2s ease-in-out infinite;
+}
+
+/* Processing — warm amber */
+.alex-panel.glow-processing {
+  --glow-color: rgba(192, 163, 119, 0.4);
+  animation: edge-glow-pulse 3s ease-in-out infinite;
+}
+
+/* Speaking — purple */
+.alex-panel.glow-speaking {
+  --glow-color: rgba(139, 92, 246, 0.45);
+  animation: edge-glow-pulse 2.5s ease-in-out infinite;
+}

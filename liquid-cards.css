@@ -99,8 +99,7 @@
 /* ── Z-index: keep card content above shimmer ── */
 .proj-mini.glass > .proj-mini-media,
 .proj-mini.glass > .proj-mini-info,
-.proj-mini.glass > .proj-mini-arrow,
-.proj-mini.glass > .proj-mini-github {
+.proj-mini.glass > .proj-mini-arrow {
   position: relative;
   z-index: 2;
 }
@@ -124,12 +123,6 @@
 }
 
 /* ── Project card GitHub button visible ── */
-.proj-mini.glass {
-  overflow: visible !important;
-}
-.proj-mini.glass > .proj-mini-github {
-  z-index: 3 !important;
-}
 
 /* ── Reduced motion ── */
 @media (prefers-reduced-motion: reduce) {
