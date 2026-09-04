@@ -82,13 +82,62 @@ function rollingAvg(arr, val, maxLen) {
 
 /* ── Scroll via WheelEvent (works with Lenis) ─────────── */
 function emitScroll(deltaX, deltaY) {
-  // Lenis listens to wheel events, so dispatch a synthetic one
-  window.dispatchEvent(new WheelEvent('wheel', {
-    deltaX: deltaX,
-    deltaY: deltaY,
-    bubbles: true,
-    cancelable: true
-  }));
+  // Smart scroll: detect if cursor is over a horizontally scrollable container
+  // or a JS slider, and scroll that instead of the page.
+
+  const el = document.elementFromPoint(cursorX, cursorY);
+  if (!el) {
+    // Fallback: page-level scroll via wheel event (Lenis)
+    window.dispatchEvent(new WheelEvent('wheel', { deltaY, bubbles: true, cancelable: true }));
+    return;
+  }
+
+  // Walk up from cursor to find a horizontally scrollable container or slider
+  let target = el;
+  let hScrollContainer = null;
+  let sliderWrap = null;
+
+  for (let i = 0; i < 15 && target; i++) {
+    // Check for native horizontal scroll container
+    if (target.scrollWidth > target.clientWidth + 10) {
+      const style = getComputedStyle(target);
+      const ox = style.overflowX;
+      if (ox === 'auto' || ox === 'scroll') {
+        hScrollContainer = target;
+        break;
+      }
+    }
+    // Check for featured project slider (JS-based, has prev/next buttons)
+    if (target.id === 'featTrack' || target.closest?.('.feat')) {
+      sliderWrap = target.closest?.('.feat') || target;
+      break;
+    }
+    target = target.parentElement;
+  }
+
+  // Case 1: Horizontal scroll container (edu-track, etc.)
+  if (hScrollContainer && Math.abs(deltaX) > 0) {
+    hScrollContainer.scrollBy({ left: deltaX, behavior: 'smooth' });
+    return;
+  }
+
+  // Case 2: JS slider — click prev/next buttons
+  if (sliderWrap && Math.abs(deltaX) > 50) {
+    const btn = deltaX > 0
+      ? sliderWrap.querySelector('[id*="Next"], [class*="next"], .round-btn:last-of-type')
+      : sliderWrap.querySelector('[id*="Prev"], [class*="prev"], .round-btn:first-of-type');
+    if (btn) { btn.click(); return; }
+  }
+
+  // Case 3: Vertical page scroll via Lenis wheel event
+  if (Math.abs(deltaY) > 0) {
+    window.dispatchEvent(new WheelEvent('wheel', { deltaY, bubbles: true, cancelable: true }));
+  }
+
+  // Case 4: Horizontal page scroll (rare)
+  if (Math.abs(deltaX) > 0 && !hScrollContainer && !sliderWrap) {
+    window.dispatchEvent(new WheelEvent('wheel', { deltaX, bubbles: true, cancelable: true }));
+  }
 }
 
 /* ── Visual feedback ──────────────────────────────────── */
@@ -234,7 +283,7 @@ function processLandmarks(landmarks, allLandmarks) {
       }
 
       // Horizontal scroll
-      if (Math.abs(smoothDx) > SCROLL_DEAD_ZONE * 1.5) {
+      if (Math.abs(smoothDx) > SCROLL_DEAD_ZONE) {
         const scrollX = -smoothDx * SCROLL_MULTIPLIER * 0.7;
         emitScroll(scrollX, 0);
         showGesture(smoothDx < 0 ? '➡️' : '⬅️', smoothDx < 0 ? 'Scroll Right' : 'Scroll Left');

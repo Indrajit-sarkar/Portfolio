@@ -2,7 +2,7 @@
 
 ## Personal Information
 - **Full Name**: Indrajit Sarkar
-- **Current Role**: Analyst 3 · Infrastructure Management at DXC Technology
+- **Current Role**: Analyst 2 · Infrastructure Management at DXC Technology
 - **Title**: Azure AI Engineer & Full-Stack Developer
 - **Status**: Open to opportunities
 - **Location**: Bengaluru, Karnataka 560032, India
@@ -17,7 +17,7 @@
 - **Portfolio Website**: https://indrajit-sarkar.vercel.app
 
 ## Summary
-Results-driven IT professional with almost 2 years of experience in infrastructure management and Azure technologies. Microsoft Certified Azure AI Engineer with expertise in Java, Python, and cloud technologies. Has completed 9 projects and earned 21 certifications.
+Results-driven IT professional with almost 2 years of experience in infrastructure management and Azure technologies. Microsoft Certified Azure AI Engineer with expertise in Java, Python, and cloud technologies. Has completed 9 projects and earned 24 certifications.
 
 ---
 
@@ -52,7 +52,7 @@ Results-driven IT professional with almost 2 years of experience in infrastructu
 ## Professional Experience
 
 ### 1. DXC Technology (dxc.com)
-- **Role**: Analyst 3 · Infrastructure Management
+- **Role**: Analyst 2 · Infrastructure Management
 - **Location**: Bengaluru
 - **Duration**: January 2024 — Present
 - **Key Metrics**:
