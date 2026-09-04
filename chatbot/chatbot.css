@@ -559,6 +559,7 @@
   position: absolute;
   inset: -3px;
   border-radius: 26px;
+  display: none;
   background: conic-gradient(
     from var(--glow-angle),
     #c0a377, #ff6b3d, #ff3d6b, #8b5cf6, #5b8cff, #c0a377
@@ -578,6 +579,7 @@
   inset: 0;
   border-radius: 24px;
   padding: 1.5px;
+  display: none;
   background: conic-gradient(
     from var(--glow-angle),
     #c0a377, #ff6b3d, #ff3d6b, #8b5cf6, #5b8cff, #c0a377
@@ -599,11 +601,13 @@
 
 /* ── State: Listening ── */
 .alex-panel.glow-listening::before {
+  display: block;
   opacity: 0.85;
   filter: blur(15px);
   animation-duration: 2.5s;
 }
 .alex-panel.glow-listening::after {
+  display: block;
   opacity: 0.9;
   animation-duration: 2.5s;
 }
@@ -613,6 +617,7 @@
 
 /* ── State: Processing ── */
 .alex-panel.glow-processing::before {
+  display: block;
   opacity: 0.55;
   filter: blur(12px);
   animation-duration: 4s;
@@ -622,6 +627,7 @@
   );
 }
 .alex-panel.glow-processing::after {
+  display: block;
   opacity: 0.6;
   animation-duration: 4s;
   background: conic-gradient(
@@ -635,6 +641,7 @@
 
 /* ── State: Speaking ── */
 .alex-panel.glow-speaking::before {
+  display: block;
   opacity: 0.75;
   filter: blur(16px);
   animation: glow-rotate 3s linear infinite, glow-pulse 1.5s ease-in-out infinite;
@@ -644,6 +651,7 @@
   );
 }
 .alex-panel.glow-speaking::after {
+  display: block;
   opacity: 0.8;
   animation-duration: 3s;
   background: conic-gradient(

@@ -61,7 +61,6 @@
 .exp-card.glass,
 .contact-card.glass,
 .ach-card.glass,
-.edu-card,
 .vol-card {
     /* Ensure stacking context */
     position: relative;
@@ -86,8 +85,7 @@
 .proj-mini.glass::before,
 .exp-card.glass::before,
 .contact-card.glass::before,
-.ach-card.glass::before,
-.edu-card::before,
+.ach-card.glass::before::before,
 .vol-card::before {
     content: "";
     position: absolute;
@@ -132,8 +130,7 @@
 .proj-mini.glass::after,
 .exp-card.glass::after,
 .contact-card.glass::after,
-.ach-card.glass::after,
-.edu-card::after,
+.ach-card.glass::after::after,
 .vol-card::after {
     content: "";
     position: absolute;
@@ -163,8 +160,7 @@
 .proj-mini.glass:hover,
 .exp-card.glass:hover,
 .contact-card.glass:hover,
-.ach-card.glass:hover,
-.edu-card:hover,
+.ach-card.glass:hover:hover,
 .vol-card:hover {
     /* Intensify shadow with colored glow */
     box-shadow: var(--lg-inset, inset 0 1px 0 rgba(243, 242, 238, 0.22)),
@@ -180,8 +176,7 @@
 .proj-mini.glass:hover::before,
 .exp-card.glass:hover::before,
 .contact-card.glass:hover::before,
-.ach-card.glass:hover::before,
-.edu-card:hover::before,
+.ach-card.glass:hover::before:hover::before,
 .vol-card:hover::before {
     opacity: 1;
     animation: none; /* Stop the breathe, hold at full opacity */
@@ -191,8 +186,7 @@
 .proj-mini.glass:hover::after,
 .exp-card.glass:hover::after,
 .contact-card.glass:hover::after,
-.ach-card.glass:hover::after,
-.edu-card:hover::after,
+.ach-card.glass:hover::after:hover::after,
 .vol-card:hover::after {
     opacity: 1;
     animation: liquid-shimmer-sweep 1.8s ease-in-out forwards;
@@ -203,8 +197,7 @@
 [data-theme="light"] .exp-card.glass::before,
 [data-theme="light"] .contact-card.glass::before,
 [data-theme="light"] .ach-card.glass::before,
-[data-theme="light"] .edu-card::before,
-[data-theme="light"] .vol-card::before {
+[data-theme="light"] [data-theme="light"] .vol-card::before {
     background: conic-gradient(
         from var(--liquid-angle),
         transparent 0%,
@@ -224,8 +217,7 @@
 [data-theme="light"] .exp-card.glass::after,
 [data-theme="light"] .contact-card.glass::after,
 [data-theme="light"] .ach-card.glass::after,
-[data-theme="light"] .edu-card::after,
-[data-theme="light"] .vol-card::after {
+[data-theme="light"] [data-theme="light"] .vol-card::after {
     background: linear-gradient(
         115deg,
         transparent 0%,
@@ -242,8 +234,7 @@
 [data-theme="light"] .exp-card.glass:hover,
 [data-theme="light"] .contact-card.glass:hover,
 [data-theme="light"] .ach-card.glass:hover,
-[data-theme="light"] .edu-card:hover,
-[data-theme="light"] .vol-card:hover {
+[data-theme="light"] [data-theme="light"] .vol-card:hover {
     box-shadow: var(--lg-inset, inset 0 1px 0 rgba(255, 255, 255, 0.95)),
                 var(--shadow, 0 24px 60px -30px rgba(40, 34, 22, 0.28)),
                 0 0 28px -8px hsla(calc(220 + var(--liquid-hue)) 40% 50% / 0.12);
@@ -280,12 +271,6 @@
     z-index: 2;
 }
 
-.edu-card > .edu-bg,
-.edu-card > .edu-body {
-    position: relative;
-    z-index: 2;
-}
-
 .vol-card > img,
 .vol-card > .vol-info {
     position: relative;
@@ -298,16 +283,14 @@
     .exp-card.glass,
     .contact-card.glass,
     .ach-card.glass,
-    .edu-card,
-    .vol-card {
+        .vol-card {
         animation: none !important;
     }
 
     .proj-mini.glass::before,
     .exp-card.glass::before,
     .contact-card.glass::before,
-    .ach-card.glass::before,
-    .edu-card::before,
+    .ach-card.glass::before::before,
     .vol-card::before {
         opacity: 0.35;
         animation: none !important;
@@ -316,8 +299,7 @@
     .proj-mini.glass:hover::before,
     .exp-card.glass:hover::before,
     .contact-card.glass:hover::before,
-    .ach-card.glass:hover::before,
-    .edu-card:hover::before,
+    .ach-card.glass:hover::before:hover::before,
     .vol-card:hover::before {
         opacity: 0.65;
     }
@@ -325,8 +307,7 @@
     .proj-mini.glass::after,
     .exp-card.glass::after,
     .contact-card.glass::after,
-    .ach-card.glass::after,
-    .edu-card::after,
+    .ach-card.glass::after::after,
     .vol-card::after {
         display: none;
     }
