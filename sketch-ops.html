@@ -64,6 +64,7 @@
         }
         #bNade { left: 36vw; }
         #bMelee { right: 36vw; }
+        #bDrop { right: 22vw; bottom: 20vh; width: min(13vw, 62px); border-color: rgba(255, 200, 100, 0.6); background: rgba(255, 200, 100, 0.16); font-size: clamp(0.55rem, 1.8vw, 0.8rem); }
         #bJet {
             left: 22vw; bottom: 20vh;
             width: min(13vw, 62px);
@@ -123,6 +124,7 @@
             <div class="btn" id="bJet">JET</div>
             <div class="btn" id="bNade">💣<small id="nadeN">3</small></div>
             <div class="btn" id="bMelee">✊</div>
+            <div class="btn" id="bDrop">DROP</div>
         </div>
 
         <button class="exit" id="exit" aria-label="Exit game" title="Exit (Esc)">
@@ -139,7 +141,7 @@
                 <div class="keys" id="hintKeys">
                     <div><b>A / D</b> or <b>←→</b> — move &nbsp;·&nbsp; <b>W / Space</b> — jetpack</div>
                     <div><b>Mouse</b> — aim &nbsp;·&nbsp; <b>Click / hold</b> — fire</div>
-                    <div><b>1 2 3</b> — weapons &nbsp;·&nbsp; <b>R</b> — reload</div>
+                    <div><b>1 2 3 4</b> — weapons &nbsp;·&nbsp; <b>R</b> — reload &nbsp;·&nbsp; <b>Q</b> — drop</div>
                     <div><b>G</b> — grenade &nbsp;·&nbsp; <b>F</b> — melee &nbsp;·&nbsp; <b>Esc</b> — exit</div>
                 </div>
                 <button class="cta" id="btnStart">Deploy</button>
@@ -164,7 +166,7 @@
         const ctx = cv.getContext('2d', { alpha: false });
 
         // ---------- constants ----------
-        const W = 3200, H = 1400;           // world size
+        const W = 3200, H = 1400;
         const GRAV = 1750;
         const MOVE = 250, AIR = 190, FRICT = 0.86;
         const JET_THRUST = 2450, JET_BURN = 34, JET_REGEN = 26;
@@ -174,12 +176,12 @@
         const WEAPONS = {
             rifle:   { name: 'Rifle',   dmg: 9,  rate: 0.10, spread: 0.045, mag: 30, res: 120, spd: 1050, pellets: 1, auto: true },
             revolver:{ name: 'Revolver',dmg: 24, rate: 0.34, spread: 0.018, mag: 6,  res: 42,  spd: 1250, pellets: 1, auto: false },
-            shotgun: { name: 'Shotgun', dmg: 7,  rate: 0.72, spread: 0.17,  mag: 2,  res: 20,  spd: 900,  pellets: 5, auto: false }
+            shotgun: { name: 'Shotgun', dmg: 7,  rate: 0.72, spread: 0.17,  mag: 2,  res: 20,  spd: 900,  pellets: 5, auto: false },
+            sniper:  { name: 'Sniper',  dmg: 45, rate: 1.1,  spread: 0.008, mag: 5,  res: 25,  spd: 1600, pellets: 1, auto: false }
         };
-        const WKEYS = ['rifle', 'revolver', 'shotgun'];
+        const WKEYS = ['rifle', 'revolver', 'shotgun', 'sniper'];
 
         // ---------- map ----------
-        // jungle arena: ground + floating grass ledges + rock pillars
         const PLATS = [
             { x: 0,    y: 1180, w: W,   h: 220, t: 'ground' },
             { x: 260,  y: 980,  w: 420, h: 30,  t: 'grass' },
@@ -194,8 +196,39 @@
             { x: 140,  y: 430,  w: 260, h: 26,  t: 'grass' },
             { x: 2860, y: 470,  w: 280, h: 26,  t: 'grass' },
             { x: 0,    y: 760,  w: 120, h: 420, t: 'rock' },
-            { x: 3080, y: 700,  w: 120, h: 480, t: 'rock' }
+            { x: 3080, y: 700,  w: 120, h: 480, t: 'rock' },
+            // bunkers — hiding spots
+            { x: 700,  y: 1050, w: 60,  h: 130, t: 'bunker' },
+            { x: 1600, y: 1020, w: 60,  h: 160, t: 'bunker' },
+            { x: 2200, y: 1060, w: 60,  h: 120, t: 'bunker' },
+            { x: 2900, y: 1000, w: 60,  h: 180, t: 'bunker' }
         ];
+
+        // ---------- weapon pickups ----------
+        const PICKUP_SPAWN = [
+            { x: 470, y: 970 }, { x: 1070, y: 850 }, { x: 1610, y: 990 },
+            { x: 2120, y: 840 }, { x: 2670, y: 980 }, { x: 770, y: 650 }
+        ];
+        const PICKUP_RESPAWN = 12;
+        let pickups = [];
+
+        function spawnPickup(sx, sy) {
+            const wp = WKEYS[Math.floor(rnd(0, WKEYS.length))];
+            pickups.push({ x: sx, y: sy, wp, timer: 0 });
+        }
+        function initPickups() {
+            pickups = [];
+            for (const s of PICKUP_SPAWN) spawnPickup(s.x, s.y);
+        }
+        function dropWeapon(e) {
+            if (!e.alive) return;
+            pickups.push({ x: e.x, y: e.y, wp: e.wp, timer: 0 });
+            e.wp = 'rifle';
+            e.ammo.rifle = Math.max(e.ammo.rifle, 10);
+        }
+
+        // ---------- seeded terrain detail (stable per frame) ----------
+        function hashXY(x, y, s) { return ((x * 2654435761 ^ y * 2246822519 ^ s) >>> 0) / 4294967296; }
 
         // ---------- state ----------
         let cam = { x: 0, y: 0 };
@@ -204,6 +237,7 @@
         const keys = {};
         let mouse = { x: 0, y: 0, down: false, inCanvas: false };
         let touchMode = matchMedia('(pointer: coarse)').matches;
+        let cloudOff = 0;
 
         const rnd = (a, b) => a + Math.random() * (b - a);
         const clamp = (v, a, b) => v < a ? a : v > b ? b : v;
@@ -215,18 +249,19 @@
                 x, y, vx: 0, vy: 0, w: 26, h: 40,
                 hp: 100, fuel: 100, ground: false, face: 1,
                 aim: 0, wp: 'rifle',
-                ammo: { rifle: 30, revolver: 6, shotgun: 2 },
-                res:  { rifle: 120, revolver: 42, shotgun: 20 },
+                ammo: { rifle: 30, revolver: 6, shotgun: 2, sniper: 5 },
+                res:  { rifle: 120, revolver: 42, shotgun: 20, sniper: 25 },
                 cool: 0, reloading: 0, alive: true, respawn: 0,
                 nades: 3, nadeCool: 0, melee: 0, meleeCool: 0,
                 kills: 0, deaths: 0, jetting: false,
                 // bot ai
-                think: 0, strafe: 1, wantJet: 0, burst: 0, bAim: 0
+                think: 0, strafe: 1, wantJet: 0, burst: 0, bAim: 0,
+                noLos: 0  // time without line of sight
             };
         }
 
         function spawnPoint() {
-            const p = PLATS[Math.floor(rnd(1, PLATS.length - 2))];
+            const p = PLATS[Math.floor(rnd(1, PLATS.length - 6))]; // avoid bunkers
             return { x: p.x + p.w / 2, y: p.y - 60 };
         }
 
@@ -244,12 +279,13 @@
                 b.wp = WKEYS[i % 3];
                 ents.push(b);
             }
+            initPickups();
         }
         const player = () => ents[0];
 
         function say(txt) {
             feed.unshift({ txt, t: 4 });
-            if (feed.length > 4) feed.pop();
+            if (feed.length > 5) feed.pop();
         }
 
         // ---------- physics ----------
@@ -270,10 +306,6 @@
             e.x += e.vx * dt;
             for (const p of PLATS) {
                 if (p.t === 'grass') continue;
-                // Require real vertical overlap. Touching the top surface
-                // (feet == p.y) must NOT count, or standing on the world-wide
-                // ground slab reads as a wall hit and shoves the entity to its
-                // nearest edge — which parked everyone at the map's left wall.
                 const feet = e.y + e.h / 2, head = e.y - e.h / 2;
                 if (feet <= p.y + 3 || head >= p.y + p.h - 3) continue;
                 if (e.x + e.w / 2 > p.x && e.x - e.w / 2 < p.x + p.w) {
@@ -287,13 +319,13 @@
         }
 
         function los(a, b) {
-            // sample the segment; blocked by rock/ground only
-            const steps = 14;
+            const steps = 16;
             for (let i = 1; i < steps; i++) {
                 const x = a.x + (b.x - a.x) * i / steps;
                 const y = a.y + (b.y - a.y) * i / steps;
                 for (const p of PLATS) {
-                    if (p.t === 'grass') continue;
+                    if (p.t === 'grass') continue; // grass is thin, doesn't block
+                    // rock, ground, and bunker all block LOS
                     if (x > p.x && x < p.x + p.w && y > p.y && y < p.y + p.h) return false;
                 }
             }
@@ -301,15 +333,15 @@
         }
 
         // ---------- combat ----------
-        function fire(e) {
+        function fire(e, dmgMult) {
             const w = WEAPONS[e.wp];
             if (e.cool > 0 || e.reloading > 0) return;
             if (e.ammo[e.wp] <= 0) { reload(e); return; }
             e.ammo[e.wp]--;
             e.cool = w.rate;
             const mx = e.x + Math.cos(e.aim) * 26, my = e.y - 4 + Math.sin(e.aim) * 26;
-            // bots hit softer and shoot looser, so four of them stay beatable
-            const dmg = e.bot ? w.dmg * 0.55 : w.dmg;
+            const dm = dmgMult !== undefined ? dmgMult : 1;
+            const dmg = w.dmg * dm;
             const spread = e.bot ? w.spread * 2.1 : w.spread;
             for (let i = 0; i < w.pellets; i++) {
                 const a = e.aim + rnd(-spread, spread);
@@ -323,7 +355,7 @@
         function reload(e) {
             const w = WEAPONS[e.wp];
             if (e.reloading > 0 || e.ammo[e.wp] >= w.mag || e.res[e.wp] <= 0) return;
-            e.reloading = w.pellets > 1 ? 1.5 : 1.15;
+            e.reloading = w.pellets > 1 ? 1.5 : (e.wp === 'sniper' ? 1.8 : 1.15);
         }
 
         function throwNade(e) {
@@ -375,67 +407,94 @@
         // ---------- bot ai ----------
         function botThink(b, dt) {
             const p = player();
-            // pick nearest living enemy (player, or another bot if player is down)
+
+            // TARGET SELECTION: bots can target other bots too
             let tgt = null, best = 1e9;
             for (const o of ents) {
                 if (o === b || !o.alive) continue;
-                if (o.bot && b.bot && !(!p.alive)) continue;   // bots prefer the player
+                // 70% prefer player when alive, 30% pick nearest anyone
+                if (o.bot && p.alive && Math.random() < 0.7) continue;
                 const d = Math.hypot(o.x - b.x, o.y - b.y);
                 if (d < best) { best = d; tgt = o; }
             }
+            // fallback: always target player if alive
+            if (!tgt && p.alive) tgt = p;
             if (!tgt) { b.vx *= FRICT; return; }
 
             b.think -= dt;
             if (b.think <= 0) {
-                b.think = rnd(0.35, 0.9);
+                b.think = rnd(0.4, 1.1);
                 b.strafe = Math.random() < 0.5 ? -1 : 1;
-                b.wantJet = (tgt.y < b.y - 70 || Math.random() < 0.25) ? rnd(0.3, 0.9) : 0;
-                if (Math.random() < 0.18) throwNade(b);
+                // REDUCED: less aggressive jetpack
+                b.wantJet = (tgt.y < b.y - 90 || Math.random() < 0.15) ? rnd(0.2, 0.6) : 0;
+                if (Math.random() < 0.14) throwNade(b);
             }
 
             const dx = tgt.x - b.x, dy = tgt.y - b.y;
             const dist = Math.hypot(dx, dy);
             const seen = los(b, tgt);
 
-            // aim with a little lag + inaccuracy so they're beatable
+            // Track LOS loss for repositioning
+            if (!seen) b.noLos += dt; else b.noLos = 0;
+
+            // aim with lag + inaccuracy
             const want = Math.atan2(dy + tgt.vy * 0.06, dx + tgt.vx * 0.06);
-            b.bAim += Math.atan2(Math.sin(want - b.bAim), Math.cos(want - b.bAim)) * clamp(dt * 7, 0, 1);
-            b.aim = b.bAim + Math.sin(performance.now() / 300 + b.x) * 0.05;
+            b.bAim += Math.atan2(Math.sin(want - b.bAim), Math.cos(want - b.bAim)) * clamp(dt * 6, 0, 1);
+            b.aim = b.bAim + Math.sin(performance.now() / 300 + b.x) * 0.06;
             b.face = Math.cos(b.aim) >= 0 ? 1 : -1;
 
-            // movement: close in, then strafe around
+            // MOVEMENT: REDUCED SPEED (0.65x multiplier)
             const ideal = 320;
             let mv = 0;
-            if (dist > ideal + 60) mv = Math.sign(dx);
+            if (b.noLos > 1.5) {
+                // Reposition: move toward target to regain LOS
+                mv = Math.sign(dx);
+                if (Math.random() < 0.3) b.wantJet = rnd(0.3, 0.7);
+            } else if (dist > ideal + 60) mv = Math.sign(dx);
             else if (dist < ideal - 120) mv = -Math.sign(dx);
             else mv = b.strafe;
-            b.vx += mv * (b.ground ? MOVE : AIR) * dt * 6;
+            b.vx += mv * (b.ground ? MOVE : AIR) * dt * 6 * 0.65;
 
-            // jetpack
+            // jetpack — reduced
             b.jetting = false;
-            if (b.wantJet > 0 && b.fuel > 12) { b.jetting = true; b.wantJet -= dt; }
-            if (!b.ground && b.vy > 420 && b.fuel > 20) b.jetting = true;  // don't fall to death
+            if (b.wantJet > 0 && b.fuel > 15) { b.jetting = true; b.wantJet -= dt; }
+            if (!b.ground && b.vy > 450 && b.fuel > 20) b.jetting = true;
 
-            // trigger discipline: short bursts with a pause, so being shot at
-            // is survivable instead of an instant melt
+            // FIRING: STRICT LOS CHECK — never fire without line of sight
             b.burst -= dt;
-            if (b.burst < -0.8) b.burst = rnd(0.3, 0.55);
+            if (b.burst < -0.9) b.burst = rnd(0.25, 0.50);
 
             if (seen && dist < 900) {
+                // Determine damage multiplier: reduced vs player, full vs bots
+                const dmgMult = tgt.bot ? 0.75 : 0.55;
                 if (b.ammo[b.wp] <= 0) reload(b);
                 else if (b.burst > 0 &&
                          Math.abs(Math.atan2(Math.sin(want - b.aim), Math.cos(want - b.aim))) < 0.16) {
-                    if (WEAPONS[b.wp].auto) fire(b);
-                    else if (b.cool <= 0) fire(b);
+                    if (WEAPONS[b.wp].auto) fire(b, dmgMult);
+                    else if (b.cool <= 0) fire(b, dmgMult);
                 }
-            } else if (b.ammo[b.wp] < WEAPONS[b.wp].mag) reload(b);
+            } else {
+                // NO firing when no LOS — reload instead
+                if (b.ammo[b.wp] < WEAPONS[b.wp].mag) reload(b);
+            }
 
             if (dist < 55) doMelee(b);
+
+            // Bot pickup collection
+            for (let i = pickups.length - 1; i >= 0; i--) {
+                const pk = pickups[i];
+                if (Math.abs(b.x - pk.x) < 30 && Math.abs(b.y - pk.y) < 40) {
+                    b.wp = pk.wp;
+                    b.ammo[pk.wp] = WEAPONS[pk.wp].mag;
+                    pickups.splice(i, 1);
+                }
+            }
         }
 
         // ---------- update ----------
         function step(dt) {
             clock -= dt;
+            cloudOff += dt * 12;
             if (clock <= 0) return endMatch();
 
             const p = player();
@@ -458,6 +517,17 @@
                     if (mouse.down) { if (WEAPONS[p.wp].auto || p.cool <= 0) fire(p); }
                 }
                 p.face = Math.cos(p.aim) >= 0 ? 1 : -1;
+
+                // Player pickup collection
+                for (let i = pickups.length - 1; i >= 0; i--) {
+                    const pk = pickups[i];
+                    if (Math.abs(p.x - pk.x) < 30 && Math.abs(p.y - pk.y) < 40) {
+                        p.wp = pk.wp;
+                        p.ammo[pk.wp] = WEAPONS[pk.wp].mag;
+                        pickups.splice(i, 1);
+                        say('Picked up ' + WEAPONS[pk.wp].name);
+                    }
+                }
             }
 
             // ---- entities ----
@@ -468,9 +538,9 @@
                         const s = spawnPoint();
                         e.x = s.x; e.y = s.y; e.vx = e.vy = 0;
                         e.hp = 100; e.fuel = 100; e.alive = true;
-                        e.ammo = { rifle: 30, revolver: 6, shotgun: 2 };
-                        e.res = { rifle: 120, revolver: 42, shotgun: 20 };
-                        e.nades = 3; e.reloading = 0;
+                        e.ammo = { rifle: 30, revolver: 6, shotgun: 2, sniper: 5 };
+                        e.res = { rifle: 120, revolver: 42, shotgun: 20, sniper: 25 };
+                        e.nades = 3; e.reloading = 0; e.noLos = 0;
                     }
                     continue;
                 }
@@ -514,7 +584,7 @@
                 let dead = b.life <= 0;
 
                 if (!dead) for (const p2 of PLATS) {
-                    if (p2.t === 'grass') continue;
+                    if (p2.t === 'grass') continue; // bullets pass through grass
                     if (nx > p2.x && nx < p2.x + p2.w && ny > p2.y && ny < p2.y + p2.h) {
                         dead = true;
                         for (let k = 0; k < 5; k++) parts.push({ x: nx, y: ny, vx: rnd(-120, 120), vy: rnd(-160, 40), life: 0.25, c: '#cfd6dd', r: rnd(1.5, 3) });
@@ -542,6 +612,15 @@
                     }
                 }
                 if (g.fuse <= 0) { boom(g.x, g.y, g.own); nades.splice(i, 1); }
+            }
+
+            // ---- pickup respawn ----
+            if (pickups.length < PICKUP_SPAWN.length) {
+                const taken = PICKUP_SPAWN.filter(s => !pickups.some(pk => pk.x === s.x && pk.y === s.y));
+                for (const s of taken) {
+                    s._timer = (s._timer || 0) + dt;
+                    if (s._timer >= PICKUP_RESPAWN) { spawnPickup(s.x, s.y); s._timer = 0; }
+                }
             }
 
             // ---- particles / feed ----
@@ -590,50 +669,165 @@
 
         function sky(vw, vh) {
             const g = ctx.createLinearGradient(0, 0, 0, vh);
-            g.addColorStop(0, '#a9dcef'); g.addColorStop(1, '#d7eef5');
+            g.addColorStop(0, '#7ec8e3'); g.addColorStop(0.5, '#a9dcef'); g.addColorStop(1, '#d7eef5');
             ctx.fillStyle = g; ctx.fillRect(0, 0, vw, vh);
 
-            // parallax mountains
-            ctx.fillStyle = '#b8c9cf';
-            for (let i = 0; i < 7; i++) {
-                const bx = i * 620 - cam.x * 0.25, by = vh - 190;
-                ctx.beginPath(); ctx.moveTo(bx - 260, by); ctx.lineTo(bx, by - 230); ctx.lineTo(bx + 260, by); ctx.closePath(); ctx.fill();
+            // sun glow
+            const sg = ctx.createRadialGradient(vw - 120, 80, 20, vw - 120, 80, 180);
+            sg.addColorStop(0, 'rgba(255,240,180,0.6)'); sg.addColorStop(1, 'rgba(255,240,180,0)');
+            ctx.fillStyle = sg; ctx.fillRect(vw - 300, 0, 300, 260);
+            ctx.fillStyle = '#fff8d0'; ctx.beginPath(); ctx.arc(vw - 120, 80, 32, 0, 7); ctx.fill();
+
+            // clouds
+            ctx.fillStyle = 'rgba(255,255,255,0.7)';
+            for (let i = 0; i < 6; i++) {
+                const cx = ((i * 580 + cloudOff) % (vw + 400)) - 200;
+                const cy = 50 + (i * 37) % 100;
+                ctx.beginPath(); ctx.ellipse(cx, cy, 70 + (i % 3) * 20, 22, 0, 0, 7); ctx.fill();
+                ctx.beginPath(); ctx.ellipse(cx + 40, cy - 8, 50, 18, 0, 0, 7); ctx.fill();
             }
+
+            // birds (V shapes)
+            ctx.strokeStyle = 'rgba(60,50,40,0.35)'; ctx.lineWidth = 1.5;
+            for (let i = 0; i < 4; i++) {
+                const bx = ((i * 710 + cloudOff * 1.5) % (vw + 200)) - 100;
+                const by = 60 + (i * 53) % 80;
+                ctx.beginPath(); ctx.moveTo(bx - 8, by + 4); ctx.lineTo(bx, by); ctx.lineTo(bx + 8, by + 4); ctx.stroke();
+            }
+
+            // far mountains
+            ctx.fillStyle = '#b0c4cc';
+            for (let i = 0; i < 7; i++) {
+                const bx = i * 620 - cam.x * 0.2, by = vh - 200;
+                ctx.beginPath(); ctx.moveTo(bx - 280, by); ctx.lineTo(bx - 40, by - 250);
+                ctx.lineTo(bx + 30, by - 210); ctx.lineTo(bx + 280, by); ctx.closePath(); ctx.fill();
+            }
+            // near green hills
             ctx.fillStyle = '#8fb98a';
             for (let i = 0; i < 9; i++) {
                 const bx = i * 470 - cam.x * 0.45, by = vh - 120;
                 ctx.beginPath(); ctx.moveTo(bx - 220, by); ctx.lineTo(bx, by - 150); ctx.lineTo(bx + 220, by); ctx.closePath(); ctx.fill();
             }
+            // foreground dark tree silhouettes
+            ctx.fillStyle = 'rgba(30,50,30,0.25)';
+            for (let i = 0; i < 6; i++) {
+                const tx = i * 620 - cam.x * 0.7, ty = vh - 60;
+                ctx.beginPath(); ctx.moveTo(tx - 3, ty); ctx.lineTo(tx - 3, ty - 80);
+                ctx.lineTo(tx - 35, ty - 60); ctx.lineTo(tx, ty - 120);
+                ctx.lineTo(tx + 35, ty - 60); ctx.lineTo(tx + 3, ty - 80);
+                ctx.lineTo(tx + 3, ty); ctx.closePath(); ctx.fill();
+            }
         }
 
         function drawPlat(p) {
             const x = p.x - cam.x, y = p.y - cam.y;
-            if (p.t === 'rock') {
-                ctx.fillStyle = '#6f6a5f'; ctx.strokeStyle = '#2f2b26'; ctx.lineWidth = 3;
+
+            if (p.t === 'bunker') {
+                // Sandbag wall
+                ctx.fillStyle = '#4a5438'; ctx.strokeStyle = '#2f2b26'; ctx.lineWidth = 3;
                 ctx.beginPath(); ctx.rect(x, y, p.w, p.h); ctx.fill(); ctx.stroke();
-                ctx.fillStyle = '#8b857a';
-                for (let i = 0; i < 8; i++) {
-                    const rx = x + 14 + (i * 37) % (p.w - 28), ry = y + 22 + (i * 71) % (p.h - 40);
-                    ctx.beginPath(); ctx.arc(rx, ry, 11, 0, 7); ctx.fill();
+                // sandbag horizontal lines
+                ctx.strokeStyle = '#3a4530'; ctx.lineWidth = 2;
+                for (let sy = y + 15; sy < y + p.h - 5; sy += 18) {
+                    ctx.beginPath(); ctx.moveTo(x + 4, sy); ctx.lineTo(x + p.w - 4, sy); ctx.stroke();
+                }
+                // sandbag bumps
+                ctx.fillStyle = '#556348';
+                for (let sy = y + 6; sy < y + p.h - 10; sy += 18) {
+                    for (let sx = x + 8; sx < x + p.w - 8; sx += 20) {
+                        ctx.beginPath(); ctx.ellipse(sx, sy, 8, 5, 0, 0, 7); ctx.fill();
+                    }
                 }
                 return;
             }
+            if (p.t === 'rock') {
+                ctx.fillStyle = '#6f6a5f'; ctx.strokeStyle = '#2f2b26'; ctx.lineWidth = 3;
+                ctx.beginPath(); ctx.rect(x, y, p.w, p.h); ctx.fill(); ctx.stroke();
+                // rock detail: cracks
+                ctx.strokeStyle = '#4a4540'; ctx.lineWidth = 1.5;
+                for (let i = 0; i < 5; i++) {
+                    const rx = x + 10 + hashXY(p.x, i, 1) * (p.w - 20);
+                    const ry = y + 20 + hashXY(p.x, i, 2) * (p.h - 40);
+                    ctx.beginPath(); ctx.moveTo(rx, ry); ctx.lineTo(rx + rnd(-18, 18), ry + rnd(10, 30)); ctx.stroke();
+                }
+                // moss patches
+                ctx.fillStyle = 'rgba(90,160,80,0.3)';
+                for (let i = 0; i < 4; i++) {
+                    const rx = x + 8 + hashXY(p.x, i, 3) * (p.w - 16);
+                    const ry = y + 10 + hashXY(p.x, i, 4) * (p.h - 20);
+                    ctx.beginPath(); ctx.arc(rx, ry, 8, 0, 7); ctx.fill();
+                }
+                // surface shading
+                ctx.fillStyle = 'rgba(0,0,0,0.08)';
+                ctx.fillRect(x, y + p.h * 0.6, p.w, p.h * 0.4);
+                return;
+            }
+
             const isGround = p.t === 'ground';
             ctx.fillStyle = isGround ? '#7d6a52' : '#6b5a46';
             ctx.strokeStyle = '#2f2b26'; ctx.lineWidth = 3;
             ctx.beginPath(); ctx.rect(x, y + 8, p.w, p.h); ctx.fill(); ctx.stroke();
-            // spiky grass top
-            ctx.fillStyle = '#5aa64b'; ctx.beginPath();
-            ctx.moveTo(x, y + 12);
-            const n = Math.max(4, Math.round(p.w / 26));
+
+            // dirt texture for ground
+            if (isGround) {
+                ctx.fillStyle = '#6d5a42';
+                for (let i = 0; i < 40; i++) {
+                    const px = x + hashXY(i, 0, 7) * p.w;
+                    const py = y + 20 + hashXY(i, 1, 7) * 40;
+                    ctx.beginPath(); ctx.arc(px, py, 2 + hashXY(i, 2, 7) * 2, 0, 7); ctx.fill();
+                }
+            }
+
+            // grass top with varied heights
+            ctx.fillStyle = isGround ? '#5aa64b' : '#4a9940';
+            ctx.beginPath(); ctx.moveTo(x, y + 12);
+            const n = Math.max(4, Math.round(p.w / 22));
             for (let i = 0; i <= n; i++) {
                 const gx = x + (p.w * i / n);
+                const gh = 10 + hashXY(Math.floor(gx), 0, 5) * 10;
                 ctx.lineTo(gx - p.w / n / 2, y + 12);
-                ctx.lineTo(gx - p.w / n / 4, y - 12);
+                ctx.lineTo(gx - p.w / n / 4, y - gh);
                 ctx.lineTo(gx, y + 12);
             }
             ctx.lineTo(x + p.w, y + 14); ctx.closePath(); ctx.fill();
             ctx.strokeStyle = '#2f2b26'; ctx.lineWidth = 2.5; ctx.stroke();
+
+            // flowers on ground
+            if (isGround) {
+                const colors = ['#e84040', '#e8d040', '#e080d0', '#fff'];
+                for (let i = 0; i < 8; i++) {
+                    const fx = x + 50 + hashXY(i, 3, 9) * (p.w - 100);
+                    const fy = y + 2;
+                    ctx.fillStyle = colors[i % colors.length];
+                    ctx.beginPath(); ctx.arc(fx, fy, 3, 0, 7); ctx.fill();
+                }
+            }
+
+            // bushes at edges of grass platforms
+            if (!isGround) {
+                ctx.fillStyle = '#3d8a35';
+                ctx.beginPath(); ctx.arc(x + 12, y + 6, 10, 0, 7); ctx.fill();
+                ctx.beginPath(); ctx.arc(x + p.w - 12, y + 6, 10, 0, 7); ctx.fill();
+                // hanging vines below
+                ctx.strokeStyle = '#4a9940'; ctx.lineWidth = 2;
+                for (let i = 0; i < 3; i++) {
+                    const vx = x + 15 + hashXY(Math.floor(p.x), i, 6) * (p.w - 30);
+                    ctx.beginPath(); ctx.moveTo(vx, y + p.h + 8);
+                    ctx.lineTo(vx - 4, y + p.h + 22); ctx.lineTo(vx + 2, y + p.h + 30);
+                    ctx.stroke();
+                }
+            }
+        }
+
+        function drawPickup(pk) {
+            const x = pk.x - cam.x, y = pk.y - cam.y;
+            const pulse = 0.7 + Math.sin(performance.now() / 300) * 0.3;
+            ctx.globalAlpha = pulse;
+            ctx.fillStyle = '#ffd166'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.roundRect(x - 16, y - 10, 32, 20, 5); ctx.fill(); ctx.stroke();
+            ctx.fillStyle = '#21160a'; ctx.font = '700 9px "Trebuchet MS",sans-serif'; ctx.textAlign = 'center';
+            ctx.fillText(WEAPONS[pk.wp].name.slice(0, 4).toUpperCase(), x, y + 4);
+            ctx.globalAlpha = 1;
         }
 
         function drawEnt(e) {
@@ -680,12 +874,16 @@
 
             ctx.restore();
 
-            // gun, drawn at the aim angle
+            // gun
             ctx.save(); ctx.translate(x, y - 4); ctx.rotate(e.aim);
             if (Math.cos(e.aim) < 0) ctx.scale(1, -1);
             ctx.fillStyle = '#3a3a3a'; ctx.strokeStyle = '#1b1b1b'; ctx.lineWidth = 2;
             if (e.wp === 'shotgun') { ctx.beginPath(); ctx.rect(4, -4, 30, 7); ctx.fill(); ctx.stroke(); }
             else if (e.wp === 'revolver') { ctx.beginPath(); ctx.rect(4, -3, 18, 6); ctx.fill(); ctx.stroke(); }
+            else if (e.wp === 'sniper') {
+                ctx.beginPath(); ctx.rect(4, -3, 42, 5); ctx.fill(); ctx.stroke();
+                ctx.fillStyle = '#1a1a1a'; ctx.beginPath(); ctx.rect(38, -6, 8, 4); ctx.fill(); // scope
+            }
             else { ctx.beginPath(); ctx.rect(4, -3.5, 34, 7); ctx.fill(); ctx.stroke();
                    ctx.beginPath(); ctx.rect(12, 3, 6, 8); ctx.fill(); ctx.stroke(); }
             if (e.cool > WEAPONS[e.wp].rate * 0.6) {
@@ -700,7 +898,7 @@
                 ctx.beginPath(); ctx.arc(x + e.face * 24, y - 4, 26, -0.9, 0.9); ctx.stroke();
             }
 
-            // name + hp for bots
+            // name + hp
             if (e.bot) {
                 ctx.font = '600 11px "Trebuchet MS", sans-serif'; ctx.textAlign = 'center';
                 ctx.fillStyle = '#c8322c'; ctx.fillText(e.name, x, y - 34);
@@ -751,20 +949,37 @@
             ctx.fillStyle = '#e08a2e'; ctx.beginPath(); ctx.roundRect(vw / 2 + 8, 58, 44, 22, 4); ctx.fill();
             ctx.fillStyle = '#fff'; ctx.fillText(String(bot), vw / 2 + 30, 74);
 
-            // weapon panel
-            const px = vw - 250;
-            ctx.fillStyle = 'rgba(255,255,255,.3)'; ctx.strokeStyle = 'rgba(255,255,255,.85)'; ctx.lineWidth = 2;
-            ctx.beginPath(); ctx.roundRect(px, 26, 230, 44, 22); ctx.fill(); ctx.stroke();
-            ctx.textAlign = 'left'; ctx.fillStyle = '#fff'; ctx.font = '700 13px "Trebuchet MS", sans-serif';
-            ctx.fillText(WEAPONS[p.wp].name.toUpperCase(), px + 16, 46);
-            ctx.font = '700 17px "Trebuchet MS", sans-serif';
-            ctx.fillText(String(p.ammo[p.wp]).padStart(3, '0'), px + 16, 64);
-            ctx.fillText(String(p.res[p.wp]).padStart(3, '0'), px + 74, 64);
-            ctx.font = '700 13px "Trebuchet MS", sans-serif';
-            ctx.fillText(`💣 ${p.nades}`, px + 150, 56);
+            // weapon panel with all 4 weapons highlighted
+            const px = vw - 280;
+            ctx.fillStyle = 'rgba(255,255,255,.25)'; ctx.strokeStyle = 'rgba(255,255,255,.7)'; ctx.lineWidth = 2;
+            ctx.beginPath(); ctx.roundRect(px, 22, 260, 56, 16); ctx.fill(); ctx.stroke();
+            ctx.font = '700 10px "Trebuchet MS", sans-serif'; ctx.textAlign = 'center';
+            for (let i = 0; i < WKEYS.length; i++) {
+                const wx = px + 14 + i * 63;
+                const active = p.wp === WKEYS[i];
+                if (active) {
+                    ctx.fillStyle = 'rgba(255,209,102,0.4)';
+                    ctx.beginPath(); ctx.roundRect(wx - 4, 26, 58, 48, 8); ctx.fill();
+                }
+                ctx.fillStyle = active ? '#ffd166' : 'rgba(255,255,255,0.6)';
+                ctx.fillText((i + 1) + '', wx + 25, 36);
+                ctx.font = '700 11px "Trebuchet MS", sans-serif';
+                ctx.fillText(WEAPONS[WKEYS[i]].name.slice(0, 5), wx + 25, 50);
+                if (active) {
+                    ctx.font = '700 14px "Trebuchet MS", sans-serif';
+                    ctx.fillStyle = '#fff';
+                    ctx.fillText(p.ammo[p.wp] + '/' + p.res[p.wp], wx + 25, 66);
+                }
+                ctx.font = '700 10px "Trebuchet MS", sans-serif';
+            }
+
+            ctx.textAlign = 'left'; ctx.font = '700 13px "Trebuchet MS", sans-serif';
+            ctx.fillStyle = '#fff';
+            ctx.fillText(`💣 ${p.nades}`, px + 200, 88);
+
             if (p.reloading > 0) {
                 ctx.fillStyle = '#ffd166';
-                ctx.fillText('RELOADING…', px + 16, 88);
+                ctx.fillText('RELOADING…', px + 14, 88);
             }
 
             // kill feed
@@ -789,6 +1004,7 @@
             const vw = cv.width / DPR, vh = cv.height / DPR;
             sky(vw, vh);
             for (const p of PLATS) drawPlat(p);
+            for (const pk of pickups) drawPickup(pk);
 
             for (const g of nades) {
                 ctx.fillStyle = '#4a5a33'; ctx.strokeStyle = '#241f1a'; ctx.lineWidth = 2;
@@ -830,7 +1046,11 @@
             if (k === 'r') reload(player());
             if (k === 'g') throwNade(player());
             if (k === 'f') doMelee(player());
-            if (k === '1' || k === '2' || k === '3') player().wp = WKEYS[+k - 1];
+            if (k === 'q') dropWeapon(player());
+            if (k === '1' || k === '2' || k === '3' || k === '4') {
+                const idx = +k - 1;
+                if (idx < WKEYS.length) player().wp = WKEYS[idx];
+            }
             if ([' ', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(k)) e.preventDefault();
         });
         addEventListener('keyup', e => { keys[e.key.toLowerCase()] = false; });
@@ -884,13 +1104,14 @@
         bindHold(document.getElementById('bJet'), () => tjet = true, () => tjet = false);
         bindHold(document.getElementById('bNade'), () => running && throwNade(player()));
         bindHold(document.getElementById('bMelee'), () => running && doMelee(player()));
+        bindHold(document.getElementById('bDrop'), () => running && dropWeapon(player()));
 
         // tap the weapon panel to cycle weapons
         cv.addEventListener('pointerdown', e => {
             if (!running) return;
             const r = cv.getBoundingClientRect();
             const x = e.clientX - r.left, y = e.clientY - r.top;
-            if (x > r.width - 250 && y < 80) {
+            if (x > r.width - 280 && y < 80) {
                 const p = player();
                 p.wp = WKEYS[(WKEYS.indexOf(p.wp) + 1) % WKEYS.length];
             }
@@ -920,8 +1141,6 @@
         resize(); applyMode(); reset();
         requestAnimationFrame(loop);
 
-        // Some embedders throttle rAF; if the first frame never arrives, fall
-        // back to a timer so the match still runs.
         setTimeout(() => {
             if (!framed) {
                 let last = performance.now();
