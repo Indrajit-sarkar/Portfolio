@@ -116,10 +116,54 @@
         }
         .stat { margin-top: 1rem; font-size: 1.05rem; }
         .stat b { color: #ffd166; font-size: 1.5rem; }
+
+        /* ---------- orientation gate (mobile only) ---------- */
+        #orientGate {
+            position: fixed; inset: 0; z-index: 99999;
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            background: rgba(12,12,11,0.95);
+            color: #fff; text-align: center; padding: 2rem;
+            transition: opacity 0.45s ease;
+            font-family: 'Trebuchet MS', 'Segoe UI', system-ui, sans-serif;
+        }
+        #orientGate.hidden {
+            opacity: 0; pointer-events: none;
+        }
+        #orientGate .og-icon {
+            width: 72px; height: 72px; margin-bottom: 1.4rem;
+            animation: ogRotate 1.8s ease-in-out infinite;
+        }
+        @keyframes ogRotate {
+            0%   { transform: rotate(0deg); }
+            30%  { transform: rotate(90deg); }
+            60%  { transform: rotate(90deg); }
+            100% { transform: rotate(0deg); }
+        }
+        #orientGate h2 {
+            font-size: clamp(1.15rem, 4.5vw, 1.6rem);
+            letter-spacing: -0.01em;
+            margin-bottom: 0.55rem;
+        }
+        #orientGate p {
+            font-size: clamp(0.8rem, 2.8vw, 0.95rem);
+            opacity: 0.65; max-width: 22rem; line-height: 1.5;
+        }
     </style>
 </head>
 
 <body>
+    <!-- Orientation gate overlay (hidden by JS on desktop / landscape) -->
+    <div id="orientGate" class="hidden">
+        <svg class="og-icon" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect x="14" y="4" width="36" height="56" rx="5" stroke="#fff" stroke-width="2.5"/>
+            <rect x="26" y="52" width="12" height="3" rx="1.5" fill="#fff" opacity="0.5"/>
+            <path d="M52 20l6 6-6 6" stroke="#ffd166" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M58 26H52" stroke="#ffd166" stroke-width="2.5" stroke-linecap="round"/>
+        </svg>
+        <h2>Rotate your device to landscape mode</h2>
+        <p>Sketch Ops is best played in landscape orientation</p>
+    </div>
+
     <div id="wrap">
         <canvas id="game"></canvas>
 
@@ -162,6 +206,56 @@
             </div>
         </div>
     </div>
+
+    <!-- Orientation gate logic (runs before game script) -->
+    <script>
+    (() => {
+        const isTouchDevice = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+        const gate = document.getElementById('orientGate');
+        if (!gate) return;
+
+        // Desktop: never show the overlay
+        if (!isTouchDevice) { gate.classList.add('hidden'); return; }
+
+        function isPortrait() {
+            return window.innerHeight > window.innerWidth;
+        }
+
+        function update() {
+            const portrait = isPortrait();
+            if (portrait) {
+                gate.classList.remove('hidden');
+                // Pause the game if it's running (game uses global `running` in its IIFE,
+                // but we can't reach it — instead we set a flag the game script reads)
+                window.__soOrientBlocked = true;
+            } else {
+                gate.classList.add('hidden');
+                window.__soOrientBlocked = false;
+            }
+        }
+
+        // Method 1: matchMedia listener
+        try {
+            const mql = window.matchMedia('(orientation: portrait)');
+            const handler = () => update();
+            if (mql.addEventListener) mql.addEventListener('change', handler);
+            else if (mql.addListener) mql.addListener(handler);   // Safari <14
+        } catch(_) {}
+
+        // Method 2: screen.orientation API
+        try {
+            if (screen.orientation) {
+                screen.orientation.addEventListener('change', () => update());
+            }
+        } catch(_) {}
+
+        // Method 3: resize event (catches all layout shifts)
+        window.addEventListener('resize', () => update());
+
+        // Initial check
+        update();
+    })();
+    </script>
 
     <script>
     (() => {
@@ -1037,7 +1131,7 @@
             framed = true;
             const dt = Math.min(0.033, (t - tPrev) / 1000 || 0.016);
             tPrev = t;
-            if (running) step(dt);
+            if (running && !window.__soOrientBlocked) step(dt);
             render();
             requestAnimationFrame(loop);
         }
@@ -1153,7 +1247,7 @@
                     const now = performance.now();
                     const dt = Math.min(0.033, (now - last) / 1000);
                     last = now;
-                    if (running) step(dt);
+                    if (running && !window.__soOrientBlocked) step(dt);
                     render();
                 }, 16);
             }

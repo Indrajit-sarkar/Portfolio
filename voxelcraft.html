@@ -72,9 +72,157 @@
   }
   .instructions b{ color:#8fe36b; }
   #loadingText{ font-size:13px; letter-spacing:2px; opacity:0.8; margin-top:10px;}
+
+  /* =============== LANDSCAPE ORIENTATION GATE =============== */
+  #landscapeOverlay{
+    position:fixed; top:0; left:0; width:100%; height:100%; z-index:9999;
+    background:linear-gradient(180deg,#1c3a5e,#0d1b2a);
+    display:none; flex-direction:column; align-items:center; justify-content:center;
+    color:#fff; text-align:center;
+  }
+  #landscapeOverlay .rotate-icon{ font-size:64px; animation:rotatePhone 2s ease-in-out infinite; }
+  @keyframes rotatePhone{
+    0%,100%{ transform:rotate(0deg); }
+    50%{ transform:rotate(90deg); }
+  }
+  #landscapeOverlay .rotate-text{ font-size:17px; margin-top:18px; letter-spacing:1px; opacity:0.9; }
+
+  /* =============== MOBILE TOUCH CONTROLS =============== */
+  #mobileControls{ display:none; }
+  .touch-device #mobileControls{ display:block; }
+
+  /* Joystick */
+  #joystickArea{
+    position:fixed; bottom:28px; left:24px; width:130px; height:130px; z-index:55;
+    border-radius:50%; background:rgba(255,255,255,0.08);
+    border:2px solid rgba(255,255,255,0.22); touch-action:none;
+  }
+  #joystickKnob{
+    position:absolute; width:52px; height:52px; border-radius:50%;
+    background:rgba(255,255,255,0.3); top:50%; left:50%;
+    transform:translate(-50%,-50%); pointer-events:none;
+    box-shadow:0 0 10px rgba(0,0,0,0.25);
+    transition:background 0.15s;
+  }
+
+  /* Look area (right half of screen) */
+  #lookArea{
+    position:fixed; top:0; right:0; width:50%; height:100%; z-index:42;
+    touch-action:none;
+  }
+
+  /* Action buttons */
+  #actionButtons{
+    position:fixed; bottom:28px; right:16px; z-index:56;
+    display:flex; flex-direction:column; gap:10px; align-items:flex-end;
+  }
+  .action-row{ display:flex; gap:10px; }
+  .action-btn{
+    width:54px; height:54px; border-radius:50%;
+    background:rgba(20,20,20,0.5); border:2px solid rgba(255,255,255,0.28);
+    display:flex; align-items:center; justify-content:center;
+    font-size:22px; color:#fff; touch-action:none;
+    -webkit-tap-highlight-color:transparent; cursor:pointer;
+  }
+  .action-btn:active{ background:rgba(255,255,255,0.18); }
+  .action-btn.active{ border-color:#8fe36b; background:rgba(80,160,50,0.35); }
+
+  /* Mobile hotbar — move to top, make tappable */
+  .touch-device #hotbar{
+    bottom:auto; top:10px; pointer-events:auto; z-index:55; gap:4px;
+  }
+  .touch-device .slot{
+    width:42px; height:42px; pointer-events:auto; cursor:pointer;
+  }
+  .touch-device .swatch{ width:26px; height:26px; }
+  .touch-device .slot .num{ font-size:9px; }
+
+  /* Hide desktop-only UI on touch devices */
+  .touch-device #viewHint{ display:none; }
+  .touch-device .instructions{ display:none; }
+  .touch-device #debug{ top:56px; font-size:10px; padding:5px 8px; }
+
+  /* Start screen adjustments for mobile */
+  .touch-device #startScreen .btn{ font-size:16px; padding:12px 32px; }
+
+  /* Landscape orientation gate */
+  #orientationGate {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    background: rgba(12, 12, 11, 0.97);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1.5rem;
+    color: #f5f5f7;
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    text-align: center;
+    padding: 2rem;
+    transition: opacity 0.4s;
+  }
+  #orientationGate.hidden {
+    opacity: 0;
+    pointer-events: none;
+  }
+  #orientationGate .rotate-icon {
+    font-size: 4rem;
+    animation: ogRotatePhone 2s ease-in-out infinite;
+  }
+  @keyframes ogRotatePhone {
+    0%, 100% { transform: rotate(0deg); }
+    25% { transform: rotate(90deg); }
+    50% { transform: rotate(90deg); }
+    75% { transform: rotate(0deg); }
+  }
+  #orientationGate h2 {
+    font-size: 1.4rem;
+    font-weight: 600;
+    margin: 0;
+  }
+  #orientationGate p {
+    font-size: 0.95rem;
+    color: #8a8a8e;
+    margin: 0;
+    max-width: 300px;
+  }
 </style>
 </head>
 <body>
+
+<div id="orientationGate" class="hidden">
+  <div class="rotate-icon">📱</div>
+  <h2>Rotate Your Device</h2>
+  <p>VoxelCraft is best played in landscape mode. Please rotate your device to continue.</p>
+</div>
+<script>
+(function() {
+  var gate = document.getElementById('orientationGate');
+  if (!gate) return;
+  var isTouch = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+  if (!isTouch) { gate.style.display = 'none'; return; }
+
+  function checkOrientation() {
+    var isPortrait = window.innerHeight > window.innerWidth;
+    if (isPortrait) {
+      gate.classList.remove('hidden');
+      gate.style.display = '';
+    } else {
+      gate.classList.add('hidden');
+    }
+  }
+
+  checkOrientation();
+  window.addEventListener('resize', checkOrientation);
+  if (screen.orientation) {
+    screen.orientation.addEventListener('change', checkOrientation);
+  }
+  window.addEventListener('orientationchange', function() {
+    setTimeout(checkOrientation, 300);
+  });
+})();
+</script>
 
 <div id="container"></div>
 <div id="crosshair"></div>
@@ -105,6 +253,36 @@
 <div class="screen hidden" id="pauseScreen">
   <div class="title" style="font-size:36px;">PAUSED</div>
   <button class="btn" id="resumeBtn">RESUME</button>
+</div>
+
+<!-- Landscape orientation gate (shown on portrait touch devices) -->
+<div id="landscapeOverlay">
+  <div class="rotate-icon">📱</div>
+  <div class="rotate-text">🔄 Rotate your device to landscape mode to play</div>
+</div>
+
+<!-- Mobile touch controls (only visible on touch devices via CSS) -->
+<div id="mobileControls">
+  <!-- Virtual joystick (bottom-left) -->
+  <div id="joystickArea">
+    <div id="joystickKnob"></div>
+  </div>
+
+  <!-- Camera look area (right half) -->
+  <div id="lookArea"></div>
+
+  <!-- Action buttons (bottom-right) -->
+  <div id="actionButtons">
+    <div class="action-btn" id="btnView" title="Toggle View">👁️</div>
+    <div class="action-row">
+      <div class="action-btn" id="btnMine" title="Mine">⛏️</div>
+      <div class="action-btn" id="btnPlace" title="Place">📦</div>
+    </div>
+    <div class="action-row">
+      <div class="action-btn" id="btnSprint" title="Sprint">🏃</div>
+      <div class="action-btn" id="btnJump" title="Jump">↑</div>
+    </div>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
@@ -995,6 +1173,9 @@ function updateEntities(dt){
 // =================================================================
 const keys = {};
 let gameStarted = false, isLocked = false;
+const isMobile = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
+if(isMobile) document.body.classList.add('touch-device');
+
 window.addEventListener('keydown', e=>{
   keys[e.key.toLowerCase()] = true;
   const n = parseInt(e.key,10);
@@ -1028,7 +1209,7 @@ canvas.addEventListener('mousemove', e=>{
 });
 
 function applyFallbackLook(dt){
-  if(isLocked || !rawMouse.has) return;
+  if(isMobile || isLocked || !rawMouse.has) return;
   const cx = window.innerWidth/2, cy = window.innerHeight/2;
   let nx = (rawMouse.x - cx)/cx, ny = (rawMouse.y - cy)/cy;
   const dead = 0.06;
@@ -1059,14 +1240,15 @@ document.addEventListener('mousedown', e=>{
 document.addEventListener('contextmenu', e=> e.preventDefault());
 
 function requestLock(){
+  if(isMobile) return;   // no pointer lock on mobile
   try{
     const p = canvas.requestPointerLock();
     if(p && p.catch) p.catch(()=>{});
   }catch(err){ /* fallback mouse-follow look handles this case */ }
 }
 canvas.addEventListener('click', ()=>{
-  if(gameStarted && paused){ paused = false; document.getElementById('pauseScreen').classList.add('hidden'); }
-  if(gameStarted && !isLocked) requestLock();
+  if(!isMobile && gameStarted && paused){ paused = false; document.getElementById('pauseScreen').classList.add('hidden'); }
+  if(!isMobile && gameStarted && !isLocked) requestLock();
 });
 window.addEventListener('keydown', e=>{
   if(e.key === 'Escape' && gameStarted){
@@ -1178,8 +1360,8 @@ function updatePlayer(dt){
   camera.rotation.order = 'YXZ';
   if(thirdPerson){
     const dist = 5;
-    const camX = player.x - Math.sin(yaw)*Math.cos(pitch)*dist;
-    const camZ = player.z - Math.cos(yaw)*Math.cos(pitch)*dist;
+    const camX = player.x + Math.sin(yaw)*Math.cos(pitch)*dist;
+    const camZ = player.z + Math.cos(yaw)*Math.cos(pitch)*dist;
     const camY = player.y + EYE_HEIGHT - Math.sin(pitch)*dist + 1.0;
     camera.position.set(camX, camY, camZ);
     camera.lookAt(player.x, player.y+1.2, player.z);
@@ -1219,6 +1401,9 @@ function animate(){
 // =================================================================
 // START / PAUSE FLOW
 // =================================================================
+if(isMobile){
+  document.getElementById('startBtn').textContent = 'TAP TO PLAY';
+}
 document.getElementById('startBtn').addEventListener('click', ()=>{
   document.getElementById('loadingText').textContent = 'Generating world…';
   setTimeout(()=>{
@@ -1233,18 +1418,175 @@ document.getElementById('startBtn').addEventListener('click', ()=>{
     buildHotbar();
     document.getElementById('startScreen').classList.add('hidden');
     gameStarted = true;
-    requestLock();
+    if(!isMobile) requestLock();
   }, 30);
 });
 
 document.getElementById('resumeBtn').addEventListener('click', ()=>{
   paused = false;
   document.getElementById('pauseScreen').classList.add('hidden');
-  requestLock();
+  if(!isMobile) requestLock();
 });
 
 buildHotbar();
 animate();
+
+// =================================================================
+// MOBILE SUPPORT
+// =================================================================
+if(isMobile){
+
+  // --- Landscape orientation gate ---
+  const landscapeOverlay = document.getElementById('landscapeOverlay');
+  function checkOrientation(){
+    const isPortrait = window.matchMedia('(orientation: portrait)').matches;
+    landscapeOverlay.style.display = isPortrait ? 'flex' : 'none';
+  }
+  try{
+    const mql = window.matchMedia('(orientation: portrait)');
+    if(mql.addEventListener) mql.addEventListener('change', checkOrientation);
+    else mql.addListener(checkOrientation);   // Safari <14
+  }catch(e){}
+  window.addEventListener('resize', checkOrientation);
+  checkOrientation();
+
+  // --- Virtual joystick ---
+  const joystickArea = document.getElementById('joystickArea');
+  const joystickKnob = document.getElementById('joystickKnob');
+  let joyTouchId = null;
+  const joyCenter = {x:0, y:0};
+  const JOY_RADIUS = 50;
+
+  joystickArea.addEventListener('touchstart', e=>{
+    e.preventDefault();
+    const t = e.changedTouches[0];
+    joyTouchId = t.identifier;
+    const r = joystickArea.getBoundingClientRect();
+    joyCenter.x = r.left + r.width/2;
+    joyCenter.y = r.top  + r.height/2;
+  }, {passive:false});
+
+  joystickArea.addEventListener('touchmove', e=>{
+    e.preventDefault();
+    for(let i=0; i<e.changedTouches.length; i++){
+      const t = e.changedTouches[i];
+      if(t.identifier !== joyTouchId) continue;
+      let dx = t.clientX - joyCenter.x;
+      let dy = t.clientY - joyCenter.y;
+      const dist = Math.hypot(dx, dy);
+      if(dist > JOY_RADIUS){ dx = dx/dist*JOY_RADIUS; dy = dy/dist*JOY_RADIUS; }
+      joystickKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+      const nx = dx/JOY_RADIUS, ny = dy/JOY_RADIUS;
+      const dead = 0.22;
+      keys['w'] = ny < -dead;
+      keys['s'] = ny >  dead;
+      keys['a'] = nx < -dead;
+      keys['d'] = nx >  dead;
+    }
+  }, {passive:false});
+
+  function resetJoystick(){
+    joyTouchId = null;
+    joystickKnob.style.transform = 'translate(-50%,-50%)';
+    keys['w']=false; keys['s']=false; keys['a']=false; keys['d']=false;
+  }
+  joystickArea.addEventListener('touchend', e=>{
+    for(let i=0;i<e.changedTouches.length;i++){
+      if(e.changedTouches[i].identifier===joyTouchId) resetJoystick();
+    }
+  });
+  joystickArea.addEventListener('touchcancel', resetJoystick);
+
+  // --- Camera look area (right half) ---
+  const lookArea = document.getElementById('lookArea');
+  let lookTouchId = null, lastLX=0, lastLY=0;
+  const LOOK_SENS = 0.005;
+
+  lookArea.addEventListener('touchstart', e=>{
+    e.preventDefault();
+    const t = e.changedTouches[0];
+    lookTouchId = t.identifier;
+    lastLX = t.clientX; lastLY = t.clientY;
+  }, {passive:false});
+
+  lookArea.addEventListener('touchmove', e=>{
+    e.preventDefault();
+    for(let i=0;i<e.changedTouches.length;i++){
+      const t = e.changedTouches[i];
+      if(t.identifier !== lookTouchId) continue;
+      yaw   -= (t.clientX - lastLX) * LOOK_SENS;
+      pitch -= (t.clientY - lastLY) * LOOK_SENS;
+      pitch = Math.max(-Math.PI/2+0.01, Math.min(Math.PI/2-0.01, pitch));
+      lastLX = t.clientX; lastLY = t.clientY;
+    }
+  }, {passive:false});
+
+  lookArea.addEventListener('touchend', e=>{
+    for(let i=0;i<e.changedTouches.length;i++){
+      if(e.changedTouches[i].identifier===lookTouchId) lookTouchId=null;
+    }
+  });
+  lookArea.addEventListener('touchcancel', ()=>{ lookTouchId=null; });
+
+  // --- Action buttons ---
+  // Jump (hold)
+  const btnJump = document.getElementById('btnJump');
+  btnJump.addEventListener('touchstart', e=>{ e.preventDefault(); keys[' ']=true; }, {passive:false});
+  btnJump.addEventListener('touchend',   e=>{ keys[' ']=false; });
+  btnJump.addEventListener('touchcancel', e=>{ keys[' ']=false; });
+
+  // Sprint (toggle)
+  const btnSprint = document.getElementById('btnSprint');
+  btnSprint.addEventListener('touchstart', e=>{
+    e.preventDefault();
+    keys['shift'] = !keys['shift'];
+    btnSprint.classList.toggle('active', !!keys['shift']);
+  }, {passive:false});
+
+  // Mine (break block — left click equivalent)
+  document.getElementById('btnMine').addEventListener('touchstart', e=>{
+    e.preventDefault();
+    if(gameStarted && !paused && breakTarget){
+      world.set(breakTarget.x, breakTarget.y, breakTarget.z, AIR);
+      rebuildChunkAndNeighbors(breakTarget.x, breakTarget.z);
+    }
+  }, {passive:false});
+
+  // Place (right click equivalent)
+  document.getElementById('btnPlace').addEventListener('touchstart', e=>{
+    e.preventDefault();
+    if(gameStarted && !paused && placeTarget){
+      const pc = {x:placeTarget.x+0.5, y:placeTarget.y+0.5, z:placeTarget.z+0.5};
+      const tooClose = Math.abs(pc.x-player.x)<0.6 && Math.abs(pc.z-player.z)<0.6 &&
+                        pc.y > player.y-0.4 && pc.y < player.y+2.0;
+      if(!tooClose){
+        world.set(placeTarget.x, placeTarget.y, placeTarget.z, selectedBlock);
+        rebuildChunkAndNeighbors(placeTarget.x, placeTarget.z);
+      }
+    }
+  }, {passive:false});
+
+  // View toggle (V key equivalent)
+  document.getElementById('btnView').addEventListener('touchstart', e=>{
+    e.preventDefault();
+    if(gameStarted && !paused) toggleView();
+  }, {passive:false});
+
+  // --- Mobile hotbar tap (event delegation) ---
+  document.getElementById('hotbar').addEventListener('click', e=>{
+    const slot = e.target.closest('.slot');
+    if(!slot) return;
+    const idx = Array.from(slot.parentElement.children).indexOf(slot);
+    if(idx >= 0) selectSlot(idx);
+  });
+
+  // --- Prevent touch events on look area from triggering block break/place ---
+  canvas.addEventListener('touchstart', e=>{
+    // Only prevent default if game is running (avoids issues with start screen)
+    if(gameStarted) e.preventDefault();
+  }, {passive:false});
+
+} // end isMobile
 
 })();
 </script>

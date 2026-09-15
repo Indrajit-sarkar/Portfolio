@@ -184,49 +184,6 @@
             height: 20px;
         }
 
-        /* VoxelCraft Fullscreen Modal */
-        .voxel-fullscreen {
-            position: fixed;
-            inset: 0;
-            background: #8ecae6;
-            z-index: 9999;
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-        }
-        .voxel-fullscreen.active {
-            display: flex;
-        }
-        .voxel-fullscreen iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-        }
-        .voxel-close-btn {
-            position: absolute;
-            top: 1.5rem;
-            right: 1.5rem;
-            width: 44px;
-            height: 44px;
-            background: rgba(255, 255, 255, 0.9);
-            border: 1px solid rgba(0, 0, 0, 0.1);
-            border-radius: 50%;
-            color: #0a0a12;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            transition: background 0.2s;
-            z-index: 10000;
-        }
-        .voxel-close-btn:hover {
-            background: rgba(255, 255, 255, 1);
-        }
-        .voxel-close-btn svg {
-            width: 24px;
-            height: 24px;
-        }
     </style>
 </head>
 
@@ -263,7 +220,7 @@
         <div class="garage-title">
             <p class="eyebrow">Beyond the code</p>
             <h1>HOBBIES</h1>
-            <p class="tag-line">Automobiles · Photography · Gaming</p>
+            <p class="tag-line">Automobiles · Photography · Gaming · Plane Spotting</p>
         </div>
         <a class="scroll-cue" href="#hobbies" aria-label="Scroll to hobbies">
             <span>Scroll</span>
@@ -361,6 +318,38 @@
                         </svg>
                         <span>Play Now</span>
                     </button>
+                </div>
+            </section>
+
+            <!-- Plane Spotting -->
+            <section class="hobby" data-reveal="up">
+                <div class="hobby-copy">
+                    <span class="hobby-num">04 — RUNWAY</span>
+                    <h3>Plane Spotting</h3>
+                    <p>
+                        There's something mesmerising about watching aircraft cut through the sky — the roar
+                        of turbines on approach, the precision of a crosswind landing, and the quiet elegance
+                        of a climb-out at sunset. Plane spotting turns every airport visit into a front-row
+                        seat to one of the greatest feats of human engineering.
+                    </p>
+                    <p>
+                        Armed with FlightRadar24 and a camera, I track routes, identify airframes, and
+                        photograph everything from narrow-bodies to wide-body heavies. It's a hobby
+                        that blends my love for technology, photography, and the sheer thrill of aviation.
+                    </p>
+                </div>
+                <div class="hobby-media game-preview-container" id="planeSpotContainer">
+                    <video class="game-loop-video"
+                        src="assets/opt/plane-spotting.mp4"
+                        autoplay loop muted playsinline preload="metadata"
+                        aria-label="Plane spotting footage on loop"></video>
+                    <a href="https://www.flightradar24.com" target="_blank" rel="noopener"
+                       class="game-play-btn" id="flightradarBtn" aria-label="Open FlightRadar24">
+                        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+                            <path d="M21 16v-2l-8-5V3.5A1.5 1.5 0 0 0 11.5 2 1.5 1.5 0 0 0 10 3.5V9l-8 5v2l8-2.5V19l-2 1.5V22l3.5-1 3.5 1v-1.5L13 19v-5.5l8 2.5z"/>
+                        </svg>
+                        <span>FlightRadar</span>
+                    </a>
                 </div>
             </section>
         </div>
@@ -809,15 +798,6 @@
         <p>© <span id="year">2026</span> Indrajit Sarkar</p>
     </footer>
 
-    <!-- Sketch Ops Fullscreen Modal -->
-    <div class="voxel-fullscreen" id="voxelFullscreen">
-        <button class="voxel-close-btn" id="voxelCloseBtn" aria-label="Close game">
-            <svg viewBox="0 0 24 24" fill="currentColor">
-                <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/>
-            </svg>
-        </button>
-        <iframe id="voxelFullscreenIframe" src="" title="Sketch Ops — Jetpack Combat"></iframe>
-    </div>
 
     <!-- ---------- Page interactions (no dependencies) ---------- -->
     <script>
@@ -900,36 +880,13 @@
 
     <!-- ---------- VOXELCRAFT MODAL HANDLER ---------- -->
     <script>
-        // Sketch Ops game modal (opens on Play Now)
         document.addEventListener('DOMContentLoaded', () => {
             const gamePlayBtn = document.getElementById('gamePlayBtn');
-            const shell = document.getElementById('voxelFullscreen');
-            const closeBtn = document.getElementById('voxelCloseBtn');
-            const frame = document.getElementById('voxelFullscreenIframe');
-            if (!gamePlayBtn || !shell || !closeBtn) return;
-
-            const close = () => {
-                shell.classList.remove('active');
-                frame.src = '';
-                document.body.style.overflow = '';
-            };
-
-            gamePlayBtn.addEventListener('click', () => {
-                frame.src = 'sketch-ops.html';
-                shell.classList.add('active');
-                document.body.style.overflow = 'hidden';
-                // hand keyboard focus to the game so WASD reaches it
-                frame.addEventListener('load', () => frame.focus(), { once: true });
-            });
-
-            closeBtn.addEventListener('click', close);
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && shell.classList.contains('active')) close();
-            });
-            // the game's own exit button posts back to us
-            window.addEventListener('message', (e) => {
-                if (e.data === 'so:exit') close();
-            });
+            if (gamePlayBtn) {
+                gamePlayBtn.addEventListener('click', () => {
+                    window.location.href = 'games.html';
+                });
+            }
         });
     </script>
 
