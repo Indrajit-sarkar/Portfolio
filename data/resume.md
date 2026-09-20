@@ -363,6 +363,7 @@ Results-driven Infrastructure Management professional and Microsoft Certified Az
 - **Mobile Photography** — Capturing moments with smartphone cameras
 - **Gaming** — Sketch Ops (2D jetpack combat), VoxelCraft (Minecraft-inspired sandbox) — playable on the portfolio site at /games.html
 - **Plane Spotting** — Tracking aircraft, identifying airframes, photographing planes on approach/departure. Uses FlightRadar24 (flightradar24.com) for real-time flight tracking
+- **Superyacht Enthusiasts** — Following superyacht launches, sea trials, shipyard builds, and interior reveals. Fascinated by the intersection of naval architecture, engineering, and luxury lifestyle
 - **Music Production** — Creative audio projects
 - **Sports** — Football, Kabaddi, Cricket
 - **Research & Writing** — Published independent researcher in AI and Quantum Computing
