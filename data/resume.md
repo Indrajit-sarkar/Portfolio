@@ -17,9 +17,9 @@
 - **Portfolio Website**: https://indrajit-sarkar.vercel.app
 
 ## Summary
-Results-driven Infrastructure Management professional and Microsoft Certified Azure AI Engineer with 2+ years of experience at DXC Technology. Proven track record in cloud infrastructure optimization, IT service delivery, and process automation using Azure, Python, and Power BI. Holds **66 professional certifications** spanning cloud computing (Microsoft Azure), AI/ML (Anthropic Claude), Lean Six Sigma (Black Belt), Agile project management, and process excellence. Adept at driving SLA compliance (98%), reducing operational costs (15%), and accelerating incident resolution (35%). Published independent researcher in Agentic AI and Quantum Computing.
+Results-driven Infrastructure Management professional and Microsoft Certified Azure AI Engineer with 2+ years of experience at DXC Technology. Proven track record in cloud infrastructure optimization, IT service delivery, and process automation using Azure, Python, and Power BI. Holds **67 professional certifications** spanning cloud computing (Microsoft Azure), AI/ML (Anthropic Claude), Lean Six Sigma (Black Belt), Agile project management, and process excellence. Adept at driving SLA compliance (98%), reducing operational costs (15%), and accelerating incident resolution (35%). Published independent researcher in Agentic AI and Quantum Computing.
 
-**Core Competencies**: Azure Cloud Services · Infrastructure Monitoring · Python Automation · Lean Six Sigma Black Belt · ITIL · Power BI Analytics · Full-Stack Development · Agile/Scrum · FMEA · Root Cause Analysis · Process Optimization · CI/CD · Database Management
+**Core Competencies**: Azure Cloud Services · Infrastructure Monitoring · Python Automation · Lean Six Sigma Black Belt · OPEX · ITIL · Power BI Analytics · Full-Stack Development · Agile/Scrum · FMEA · Root Cause Analysis · Process Optimization · CI/CD · Database Management
 
 ---
 
@@ -166,6 +166,7 @@ Results-driven Infrastructure Management professional and Microsoft Certified Az
 - Agile — Iterative project management approach
 - Scrum — Agile framework for team collaboration
 - FMEA — Failure Mode and Effects Analysis
+- Operational Excellence (OPEX) — Systematic approach to improving business performance
 - Six Sigma — Data-driven methodology for eliminating defects
 - DMAIC — Define, Measure, Analyze, Improve, Control
 - Lean — Minimizing waste and maximizing value
@@ -187,7 +188,7 @@ Results-driven Infrastructure Management professional and Microsoft Certified Az
 
 ---
 
-## Certifications (66 Total)
+## Certifications (67 Total)
 
 ### Microsoft Certifications (3)
 1. **AI-102: Azure AI Engineer Associate** — Microsoft (Oct 2025)
@@ -226,48 +227,49 @@ Results-driven Infrastructure Management professional and Microsoft Certified Az
 28. **Certified AI Fundamentals Professional** — SSAA (Sep 2026)
 29. **Minitab Data Analyst Expert** — SSAA (Sep 2026)
 30. **Lean Six Sigma — Six Sigma Academy Amsterdam** — SSAA (2025)
+31. **Certified Operational Excellence (OPEX) Expert** — SSAA (Sep 2026)
 
 ### Udemy Certifications (27)
-31. **Six Sigma: Certified Lean Six Sigma Green Belt (Accredited)** — Udemy / SSAA (Sep 2026)
-32. **Six Sigma: Certified Lean Six Sigma Green Belt (Accredited)** — Udemy / AIGPE (Sep 2026)
-33. **Six Sigma Black Belt: Certified QFD Specialist (Accredited)** — Udemy / AIGPE (Sep 2026)
-34. **Six Sigma Green Belt: Kano Analysis Specialist (Accredited)** — Udemy / AIGPE (Sep 2026)
-35. **Certified Lean Management Expert (Accredited)** — Udemy / SSAA (Sep 2026)
-36. **Lean Management: Just-In-Time JIT Certification (Accredited)** — Udemy / SSAA (Sep 2026)
-37. **Certified Process Improvement & Process Mapping Expert** — Udemy / SSAA (Sep 2026)
-38. **Process Mapping & Flowcharts Certification (Accredited)** — Udemy / AIGPE (Sep 2026)
-39. **Certified Risk Management FMEA ISO 31000 Expert (Accredited)** — Udemy / SSAA (Sep 2026)
-40. **FMEA Training: FMEA Specialist Certification (Accredited)** — Udemy / AIGPE (Sep 2026)
-41. **Certified Five Forces Analysis Specialist (Accredited)** — Udemy / AIGPE (Sep 2026)
-42. **Pareto Analysis Masterclass: Pareto Specialist (Accredited)** — Udemy / AIGPE (Sep 2026)
-43. **Minitab Data Analysis: Certified Minitab Expert (Accredited)** — Udemy / SSAA (Sep 2026)
-44. **Certified Minitab Beginner: Graphical Tools (Accredited)** — Udemy / AIGPE (Sep 2026)
-45. **Certified 8D Problem Solving Expert — 8D for All Industries** — Udemy / SSAA (Sep 2026)
-46. **AI-Powered Root-Cause Analysis Specialist (Accredited)** — Udemy / AIGPE (Sep 2026)
-47. **Certified Brainstorming Expert Masterclass (Accredited)** — Udemy / AIGPE (Sep 2026)
-48. **Certified Agile Scrum Project Management Expert (Accredited)** — Udemy / SSAA (Sep 2026)
-49. **Certified Artificial Intelligence Foundations Professional** — Udemy / SSAA (Sep 2026)
-50. **Prompt Engineering for Work** — Udemy (Sep 2026)
-51. **Windows 11: Beginner to Advanced** — Udemy (Sep 2026)
-52. **The Fundamentals of Resilience** — Udemy (Sep 2026)
-53. **Creativity, Problem Solving and Generating Alternatives** — Udemy (Sep 2026)
-54. **Time and Task Management Techniques** — Udemy (Sep 2026)
-55. **Critical Thinking with Emotional Intelligence** — Udemy (Sep 2026)
-56. **Emotional Intelligence: Everyday Empathy at Work** — Udemy (Sep 2026)
-57. **The Harmonious Workplace** — Udemy (Sep 2026)
+32. **Six Sigma: Certified Lean Six Sigma Green Belt (Accredited)** — Udemy / SSAA (Sep 2026)
+33. **Six Sigma: Certified Lean Six Sigma Green Belt (Accredited)** — Udemy / AIGPE (Sep 2026)
+34. **Six Sigma Black Belt: Certified QFD Specialist (Accredited)** — Udemy / AIGPE (Sep 2026)
+35. **Six Sigma Green Belt: Kano Analysis Specialist (Accredited)** — Udemy / AIGPE (Sep 2026)
+36. **Certified Lean Management Expert (Accredited)** — Udemy / SSAA (Sep 2026)
+37. **Lean Management: Just-In-Time JIT Certification (Accredited)** — Udemy / SSAA (Sep 2026)
+38. **Certified Process Improvement & Process Mapping Expert** — Udemy / SSAA (Sep 2026)
+39. **Process Mapping & Flowcharts Certification (Accredited)** — Udemy / AIGPE (Sep 2026)
+40. **Certified Risk Management FMEA ISO 31000 Expert (Accredited)** — Udemy / SSAA (Sep 2026)
+41. **FMEA Training: FMEA Specialist Certification (Accredited)** — Udemy / AIGPE (Sep 2026)
+42. **Certified Five Forces Analysis Specialist (Accredited)** — Udemy / AIGPE (Sep 2026)
+43. **Pareto Analysis Masterclass: Pareto Specialist (Accredited)** — Udemy / AIGPE (Sep 2026)
+44. **Minitab Data Analysis: Certified Minitab Expert (Accredited)** — Udemy / SSAA (Sep 2026)
+45. **Certified Minitab Beginner: Graphical Tools (Accredited)** — Udemy / AIGPE (Sep 2026)
+46. **Certified 8D Problem Solving Expert — 8D for All Industries** — Udemy / SSAA (Sep 2026)
+47. **AI-Powered Root-Cause Analysis Specialist (Accredited)** — Udemy / AIGPE (Sep 2026)
+48. **Certified Brainstorming Expert Masterclass (Accredited)** — Udemy / AIGPE (Sep 2026)
+49. **Certified Agile Scrum Project Management Expert (Accredited)** — Udemy / SSAA (Sep 2026)
+50. **Certified Artificial Intelligence Foundations Professional** — Udemy / SSAA (Sep 2026)
+51. **Prompt Engineering for Work** — Udemy (Sep 2026)
+52. **Windows 11: Beginner to Advanced** — Udemy (Sep 2026)
+53. **The Fundamentals of Resilience** — Udemy (Sep 2026)
+54. **Creativity, Problem Solving and Generating Alternatives** — Udemy (Sep 2026)
+55. **Time and Task Management Techniques** — Udemy (Sep 2026)
+56. **Critical Thinking with Emotional Intelligence** — Udemy (Sep 2026)
+57. **Emotional Intelligence: Everyday Empathy at Work** — Udemy (Sep 2026)
+58. **The Harmonious Workplace** — Udemy (Sep 2026)
 
 ### LinkedIn Learning Certifications (4)
-58. **Customer Service Call Control Strategies** — LinkedIn Learning (Jan 2024)
-59. **How to Be Both Assertive and Likable** — LinkedIn Learning (Jan 2024)
-60. **IT Service Desk: Customer Service Fundamentals** — LinkedIn Learning (Jun 2025)
-61. **IT Service Desk: Service Management** — LinkedIn Learning (Sep 2025)
+59. **Customer Service Call Control Strategies** — LinkedIn Learning (Jan 2024)
+60. **How to Be Both Assertive and Likable** — LinkedIn Learning (Jan 2024)
+61. **IT Service Desk: Customer Service Fundamentals** — LinkedIn Learning (Jun 2025)
+62. **IT Service Desk: Service Management** — LinkedIn Learning (Sep 2025)
 
 ### Other Professional Certifications (5)
-62. **AIGPE Certified Lean Just-In-Time Specialist** — AIGPE (Oct 2025)
-63. **Google Cloud Computing Foundations** — Google (2023)
-64. **Cyber Security Certification** — Edify Institute (2023)
-65. **Internship Certificate — Full Stack Development** — Talent Brainy (2023)
-66. **AIGPE Certified Six Sigma White Belt Badge** — AIGPE (badge/digital credential)
+63. **AIGPE Certified Lean Just-In-Time Specialist** — AIGPE (Oct 2025)
+64. **Google Cloud Computing Foundations** — Google (2023)
+65. **Cyber Security Certification** — Edify Institute (2023)
+66. **Internship Certificate — Full Stack Development** — Talent Brainy (2023)
+67. **AIGPE Certified Six Sigma White Belt Badge** — AIGPE (badge/digital credential)
 
 ### Certification Summary by Issuer
 | Issuer | Count | Categories |
@@ -275,7 +277,7 @@ Results-driven Infrastructure Management professional and Microsoft Certified Az
 | Microsoft | 3 | Azure AI, Power BI, Azure Fundamentals |
 | Anthropic | 4 | Claude Architect (Pro + Foundations), Developer, Associate |
 | AIGPE | 14 | Six Sigma Belts (Black/Green/Yellow/White), Process Tools (QFD, 8D, Kano, Pareto, RCA, Five Forces, Minitab, FMEA, Process Mapping, Brainstorming) |
-| SSAA (Six Sigma Academy Amsterdam) | 9 | Six Sigma Belts, Process Improvement, Risk Management, Lean Manufacturing, Agile Scrum, AI Fundamentals, Minitab |
+| SSAA (Six Sigma Academy Amsterdam) | 10 | Six Sigma Belts, Process Improvement, Risk Management, Lean Manufacturing, Agile Scrum, AI Fundamentals, Minitab |
 | Udemy | 27 | Accredited Six Sigma, Process Excellence, AI/ML, Soft Skills, Productivity |
 | LinkedIn Learning | 4 | Customer Service, IT Service Desk, Communication |
 | Other (Google, Edify, Talent Brainy) | 5 | Cloud Computing, Cyber Security, Internship, JIT |
@@ -349,7 +351,7 @@ Results-driven Infrastructure Management professional and Microsoft Certified Az
 | Domain | Specific Area |
 |--------|---------------|
 | Cloud & Infrastructure | Azure Infrastructure Management, Cloud Optimization, SLA Management, Cost Reduction |
-| Quality & Process | Lean Six Sigma (Black Belt), FMEA, Root Cause Analysis, QFD, Kano Analysis, 8D Problem Solving, Pareto Analysis, Lean JIT |
+| Quality & Process | Lean Six Sigma (Black Belt), Operational Excellence (OPEX), FMEA, Root Cause Analysis, QFD, Kano Analysis, 8D Problem Solving, Pareto Analysis, Lean JIT |
 | Software Development | Full-Stack Web Applications, Database Design, RESTful APIs, Agile/Scrum Methodology |
 | Data & Analytics | Power BI Dashboards, Minitab Statistical Analysis, Data-Driven Decision Making |
 | AI & Machine Learning | Azure AI Services, Computer Vision, NLP, Prompt Engineering |
