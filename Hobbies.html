@@ -126,6 +126,30 @@
         .car-stage.select-mode { outline: 2px solid rgba(245, 245, 247, 0.4); outline-offset: -2px; }
         [data-theme="light"] .car-stage.select-mode { outline-color: rgba(20, 20, 25, 0.35); }
 
+        /* --- car switch arrows (transparent liquid glass) --- */
+        .car-arrow {
+            position: absolute; top: 50%; transform: translateY(-50%);
+            z-index: 5; width: 44px; height: 44px; border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            border: 1px solid rgba(255, 255, 255, 0.35);
+            background: rgba(255, 255, 255, 0.08);
+            -webkit-backdrop-filter: blur(12px) saturate(1.4);
+            backdrop-filter: blur(12px) saturate(1.4);
+            box-shadow: 0 4px 18px -4px rgba(0, 0, 0, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.25);
+            color: #fff; cursor: pointer; opacity: 0.7;
+            transition: opacity 0.3s, background 0.3s, transform 0.2s;
+        }
+        .car-arrow:hover { opacity: 1; background: rgba(255, 255, 255, 0.16); }
+        .car-arrow:active { transform: translateY(-50%) scale(0.92); }
+        .car-arrow.prev { left: 0.8rem; }
+        .car-arrow.next { right: 0.8rem; }
+        .car-arrow svg { width: 20px; height: 20px; pointer-events: none; }
+        [data-theme="light"] .car-arrow {
+            border-color: rgba(20, 20, 25, 0.2); background: rgba(255, 255, 255, 0.35); color: #14141a;
+        }
+        [data-theme="light"] .car-arrow:hover { background: rgba(255, 255, 255, 0.6); }
+        @media (max-width: 820px) { .car-arrow { width: 38px; height: 38px; } }
+
         /* --- content sections --- */
         .hb-section { padding: clamp(4.5rem, 10vw, 8rem) 0; }
         .hb-intro p {
@@ -318,11 +342,19 @@
                     <div class="garage-fallback" aria-hidden="true"></div>
                     <p class="drag-hint" id="dragHint">Drag to spin — scroll to roll</p>
                     <div class="car-select-cue" id="carSelectCue">Swipe left / right to change car</div>
+                    <button class="car-arrow prev" id="carPrev" aria-label="Previous car">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>
+                    </button>
+                    <button class="car-arrow next" id="carNext" aria-label="Next car">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
+                    </button>
                     <div class="car-nav">
                         <span class="car-name" id="carName">Ferrari 812 Super Fast GT3</span>
                         <div class="car-dots" id="carDots" role="tablist" aria-label="Select car">
                             <button class="is-active" data-idx="0" aria-label="Ferrari 812 Super Fast GT3"></button>
                             <button data-idx="1" aria-label="Rolls-Royce Phantom Extended Series II"></button>
+                            <button data-idx="2" aria-label="Range Rover L405"></button>
+                            <button data-idx="3" aria-label="Ducati Panigale V4 SP"></button>
                         </div>
                     </div>
                 </div>
@@ -1003,6 +1035,10 @@
               dataFile: 'assets/models/ferrari-812-data.js', glob: '__FERRARI_GLB__' },
             { name: 'Rolls-Royce Phantom Extended Series II', bin: 'assets/models/rolls-royce-phantom.glb',
               dataFile: 'assets/models/rolls-royce-phantom-data.js', glob: '__ROLLS_GLB__' },
+            { name: 'Range Rover L405', bin: 'assets/models/range-rover-l405.glb',
+              dataFile: 'assets/models/range-rover-l405-data.js', glob: '__RANGEROVER_GLB__' },
+            { name: 'Ducati Panigale V4 SP', bin: 'assets/models/ducati-panigale-v4-sp.glb',
+              dataFile: 'assets/models/ducati-panigale-v4-sp-data.js', glob: '__DUCATI_GLB__' },
         ];
 
         const io = new IntersectionObserver((entries) => {
@@ -1127,6 +1163,10 @@
                 const b = e.target.closest('button[data-idx]'); if (!b) return;
                 changeCar(parseInt(b.dataset.idx, 10) - currentIdx);
             });
+
+            // transparent glass arrows
+            document.getElementById('carPrev')?.addEventListener('click', () => changeCar(-1));
+            document.getElementById('carNext')?.addEventListener('click', () => changeCar(+1));
 
             canvas.addEventListener('pointerdown', (e) => {
                 dragging = true; isTouch = e.pointerType === 'touch';
