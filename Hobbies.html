@@ -352,7 +352,7 @@
                         <span class="car-name" id="carName">Ferrari 812 Super Fast GT3</span>
                         <div class="car-dots" id="carDots" role="tablist" aria-label="Select car">
                             <button class="is-active" data-idx="0" aria-label="Ferrari 812 Super Fast GT3"></button>
-                            <button data-idx="1" aria-label="Rolls-Royce Phantom Extended Series II"></button>
+                            <button data-idx="1" aria-label="Rolls-Royce Ghost"></button>
                             <button data-idx="2" aria-label="Range Rover L405"></button>
                             <button data-idx="3" aria-label="Ducati Panigale V4 SP"></button>
                         </div>
@@ -1010,7 +1010,7 @@
         });
     </script>
 
-    <!-- ---------- Self-hosted 3D car carousel (Ferrari 812 + Rolls-Royce Phantom) ---------- -->
+    <!-- ---------- Self-hosted 3D car carousel (Ferrari 812, Rolls-Royce Ghost, Range Rover L405, Ducati Panigale V4 SP) ---------- -->
     <script type="importmap">
     {
         "imports": {
@@ -1033,8 +1033,8 @@
         const CARS = [
             { name: 'Ferrari 812 Super Fast GT3', bin: 'assets/models/ferrari-812.glb',
               dataFile: 'assets/models/ferrari-812-data.js', glob: '__FERRARI_GLB__' },
-            { name: 'Rolls-Royce Phantom Extended Series II', bin: 'assets/models/rolls-royce-phantom.glb',
-              dataFile: 'assets/models/rolls-royce-phantom-data.js', glob: '__ROLLS_GLB__' },
+            { name: 'Rolls-Royce Ghost', bin: 'assets/models/rolls-royce-ghost.glb',
+              dataFile: 'assets/models/rolls-royce-ghost-data.js', glob: '__ROLLSGHOST_GLB__' },
             { name: 'Range Rover L405', bin: 'assets/models/range-rover-l405.glb',
               dataFile: 'assets/models/range-rover-l405-data.js', glob: '__RANGEROVER_GLB__' },
             { name: 'Ducati Panigale V4 SP', bin: 'assets/models/ducati-panigale-v4-sp.glb',
@@ -1134,7 +1134,10 @@
                     if (token !== loadToken) return; // a newer switch superseded this load
                     disposeCurrent();
                     const model = gltf.scene;
-                    const box = new THREE.Box3().setFromObject(model);
+                    // precise=true measures actual vertices, not each mesh's bounding box.
+                    // Some models (e.g. the Ghost's speedo needle) have a bbox far bigger than
+                    // their geometry, which shrank the car and lifted it off the pedestal.
+                    const box = new THREE.Box3().setFromObject(model, true);
                     const size = box.getSize(new THREE.Vector3());
                     const center = box.getCenter(new THREE.Vector3());
                     const scale = 4.2 / Math.max(size.x, size.y, size.z);
@@ -1143,7 +1146,16 @@
                     model.position.y += (size.y * scale) / 2 - 0.1;
                     car.add(model);
                     wheels = [];
-                    model.traverse((o) => { if (o.isMesh && /wheel|tyre|tire|rim/i.test(o.name)) wheels.push(o); });
+                    // Only spin a wheel if it's an isolated, round mesh centred on its own pivot.
+                    // Some models (e.g. the Ghost) merge all 4 wheels into one mesh with an
+                    // off-centre pivot — spinning that flings the rims out of the car.
+                    model.traverse((o) => {
+                        if (!o.isMesh || !/wheel|tyre|tire|rim/i.test(o.name)) return;
+                        o.geometry.computeBoundingBox();
+                        const bb = o.geometry.boundingBox, c = bb.getCenter(new THREE.Vector3()), s = bb.getSize(new THREE.Vector3());
+                        const d = Math.max(s.x, s.y, s.z);
+                        if (c.length() < d * 0.15 && Math.abs(s.y - s.z) < d * 0.25) wheels.push(o);
+                    });
                 }, undefined, () => { if (token === loadToken) stage.classList.add('no-webgl'); });
             }
             loadCar(0);
