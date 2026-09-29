@@ -338,7 +338,7 @@
                     </p>
                 </div>
                 <div class="hobby-media car-stage" id="carStage">
-                    <canvas id="carCanvas" aria-label="Interactive 3D Ferrari 812 Super Fast GT3 — drag to spin"></canvas>
+                    <canvas id="carCanvas" aria-label="Interactive 3D Lamborghini Revuelto — drag to spin"></canvas>
                     <div class="garage-fallback" aria-hidden="true"></div>
                     <p class="drag-hint" id="dragHint">Drag to spin — scroll to roll</p>
                     <div class="car-select-cue" id="carSelectCue">Swipe left / right to change car</div>
@@ -349,9 +349,9 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
                     </button>
                     <div class="car-nav">
-                        <span class="car-name" id="carName">Ferrari 812 Super Fast GT3</span>
+                        <span class="car-name" id="carName">Lamborghini Revuelto</span>
                         <div class="car-dots" id="carDots" role="tablist" aria-label="Select car">
-                            <button class="is-active" data-idx="0" aria-label="Ferrari 812 Super Fast GT3"></button>
+                            <button class="is-active" data-idx="0" aria-label="Lamborghini Revuelto"></button>
                             <button data-idx="1" aria-label="Rolls-Royce Ghost"></button>
                             <button data-idx="2" aria-label="Range Rover L405"></button>
                             <button data-idx="3" aria-label="Ducati Panigale V4 SP"></button>
@@ -1010,7 +1010,7 @@
         });
     </script>
 
-    <!-- ---------- Self-hosted 3D car carousel (Ferrari 812, Rolls-Royce Ghost, Range Rover L405, Ducati Panigale V4 SP) ---------- -->
+    <!-- ---------- Self-hosted 3D car carousel (Lamborghini Revuelto, Rolls-Royce Ghost, Range Rover L405, Ducati Panigale V4 SP) ---------- -->
     <script type="importmap">
     {
         "imports": {
@@ -1031,8 +1031,8 @@
 
         // Each car: efficient binary for http(s); base64 data-URI fallback for file://
         const CARS = [
-            { name: 'Ferrari 812 Super Fast GT3', bin: 'assets/models/ferrari-812.glb',
-              dataFile: 'assets/models/ferrari-812-data.js', glob: '__FERRARI_GLB__' },
+            { name: 'Lamborghini Revuelto', bin: 'assets/models/lamborghini-revuelto.glb',
+              dataFile: 'assets/models/lamborghini-revuelto-data.js', glob: '__LAMBO_GLB__' },
             { name: 'Rolls-Royce Ghost', bin: 'assets/models/rolls-royce-ghost.glb',
               dataFile: 'assets/models/rolls-royce-ghost-data.js', glob: '__ROLLSGHOST_GLB__' },
             { name: 'Range Rover L405', bin: 'assets/models/range-rover-l405.glb',
