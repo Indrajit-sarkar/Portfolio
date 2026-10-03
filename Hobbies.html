@@ -355,6 +355,7 @@
                             <button data-idx="1" aria-label="Rolls-Royce Ghost"></button>
                             <button data-idx="2" aria-label="Range Rover L405"></button>
                             <button data-idx="3" aria-label="Ducati Panigale V4 SP"></button>
+                            <button data-idx="4" aria-label="Bentley Flying Spur"></button>
                         </div>
                     </div>
                 </div>
@@ -1010,7 +1011,7 @@
         });
     </script>
 
-    <!-- ---------- Self-hosted 3D car carousel (Ferrari SF90 Stradale, Rolls-Royce Ghost, Range Rover L405, Ducati Panigale V4 SP) ---------- -->
+    <!-- ---------- Self-hosted 3D car carousel (Ferrari SF90 Stradale, Rolls-Royce Ghost, Range Rover L405, Ducati Panigale V4 SP, Bentley Flying Spur) ---------- -->
     <script type="importmap">
     {
         "imports": {
@@ -1038,7 +1039,9 @@
             { name: 'Range Rover L405', bin: 'assets/models/range-rover-l405.glb',
               dataFile: 'assets/models/range-rover-l405-data.js', glob: '__RANGEROVER_GLB__' },
             { name: 'Ducati Panigale V4 SP', bin: 'assets/models/ducati-panigale-v4-sp.glb',
-              dataFile: 'assets/models/ducati-panigale-v4-sp-data.js', glob: '__DUCATI_GLB__' },
+              dataFile: 'assets/models/ducati-panigale-v4-sp-data.js', glob: '__DUCATI_GLB__', size: 0.55 },
+            { name: 'Bentley Flying Spur', bin: 'assets/models/bentley-flying-spur.glb',
+              dataFile: 'assets/models/bentley-flying-spur-data.js', glob: '__BENTLEY_GLB__' },
         ];
 
         const io = new IntersectionObserver((entries) => {
@@ -1140,7 +1143,7 @@
                     const box = new THREE.Box3().setFromObject(model, true);
                     const size = box.getSize(new THREE.Vector3());
                     const center = box.getCenter(new THREE.Vector3());
-                    const scale = 4.2 / Math.max(size.x, size.y, size.z);
+                    const scale = (4.2 * (carDef.size || 1)) / Math.max(size.x, size.y, size.z);
                     model.scale.setScalar(scale);
                     model.position.sub(center.multiplyScalar(scale));
                     model.position.y += (size.y * scale) / 2 - 0.1;
