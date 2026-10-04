@@ -355,9 +355,6 @@
                             <button data-idx="1" aria-label="Rolls-Royce Ghost"></button>
                             <button data-idx="2" aria-label="Range Rover L405"></button>
                             <button data-idx="3" aria-label="Ducati Panigale V4 SP"></button>
-                            <button data-idx="4" aria-label="Bentley Flying Spur"></button>
-                            <button data-idx="5" aria-label="Lamborghini Revuelto"></button>
-                            <button data-idx="6" aria-label="Mercedes-Maybach S-Class"></button>
                         </div>
                     </div>
                 </div>
@@ -437,10 +434,15 @@
                     </p>
                 </div>
                 <div class="hobby-media game-preview-container" id="planeSpotContainer">
-                    <video class="game-loop-video"
+                    <video id="planeVid1" class="game-loop-video"
                         src="assets/opt/plane-spotting.mp4"
-                        autoplay loop muted playsinline preload="metadata"
-                        aria-label="Plane spotting footage on loop"></video>
+                        autoplay muted playsinline preload="metadata"
+                        aria-label="Plane spotting footage 1"></video>
+                    <video id="planeVid2" class="game-loop-video"
+                        src="assets/opt/plane-spotting-2.mp4"
+                        muted playsinline preload="metadata"
+                        style="display:none;"
+                        aria-label="Plane spotting footage 2"></video>
                     <a href="https://www.flightradar24.com" target="_blank" rel="noopener"
                        class="game-play-btn" id="flightradarBtn" aria-label="Open FlightRadar24">
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
@@ -477,6 +479,23 @@
             </section>
         </div>
     </main>
+
+    <script>
+    // Plane Spotting: alternate between two videos in a loop
+    (function() {
+        var v1 = document.getElementById('planeVid1');
+        var v2 = document.getElementById('planeVid2');
+        if (!v1 || !v2) return;
+        function swap(from, to) {
+            from.style.display = 'none';
+            to.style.display = '';
+            to.currentTime = 0;
+            to.play();
+        }
+        v1.addEventListener('ended', function() { swap(v1, v2); });
+        v2.addEventListener('ended', function() { swap(v2, v1); });
+    })();
+    </script>
 
     <!-- ============ MUSIC I LOVE ============ -->
     <style>
@@ -1042,12 +1061,6 @@
               dataFile: 'assets/models/range-rover-l405-data.js', glob: '__RANGEROVER_GLB__' },
             { name: 'Ducati Panigale V4 SP', bin: 'assets/models/ducati-panigale-v4-sp.glb',
               dataFile: 'assets/models/ducati-panigale-v4-sp-data.js', glob: '__DUCATI_GLB__', size: 0.55 },
-            { name: 'Bentley Flying Spur', bin: 'assets/models/bentley-flying-spur.glb',
-              dataFile: 'assets/models/bentley-flying-spur-data.js', glob: '__BENTLEY_GLB__' },
-            { name: 'Lamborghini Revuelto', bin: 'assets/models/lamborghini-revuelto.glb',
-              dataFile: 'assets/models/lamborghini-revuelto-data.js', glob: '__LAMBO_GLB__' },
-            { name: 'Mercedes-Maybach S-Class', bin: 'assets/models/mercedes-maybach-s-class.glb',
-              dataFile: 'assets/models/mercedes-maybach-s-class-data.js', glob: '__MAYBACH_GLB__' },
         ];
 
         const io = new IntersectionObserver((entries) => {
