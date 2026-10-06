@@ -1,4 +1,4 @@
-/* Pixel Indrajit — a walking 16-bit desk pet.
+/* Alex — Indrajit's walking 16-bit pixel pet (he's also the AI chat assistant).
    The sprite is drawn in code on a 32×45 grid (no image assets): his swept
    black hair and stubble, in a black suit, white shirt and black tie.
    It walks the bottom of the screen, tracks the cursor with its eyes, reacts
@@ -15,6 +15,8 @@
   // site root, resolved from this script's own URL so any page depth works
   var BASE = script && script.src ? script.src.replace(/pet\/pet\.js.*$/, '') : '/';
   var PAGE = (location.pathname.split('/').pop() || 'index.html').toLowerCase();
+  // pages where the pet stays quiet: no timed reminders or idle chatter
+  var GAME_PAGE = ['games.html', 'sketch-ops.html', 'voxelcraft.html'].indexOf(PAGE) !== -1;
 
   var W = 32, H = 45, OY = 1;   // OY: one row of headroom for the outline
   var reduced = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -296,15 +298,15 @@
         if (PAGE === 'certifications.html') {
           store.set('certs', '1');
           self.setState('cool', 3000);
-          self.say('Welcome to my trophy room! 😎', null, 3600);
+          self.say("Welcome to Indrajit's trophy room! 😎", null, 3600);
         } else if (greeted) { self.say(self.pick(['Welcome back! 👋', 'Oh hey, you again! 😄']), null, 3200); }
         else {
           store.set('greeted', '1');
           self.setState('wave', 2600);
-          self.say("Hi! I'm Mini Indrajit 👋 Click me to chat with my AI, or drag me around.", null, 5200);
+          self.say("Hi! I'm Alex 👋 Click me to chat, or drag me around.", null, 5200);
         }
       }, 1600);
-      this.scheduleNudges();
+      if (!GAME_PAGE) this.scheduleNudges();
     },
 
     build: function () {
@@ -312,7 +314,7 @@
       el.id = 'pixel-pet';
       el.setAttribute('role', 'button');
       el.setAttribute('tabindex', '0');
-      el.setAttribute('aria-label', 'Mini Indrajit — open the AI chat');
+      el.setAttribute('aria-label', 'Alex — open the AI chat');
       el.title = 'Chat with me';
       var cv = document.createElement('canvas');
       cv.width = W; cv.height = H;
@@ -492,17 +494,17 @@
       this.setState('excited', 1300);
       this.spawn('✦', 4);
       this.openAI();
-      if (!wasOpen) this.say(this.pick(['Ask me anything! 💬', "Let's chat! ✨", 'My AI knows all my secrets 🤫']), null, 2400);
+      if (!wasOpen) this.say(this.pick(['Ask me anything! 💬', "Let's chat! ✨", "I know all of Indrajit's secrets 🤫"]), null, 2400);
     },
 
     /* idle chatter, so there's still personality between clicks */
     chatter: function () {
       var self = this;
       var lines = [
-        function () { self.say('Azure AI Engineer, at your service! 🤵', null, 3000); },
+        function () { self.say('Alex, at your service! 🤵', null, 3000); },
         function () { self.say('Suited up and ready for work 👔', null, 3000); },
         function () { self.say('Psst — try dragging me up and letting go 😄', null, 3000); },
-        function () { self.say('I also spot planes ✈️ Check out my Hobbies!', [{ t: 'Take me', fn: function () { location.href = BASE + 'Hobbies.html'; } }], 5000); }
+        function () { self.say('Indrajit spots planes ✈️ Check out his Hobbies!', [{ t: 'Take me', fn: function () { location.href = BASE + 'Hobbies.html'; } }], 5000); }
       ];
       if (PAGE === 'hobbies.html') lines.pop();
       lines[this.clickIdx++ % lines.length]();
@@ -518,7 +520,7 @@
       var n = this.certCount();
       var self = this;
       this.setState('point', 3200);
-      this.say((manual ? '' : 'Psst! ') + 'Have you checked out my ' + (n ? n + ' ' : '') + 'certificates yet? 🏅', [
+      this.say((manual ? '' : 'Psst! ') + "Have you checked out Indrajit's " + (n ? n + ' ' : '') + 'certificates yet? 🏅', [
         { t: 'Show me', primary: true, fn: function () { self.goCerts(); } },
         { t: 'Later', fn: function () { self.hideBubble(); } }
       ], 9000);
@@ -527,7 +529,7 @@
     suggestAI: function (manual) {
       var self = this;
       this.setState('wave', 2600);
-      this.say('Got questions about me? Ask my AI assistant — it knows all my secrets ✨', [
+      this.say('Got questions about Indrajit? Ask me, I know all his secrets ✨', [
         { t: 'Ask AI', primary: true, fn: function () { self.openAI(); } },
         { t: 'Maybe later', fn: function () { self.hideBubble(); } }
       ], 9000);
@@ -627,7 +629,7 @@
 
     start404: function () {
       this.el.title = '';
-      this.el.setAttribute('aria-label', 'Mini Indrajit, flying away from this missing page');
+      this.el.setAttribute('aria-label', 'Alex, flying away from this missing page');
       this.dir = 1;
       this.run404();
     },
@@ -675,7 +677,7 @@
       var self = this, count = 0;
       var tick = function () {
         if (count >= 4) return;
-        if (self.bubbleOpen || self.chatOpen || document.hidden || !self.isFree()) {
+        if (self.bubbleOpen || self.chatOpen || self.away || document.hidden || !self.isFree()) {
           setTimeout(tick, 8000); return;
         }
         var seenCerts = store.get('certs'), usedAI = store.get('ai');
@@ -700,7 +702,7 @@
             setTimeout(function () {
               self.setState('cool', 3200);
               self.spawn('✦', 6);
-              self.say(self.pick(['Yesss — my certificates! 😎', 'Took me a while to collect these 😎']), null, 3600);
+              self.say(self.pick(['Yesss, his certificates! 😎', 'He worked hard for these 😎']), null, 3600);
             }, 500);
           }
         });
@@ -723,6 +725,7 @@
 
     /* -------- speech bubble -------- */
     say: function (text, actions, ms) {
+      if (this.away) return;   // never talk over a running game
       var self = this, b = this.bub;
       b.innerHTML = '';
       var tx = document.createElement('p');
@@ -797,7 +800,7 @@
         this.target = this.clampX(Math.random() * this.maxX());
       } else {
         this.setState(Math.random() < 0.5 ? 'wave' : 'excited');
-        if (!this.bubbleOpen && Math.random() < 0.5) this.chatter();
+        if (!GAME_PAGE && !this.bubbleOpen && Math.random() < 0.5) this.chatter();
         return;
       }
       if (Math.abs(this.target - this.x) > 20) this.setState('walk', 1e9);

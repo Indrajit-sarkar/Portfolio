@@ -1,4 +1,4 @@
-/* Pixel Indrajit — walking desk pet (see pet.js) */
+/* Alex — walking desk pet (see pet.js) */
 #pixel-pet {
   position: fixed;
   cursor: pointer;
@@ -155,3 +155,8 @@
   0%   { opacity: 0.8; transform: translate(-50%, 0) scale(0.6); }
   100% { opacity: 0;   transform: translate(calc(-50% + var(--dx, 0px)), 34px) scale(2.2); }
 }
+
+/* nothing from the pet shows while a game is running */
+#pixel-pet.is-away ~ .pet-bubble,
+body.pet-away .pet-bubble,
+body.pet-away .pet-fx { display: none !important; }
