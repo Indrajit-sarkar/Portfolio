@@ -44,7 +44,7 @@
 
         .stick {
             position: absolute; bottom: 5vh;
-            width: min(30vw, 150px); aspect-ratio: 1;
+            width: min(30vw, 150px, 36vh); aspect-ratio: 1;
             border: 4px solid rgba(255, 255, 255, 0.6);
             background: rgba(16, 19, 31, 0.28);
             box-shadow: 4px 4px 0 rgba(0, 0, 0, 0.35);
@@ -64,7 +64,7 @@
 
         .btn {
             position: absolute; bottom: 7vh;
-            width: min(15vw, 70px); aspect-ratio: 1;
+            width: min(15vw, 70px, 17vh); aspect-ratio: 1;
             border: 3px solid rgba(255, 255, 255, 0.65);
             background: rgba(16, 19, 31, 0.35);
             box-shadow: 3px 3px 0 rgba(0, 0, 0, 0.35);
@@ -76,8 +76,16 @@
         .btn small { position: absolute; right: 8%; bottom: 6%; font-size: 0.9em; }
         #bNade { left: 36vw; }
         #bMelee { right: 36vw; }
-        #bDrop { right: 22vw; bottom: 20vh; width: min(13vw, 62px); border-color: rgba(255, 210, 100, 0.8); }
-        #bJet { left: 22vw; bottom: 20vh; width: min(13vw, 62px); border-color: rgba(140, 200, 255, 0.8); }
+        #bDrop { right: 22vw; bottom: 20vh; width: min(13vw, 62px, 15vh); border-color: rgba(255, 210, 100, 0.8); }
+        #bJet { left: 22vw; bottom: 20vh; width: min(13vw, 62px, 15vh); border-color: rgba(140, 200, 255, 0.8); }
+        @media (max-height: 560px) {
+            .stick { bottom: 3vh; }
+            .btn { bottom: 4vh; }
+            #bJet, #bDrop { bottom: calc(3vh + min(30vw, 150px, 36vh) + 8px); }
+            #bJet { left: 3vw; } #bDrop { right: 3vw; }
+            #bNade { left: calc(4vw + min(30vw, 150px, 36vh)); }
+            #bMelee { right: calc(4vw + min(30vw, 150px, 36vh)); }
+        }
 
         /* ---------- overlays ---------- */
         .screen {
@@ -88,6 +96,18 @@
             overflow: auto;
         }
         .screen.hide { display: none; }
+        .screen { touch-action: pan-y; -webkit-overflow-scrolling: touch; }
+        /* phones in landscape: keep the whole start card (and Deploy) on screen */
+        @media (max-height: 560px) {
+            .screen { padding: 0.5rem; align-items: start; }
+            .card { padding: 0.8rem 1rem; box-shadow: 5px 5px 0 #000; margin: auto; }
+            .card h1 { font-size: clamp(1rem, 4vw, 1.4rem); }
+            .card p { margin-top: 0.5rem; font-size: clamp(0.42rem, 1.3vw, 0.52rem); line-height: 1.65; }
+            #roster { margin-top: 0.5rem; max-height: 22vh; width: auto; }
+            .keys { margin-top: 0.5rem; }
+            .cta { margin-top: 0.6rem; padding: 0.6rem 1.2rem; }
+            .board { margin-top: 0.5rem; gap: 0.3rem; }
+        }
         .card {
             max-width: 40rem; width: 100%;
             background: #1b2238;
@@ -1351,7 +1371,7 @@
             cssW = innerWidth; cssH = innerHeight;
             cv.width = Math.floor(cssW * DPR); cv.height = Math.floor(cssH * DPR);
             // whole-number upscale, ~400 art pixels tall on every screen
-            N = Math.max(1, Math.round(cv.height / 400));
+            N = Math.max(1, Math.round(cv.height / (cssH < 560 ? 300 : 400)));
             lw = Math.ceil(cv.width / N); lh = Math.ceil(cv.height / N);
             lo.width = lw; lo.height = lh;
             g.imageSmoothingEnabled = false;
@@ -1658,7 +1678,15 @@
                 text((touchMode ? 'TAP SWAP' : 'E') + ': ' + WEAPONS[p.swapCand.wp].name.toUpperCase(), s.x, s.y, 8, '#ffd166', 'center');
             }
         }
+        let hudScale = 1;
         function hud() {
+            hudScale = (touchMode && cssH < 560) ? Math.max(0.62, cssH / 560) : 1;
+            const realW = cssW, realH = cssH;
+            ctx.save(); ctx.scale(hudScale, hudScale);
+            cssW = realW / hudScale; cssH = realH / hudScale;
+            try { hudInner(); } finally { cssW = realW; cssH = realH; ctx.restore(); }
+        }
+        function hudInner() {
             const p = player();
             const small = cssW < 760;
 
@@ -1815,9 +1843,9 @@
         // tap the weapon panel to switch slots
         cv.addEventListener('pointerdown', e => {
             if (!running) return;
-            const r = cv.getBoundingClientRect(), x = e.clientX - r.left, y = e.clientY - r.top;
-            const wx = cssW - (cssW < 760 ? 210 : 260) - 60;
-            if (x > wx && x < cssW - 50 && y < 90) { const p = player(); switchSlot(p, p.cur === 1 ? 0 : 1); }
+            const r = cv.getBoundingClientRect(), x = (e.clientX - r.left) / hudScale, y = (e.clientY - r.top) / hudScale;
+            const vw = cssW / hudScale, wx = vw - (vw < 760 ? 210 : 260) - 60;
+            if (x > wx && x < vw - 50 && y < 90) { const p = player(); switchSlot(p, p.cur === 1 ? 0 : 1); }
         });
 
         /* =====================================================================
@@ -1832,10 +1860,21 @@
             document.getElementById('start').classList.add('hide');
             document.getElementById('over').classList.add('hide');
             document.body.classList.add('pet-away');   // the site pet steps aside mid-match
+            if (touchMode) goLandscape();
             running = true; over = false; tPrev = performance.now();
+        }
+        function goLandscape() {
+            const el = document.documentElement;
+            const req = el.requestFullscreen || el.webkitRequestFullscreen;
+            try {
+                const pr = req && !document.fullscreenElement ? req.call(el) : null;
+                const lock = () => { try { const l = screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'); if (l && l.catch) l.catch(() => {}); } catch (_) {} };
+                if (pr && pr.then) pr.then(lock).catch(() => {}); else lock();
+            } catch (_) {}
         }
         function exitGame() {
             document.body.classList.remove('pet-away');
+            try { if (document.fullscreenElement) document.exitFullscreen(); } catch (_) {}
             if (window.parent && window.parent !== window) window.parent.postMessage('so:exit', '*');
             else history.length > 1 ? history.back() : location.href = 'Hobbies.html';
         }
@@ -1878,9 +1917,6 @@
     })();
     </script>
 
-    <!-- Alex — walking pixel-art pet (click to chat) -->
-    <link rel="stylesheet" href="pet/pet.css">
-    <script defer src="pet/pet.js"></script>
 </body>
 
 </html>

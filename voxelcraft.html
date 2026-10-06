@@ -135,6 +135,18 @@
   .touch-device #itemName{ bottom:auto; top:58px; }
   .touch-device #viewHint, .touch-device .instructions{ display:none; }
 
+  @media (max-height: 560px){
+    .logo{ margin-bottom:12px; }
+    .title{ font-size:clamp(22px,5vw,40px); }
+    .btn{ padding:10px 18px; font-size:11px; margin:3px 0; min-width:min(320px,70vw); }
+    #loadingText{ margin-top:6px; }
+    .version{ display:none; }
+  }
+  .touch-device #joystickArea{ width:min(130px,34vh); height:min(130px,34vh); bottom:max(14px,4vh); left:max(16px,3vw); }
+  .touch-device #joystickKnob{ width:40%; height:40%; }
+  .touch-device .action-btn{ width:min(56px,15vh); height:min(56px,15vh); font-size:min(22px,6vh); }
+  .touch-device #actionButtons{ bottom:max(14px,4vh); gap:min(10px,2.5vh); }
+  .touch-device .action-row{ gap:min(10px,2.5vh); }
   #orientationGate{
     position:fixed; inset:0; z-index:99999; background:rgba(12,12,11,0.97);
     display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1.5rem;
@@ -151,8 +163,8 @@
 
 <div id="orientationGate" class="hidden">
   <div class="rotate-icon">📱</div>
-  <h2>Rotate Your Device</h2>
-  <p>VoxelCraft is best played in landscape mode. Please rotate your device to continue.</p>
+  <h2>Rotate your device to landscape</h2>
+  <p>VoxelCraft is played in landscape. The game is paused until you turn your phone or tablet sideways.</p>
 </div>
 <script>
 (function() {
@@ -161,8 +173,10 @@
   var isTouch = ('ontouchstart' in window || navigator.maxTouchPoints > 0);
   if (!isTouch) { gate.style.display = 'none'; return; }
   function checkOrientation() {
-    if (window.innerHeight > window.innerWidth) { gate.classList.remove('hidden'); gate.style.display = ''; }
+    var portrait = window.innerHeight > window.innerWidth;
+    if (portrait) { gate.classList.remove('hidden'); gate.style.display = ''; }
     else gate.classList.add('hidden');
+    window.__vcPortrait = portrait;
   }
   checkOrientation();
   window.addEventListener('resize', checkOrientation);
@@ -196,7 +210,7 @@
     <b>WASD</b> move &middot; <b>Mouse</b> look &middot; <b>Space</b> jump / swim &middot; <b>Shift</b> sprint<br>
     <b>Left click</b> break &middot; <b>Right click</b> place &middot; <b>1-9</b> / <b>Wheel</b> hotbar<br>
     <b>V</b> or <b>F5</b> third person &middot; <b>F3</b> debug &middot; <b>Esc</b> pause<br>
-    An endless world of mountains, rivers, villages, farms, ores and wildlife streams in as you explore.
+    Explore the Eiffel Tower, the Burj Khalifa, the Taj Mahal and towns with houses, schools, churches and skyscrapers. More appear as you travel the endless world.
   </div>
   <div class="version">VoxelCraft 2.0 &middot; Alex Edition</div>
 </div>
@@ -238,21 +252,26 @@
 const AIR=0, GRASS=1, DIRT=2, STONE=3, SAND=4, LOG=5, LEAVES=6, WATER=7, SNOW=8, PATH=9, FARMLAND=10, WHEAT=11,
       WOOL_RED=12, WOOL_WHITE=13, WOOL_BLUE=14, PLANK=15, COBBLE=16, GLASS=17, BRICK=18, GRAVEL=19, BEDROCK=20,
       COAL_ORE=21, IRON_ORE=22, GOLD_ORE=23, DIAMOND_ORE=24, TALLGRASS=25, POPPY=26, DANDELION=27,
-      BIRCH_LOG=28, BIRCH_LEAVES=29, PUMPKIN=30, SPRUCE_PLANK=31, HAY=32;
+      BIRCH_LOG=28, BIRCH_LEAVES=29, PUMPKIN=30, SPRUCE_PLANK=31, HAY=32,
+      CONCRETE=33, GLASS_BLUE=34, METAL=35, MARBLE=36, GOLD_BLOCK=37, ROOF_TILE=38, STONE_BRICK=39,
+      LIT=40, ROAD=41, ROAD_LINE=42;
 const NAMES = {
   [GRASS]:'Grass Block',[DIRT]:'Dirt',[STONE]:'Stone',[SAND]:'Sand',[LOG]:'Oak Log',[LEAVES]:'Oak Leaves',[WATER]:'Water',
   [SNOW]:'Snowy Grass',[PATH]:'Dirt Path',[FARMLAND]:'Farmland',[WHEAT]:'Wheat',[WOOL_RED]:'Red Wool',[WOOL_WHITE]:'White Wool',
   [WOOL_BLUE]:'Blue Wool',[PLANK]:'Oak Planks',[COBBLE]:'Cobblestone',[GLASS]:'Glass',[BRICK]:'Bricks',[GRAVEL]:'Gravel',
   [BEDROCK]:'Bedrock',[COAL_ORE]:'Coal Ore',[IRON_ORE]:'Iron Ore',[GOLD_ORE]:'Gold Ore',[DIAMOND_ORE]:'Diamond Ore',
   [TALLGRASS]:'Grass',[POPPY]:'Poppy',[DANDELION]:'Dandelion',[BIRCH_LOG]:'Birch Log',[BIRCH_LEAVES]:'Birch Leaves',
-  [PUMPKIN]:'Pumpkin',[SPRUCE_PLANK]:'Spruce Planks',[HAY]:'Hay Bale'
+  [PUMPKIN]:'Pumpkin',[SPRUCE_PLANK]:'Spruce Planks',[HAY]:'Hay Bale',
+  [CONCRETE]:'Concrete',[GLASS_BLUE]:'Blue Glass',[METAL]:'Iron Lattice',[MARBLE]:'Marble',[GOLD_BLOCK]:'Block of Gold',
+  [ROOF_TILE]:'Roof Tiles',[STONE_BRICK]:'Stone Bricks',[LIT]:'Lit Window',[ROAD]:'Asphalt',[ROAD_LINE]:'Road Marking'
 };
 const CROSS  = new Set([WHEAT, TALLGRASS, POPPY, DANDELION]);
-const CUTOUT = new Set([LEAVES, BIRCH_LEAVES, GLASS]);
+const CUTOUT = new Set([LEAVES, BIRCH_LEAVES, GLASS, METAL]);
+const GLOW   = new Set([LIT]);        // drawn unlit, so windows shine at night
 const isSolid  = t => t!==AIR && t!==WATER && !CROSS.has(t);
 const isOpaque = t => t!==AIR && t!==WATER && !CROSS.has(t) && !CUTOUT.has(t);
 const occludes = t => isOpaque(t) || t===LEAVES || t===BIRCH_LEAVES;
-const HOTBAR_BLOCKS = [GRASS, DIRT, COBBLE, PLANK, LOG, GLASS, BRICK, STONE, SAND];
+const HOTBAR_BLOCKS = [GRASS, COBBLE, PLANK, BRICK, GLASS, CONCRETE, GLASS_BLUE, MARBLE, GOLD_BLOCK];
 let selectedIndex = 0;
 let selectedBlock = HOTBAR_BLOCKS[0];
 
@@ -367,6 +386,22 @@ function buildAtlas(){
   defTile('iron_ore', (P,x,r)=>ore(P,r,'#d8af93','#c49a7c','#e8c8b0'));
   defTile('gold_ore', (P,x,r)=>ore(P,r,'#f5d64a','#e0b830','#fff28a'));
   defTile('diamond_ore', (P,x,r)=>ore(P,r,'#5fe3e0','#3fc4c0','#b6fffb'));
+  defTile('concrete', (P,x,r)=>{ noise(P,r,'#cfd2d4',['#c6c9cb','#d8dbdd','#bfc2c4'],0.35); for(let i=0;i<16;i++){ P(i,15,'#b4b7ba'); P(15,i,'#b4b7ba'); } });
+  defTile('glass_blue', (P,x,r)=>{ for(let y=0;y<16;y++) for(let xx=0;xx<16;xx++){ let c=(xx+y)%7<2?'#5d8fbf':'#3c6e9e'; if(xx-y>6&&xx-y<9) c='#7fb0db'; P(xx,y,c); }
+    for(let i=0;i<16;i++){ P(i,0,'#2a4d70'); P(0,i,'#2a4d70'); P(i,8,'#2f5578'); P(8,i,'#2f5578'); } });
+  defTile('metal', (P,x,r)=>{ const c='#6e5a44', hi='#8f7a5e', dk='#4a3c2c';
+    for(let i=0;i<16;i++){ P(i,0,c); P(i,15,dk); P(0,i,c); P(15,i,dk); P(i,i,c); P(15-i,i,c); if(i%4===0){ P(i,0,hi); P(0,i,hi); } }
+    for(let i=1;i<15;i++){ P(i,i+1,dk); P(15-i,i+1,dk); } P(7,7,hi); P(8,8,hi); });
+  defTile('marble', (P,x,r)=>{ noise(P,r,'#f1efe8',['#ebe8df','#f8f6f1','#e4e1d7'],0.35); let vx=r()*16|0; for(let y=0;y<16;y++){ vx+=r()<0.5?1:-1; P(((vx%16)+16)%16,y,'#d4d0c4'); } });
+  defTile('gold_block', (P,x,r)=>{ noise(P,r,'#f2c94c',['#f5d36a','#e8bb3a'],0.3); for(let i=0;i<16;i++){ P(i,0,'#fff0a8'); P(0,i,'#fff0a8'); P(i,15,'#b58a1e'); P(15,i,'#b58a1e'); } P(2,2,'#ffffff'); P(3,2,'#fff7d0'); });
+  defTile('roof_tile', (P,x,r)=>{ for(let y=0;y<16;y++) for(let xx=0;xx<16;xx++){ const row=y%4, off=(Math.floor(y/4)%2)*2; let c=row===3?'#7a301f':row===0?'#c25a3e':'#a5462f'; if((xx+off)%4===0 && row!==0) c='#8e3a26'; P(xx,y,c); } });
+  defTile('stone_brick', (P,x,r)=>{ for(let y=0;y<16;y++) for(let xx=0;xx<16;xx++) P(xx,y, r()<0.3?'#7f7f7f':'#8a8a8a');
+    for(let i=0;i<16;i++){ P(i,7,'#5f5f5f'); P(i,15,'#5f5f5f'); } for(let y=0;y<7;y++) P(7,y,'#5f5f5f'); for(let y=8;y<15;y++) P(15,y,'#5f5f5f');
+    for(let i=0;i<7;i++){ P(i,0,'#9c9c9c'); P(8+i,8,'#9c9c9c'); } });
+  defTile('lit_window', (P,x,r)=>{ for(let y=0;y<16;y++) for(let xx=0;xx<16;xx++) P(xx,y, (xx+y*2)%9<3?'#ffe39a':'#ffd36b');
+    for(let i=0;i<16;i++){ P(i,0,'#5a4a2a'); P(0,i,'#5a4a2a'); P(i,15,'#5a4a2a'); P(15,i,'#5a4a2a'); P(i,8,'#7a6236'); P(8,i,'#7a6236'); } });
+  defTile('road', (P,x,r)=>noise(P,r,'#3a3a3c',['#333335','#444447','#2e2e30','#4a4a4d'],0.6));
+  defTile('road_line', (P,x,r)=>{ noise(P,r,'#3a3a3c',['#333335','#444447','#2e2e30'],0.6); for(let y=2;y<14;y++){ P(7,y,'#e8e4d0'); P(8,y,'#f2eedc'); } });
 }
 function paintWater(P, ph){
   for(let y=0;y<16;y++) for(let x=0;x<16;x++){
@@ -386,7 +421,9 @@ const TEX = {
   [COAL_ORE]:'coal_ore', [IRON_ORE]:'iron_ore', [GOLD_ORE]:'gold_ore', [DIAMOND_ORE]:'diamond_ore',
   [TALLGRASS]:'tallgrass', [POPPY]:'poppy', [DANDELION]:'dandelion', [BIRCH_LOG]:['birch_top','birch_side','birch_top'],
   [BIRCH_LEAVES]:'birch_leaves', [PUMPKIN]:['pumpkin_top','pumpkin_side','pumpkin_top'], [SPRUCE_PLANK]:'spruce_planks',
-  [HAY]:['hay_top','hay_side','hay_top']
+  [HAY]:['hay_top','hay_side','hay_top'],
+  [CONCRETE]:'concrete', [GLASS_BLUE]:'glass_blue', [METAL]:'metal', [MARBLE]:'marble', [GOLD_BLOCK]:'gold_block',
+  [ROOF_TILE]:'roof_tile', [STONE_BRICK]:'stone_brick', [LIT]:'lit_window', [ROAD]:'road', [ROAD_LINE]:'road_line'
 };
 function tileName(t, dir){ const v=TEX[t]; if(typeof v==='string') return v; return dir==='PY'?v[0]:dir==='NY'?v[2]:v[1]; }
 const EPS = 0.0008;
@@ -398,8 +435,10 @@ function tileUV(name){
 // =================================================================
 // ENDLESS CHUNKED WORLD
 // =================================================================
-const CX=16, CZ=16, WY=64, WATER_LEVEL=12, SNOW_LINE=40;
-const RENDER_RADIUS=7;
+const CX=16, CZ=16, WY=160, WATER_LEVEL=12, SNOW_LINE=40;   // tall enough for the Burj Khalifa
+const IS_TOUCH = ('ontouchstart' in window) || navigator.maxTouchPoints > 0;
+const RENDER_RADIUS = IS_TOUCH ? 5 : 8;          // phones & tablets: shorter view keeps it smooth
+const FOG_FAR = RENDER_RADIUS*CX + 6, FOG_NEAR = Math.round(FOG_FAR*0.32);
 const UNLOAD_RADIUS=RENDER_RADIUS+2;
 const chunks = {};
 const modified = {};
@@ -439,11 +478,336 @@ function computeHeight(gx,gz){
   h += mountainAmt*40 + mountainAmt*jag*10;
   const riverNoise = Math.abs(fbm(gx/45+900, gz/45+900)-0.5)*2;
   if(riverNoise<0.045 && mountainAmt<0.3) h = Math.min(h, WATER_LEVEL-1);
-  h = Math.max(4, Math.min(WY-6, Math.round(h)));
+  h = Math.max(4, Math.min(58, Math.round(h)));
   return { h };
 }
 function clocal(chunk, lx,y,lz, val){ if(lx<0||lx>=CX||lz<0||lz>=CZ||y<0||y>=WY) return; chunk.data[li(lx,y,lz)] = val; }
 function glocal(chunk, lx,y,lz){ if(lx<0||lx>=CX||lz<0||lz>=CZ||y<0||y>=WY) return AIR; return chunk.data[li(lx,y,lz)]; }
+
+
+// =================================================================
+// LANDMARKS & TOWNS — built once as 3D templates, stamped into every
+// chunk they overlap (so they can be far bigger than a single chunk)
+// =================================================================
+function makeT(w,h,d,plaza){
+  const T = { w,h,d, plaza: plaza||PATH, data:new Uint8Array(w*h*d), ground:new Uint8Array(w*d), top:new Uint8Array(w*d) };
+  T.set=(x,y,z,b)=>{ x=Math.round(x); y=Math.round(y); z=Math.round(z); if(x<0||y<1||z<0||x>=w||y>=h||z>=d) return; T.data[x+w*(y+h*z)]=b; };
+  T.fill=(x0,y0,z0,x1,y1,z1,b)=>{ for(let z=z0;z<=z1;z++) for(let y=y0;y<=y1;y++) for(let x=x0;x<=x1;x++) T.set(x,y,z,b); };
+  T.g=(x,z,b)=>{ x=Math.round(x); z=Math.round(z); if(x>=0&&z>=0&&x<w&&z<d) T.ground[x+w*z]=b; };
+  T.gfill=(x0,z0,x1,z1,b)=>{ for(let z=z0;z<=z1;z++) for(let x=x0;x<=x1;x++) T.g(x,z,b); };
+  T.disc=(cx,y,cz,r,b)=>{ const R=Math.ceil(r); for(let dz=-R;dz<=R;dz++) for(let dx=-R;dx<=R;dx++) if(dx*dx+dz*dz<=r*r+0.3) T.set(cx+dx,y,cz+dz,b); };
+  T.finish=()=>{ for(let z=0;z<d;z++) for(let x=0;x<w;x++){ let t=0; for(let y=h-1;y>=1;y--) if(T.data[x+w*(y+h*z)]){ t=y; break; } T.top[x+w*z]=t; } return T; };
+  return T;
+}
+
+// ---- Eiffel Tower: four lattice legs curving into one spire, two decks, arches ----
+function buildEiffel(){
+  const T=makeT(45,100,45,GRASS), c=22, H=92;
+  const hwAt = y => 1.3 + 20.4*Math.pow(Math.max(0,1 - y/H), 1.85);
+  for(let y=1;y<=H;y++){
+    const hw=hwAt(y), leg=Math.max(1.3, hw*0.32), split = y < H*0.6, R=Math.ceil(hw);
+    for(let dz=-R;dz<=R;dz++) for(let dx=-R;dx<=R;dx++){
+      const ax=Math.abs(dx), az=Math.abs(dz);
+      if(ax>hw+0.5||az>hw+0.5) continue;
+      const on = split ? (ax>=hw-leg && az>=hw-leg) : (ax>=hw-1.3 || az>=hw-1.3);
+      if(on) T.set(c+dx,y,c+dz,METAL);
+    }
+  }
+  const hw0=hwAt(1), span=hw0-hw0*0.32;
+  for(let sv=-span; sv<=span; sv+=0.5){
+    const ya = 3 + 11*Math.sqrt(Math.max(0,1-(sv/span)**2)), e=hwAt(ya);
+    for(const sg of [-1,1]) for(const k of [0,1]){ T.set(c+sv, ya+k, c+sg*e, METAL); T.set(c+sg*e, ya+k, c+sv, METAL); }
+  }
+  for(const yd of [Math.round(H*0.2), Math.round(H*0.42)]){
+    const hw=Math.ceil(hwAt(yd)+1.5);
+    for(let dz=-hw;dz<=hw;dz++) for(let dx=-hw;dx<=hw;dx++){
+      const edge=Math.max(Math.abs(dx),Math.abs(dz));
+      if(edge>=hw-4) T.set(c+dx,yd,c+dz,METAL);
+      if(edge===hw) T.set(c+dx,yd+1,c+dz,METAL);
+    }
+  }
+  T.fill(c-2,H-6,c-2,c+2,H-3,c+2,METAL); T.fill(c-1,H-5,c-1,c+1,H-4,c+1,LIT);
+  for(let y=H-2;y<=H+5;y++) T.set(c,y,c,METAL); T.set(c,H+6,c,LIT);
+  T.gfill(c-2,0,c+2,44,PATH); T.gfill(0,c-2,44,c+2,PATH); T.gfill(c-9,c-9,c+9,c+9,PATH);
+  return T.finish();
+}
+
+// ---- Burj Khalifa: Y-shaped plan, three wings stepping back in a spiral, silver fins, spire ----
+function buildBurj(){
+  const T=makeT(47,142,47,CONCRETE), c=23, H=120;
+  const A=[Math.PI/2, Math.PI/2+2*Math.PI/3, Math.PI/2+4*Math.PI/3].map(a=>[Math.cos(a),Math.sin(a)]);
+  for(let y=1;y<=H;y++){
+    const coreR = y<H-20 ? 4.3 : y<H-9 ? 3 : 1.7;
+    for(let dz=-21;dz<=21;dz++) for(let dx=-21;dx<=21;dx++){
+      const inC = dx*dx+dz*dz <= coreR*coreR;
+      let inW=false, fin=false;
+      for(let i=0;i<3;i++){
+        const L = 19 - 2.3*Math.floor((y + i*4)/11);
+        if(L<=1) continue;
+        const proj = dx*A[i][0] + dz*A[i][1], perp = Math.abs(-dx*A[i][1] + dz*A[i][0]);
+        const wdt = 2.8 - Math.max(0, proj-(L-2.5))*0.6;
+        if(proj>=-0.5 && proj<=L && perp<=wdt){ inW=true; if((perp>wdt-1 || proj>L-1) && Math.round(proj)%3===0) fin=true; }
+      }
+      if(!inC && !inW) continue;
+      let b = (y%6===0 || fin) ? CONCRETE : GLASS_BLUE;
+      if(b===GLASS_BLUE && hash3(dx*3.1,y*1.7,dz*2.3)<0.06) b = LIT;
+      T.set(c+dx,y,c+dz,b);
+    }
+  }
+  for(let y=H+1;y<=H+19;y++) T.set(c,y,c, y>H+16 ? METAL : CONCRETE);
+  T.set(c,H+20,c,LIT);
+  for(const [px,pz] of [[2,2],[37,2],[2,37],[37,37]]){ T.gfill(px,pz,px+7,pz+7,WATER); T.set(px+3,1,pz+3,MARBLE); T.set(px+4,1,pz+4,MARBLE); }
+  T.gfill(c-2,0,c+2,46,PATH); T.gfill(0,c-2,46,c+2,PATH);
+  return T.finish();
+}
+
+// ---- Taj Mahal: marble plinth, minarets, octagonal mausoleum with iwans, onion dome, garden & pool, gate ----
+function buildTaj(){
+  const T=makeT(57,52,98,GRASS), c=28, zc=28;
+  T.fill(6,1,6,50,3,50,MARBLE);
+  T.fill(24,1,51,32,2,51,MARBLE); T.fill(24,1,52,32,1,52,MARBLE);
+  for(const [mx,mz] of [[9,9],[47,9],[9,47],[47,47]]){
+    for(let y=4;y<=36;y++) T.disc(mx,y,mz,1.6,MARBLE);
+    for(const yb of [15,25,35]) T.disc(mx,yb,mz,2.6,MARBLE);
+    T.disc(mx,37,mz,2.2,MARBLE); T.disc(mx,38,mz,1.8,MARBLE); T.disc(mx,39,mz,1.1,MARBLE);
+    T.set(mx,40,mz,GOLD_BLOCK); T.set(mx,41,mz,GOLD_BLOCK);
+  }
+  for(let y=4;y<=20;y++) for(let v=-11;v<=11;v++) for(let u=-11;u<=11;u++) if(Math.abs(u)+Math.abs(v)<=18) T.set(c+u,y,zc+v,MARBLE);
+  for(let u=-3;u<=3;u++) for(let y=4;y<=16;y++){
+    if(y > 13 + (3-Math.abs(u))*0.9) continue;
+    for(let dep=0;dep<2;dep++){ T.set(c+u,y,zc+11-dep,0); T.set(c+u,y,zc-11+dep,0); T.set(c+11-dep,y,zc+u,0); T.set(c-11+dep,y,zc+u,0); }
+    T.set(c+u,y,zc+9,STONE_BRICK); T.set(c+u,y,zc-9,STONE_BRICK); T.set(c+9,y,zc+u,STONE_BRICK); T.set(c-9,y,zc+u,STONE_BRICK);
+  }
+  for(let v=-11;v<=11;v++) for(let u=-11;u<=11;u++){
+    const edge = Math.abs(u)+Math.abs(v)<=18 && (Math.abs(u)===11||Math.abs(v)===11||Math.abs(u)+Math.abs(v)===18);
+    if(edge && (u+v)%2===0) T.set(c+u,21,zc+v,MARBLE);
+  }
+  for(let y=21;y<=24;y++) T.disc(c,y,zc,8,MARBLE);
+  // big onion dome: swells past the drum, then pinches to a point
+  [8.6,9.5,10.1,10.4,10.4,10.1,9.6,8.9,8.0,7.0,5.9,4.8,3.7,2.8,2.0,1.4,0.9,0.6].forEach((r,i)=>T.disc(c,25+i,zc,r,MARBLE));
+  for(let y=43;y<=48;y++) T.set(c,y,zc,GOLD_BLOCK); T.disc(c,45,zc,1,GOLD_BLOCK);
+  for(const [u,v] of [[-9,-9],[9,-9],[-9,9],[9,9]]){
+    for(const [a,b] of [[-1,-1],[1,-1],[-1,1],[1,1]]) for(let y=21;y<=23;y++) T.set(c+u+a,y,zc+v+b,MARBLE);
+    [2.3,2.0,1.4,0.7].forEach((r,i)=>T.disc(c+u,24+i,zc+v,r,MARBLE));
+    T.set(c+u,28,zc+v,GOLD_BLOCK);
+  }
+  // charbagh garden: long reflecting pool, cross channel, marble walks, cypress rows
+  T.gfill(6,53,50,53,MARBLE); T.gfill(6,53,6,92,MARBLE); T.gfill(50,53,50,92,MARBLE);
+  T.gfill(25,54,25,92,MARBLE); T.gfill(31,54,31,92,MARBLE); T.gfill(26,54,30,92,WATER);
+  T.gfill(10,71,46,71,MARBLE); T.gfill(10,75,46,75,MARBLE); T.gfill(10,72,46,74,WATER); T.gfill(26,72,30,74,WATER);
+  T.fill(27,1,72,29,1,74,MARBLE); T.set(28,2,73,MARBLE);
+  for(let z=57;z<=89;z+=4){ if(z>=70&&z<=76) continue; for(const x of [21,35]){ T.set(x,1,z,LOG); for(let y=2;y<=7;y++) T.set(x,y,z,LEAVES); for(let y=3;y<=5;y++){ T.set(x+1,y,z,LEAVES); T.set(x-1,y,z,LEAVES); T.set(x,y,z+1,LEAVES); T.set(x,y,z-1,LEAVES); } } }
+  // great gate (red sandstone) with a pointed arch
+  T.fill(18,1,93,38,16,97,BRICK);
+  for(let u=-3;u<=3;u++) for(let y=1;y<=12;y++){ if(y > 9 + (3-Math.abs(u))*0.9) continue; for(let z=93;z<=97;z++) T.set(28+u,y,z,0); }
+  for(let x=18;x<=38;x+=2) T.set(x,17,93,BRICK);
+  for(const gx of [19,37]){ T.disc(gx,17,95,1.2,MARBLE); T.disc(gx,18,95,0.8,MARBLE); T.set(gx,19,95,GOLD_BLOCK); }
+  T.gfill(26,92,30,97,MARBLE);
+  return T.finish();
+}
+
+// ---- town pieces ----
+function bHouse(T,x0,z0,w,d,r){
+  const wallM = pick(r,[PLANK,BRICK,CONCRETE,PLANK,STONE_BRICK]), roofM = pick(r,[ROOF_TILE,SPRUCE_PLANK,ROOF_TILE]), H=4;
+  T.gfill(x0,z0,x0+w-1,z0+d-1,PLANK);
+  for(let x=x0;x<x0+w;x++) for(let z=z0;z<z0+d;z++){
+    const ex=x===x0||x===x0+w-1, ez=z===z0||z===z0+d-1;
+    if(!ex && !ez) continue;
+    const corner=ex&&ez;
+    for(let y=1;y<=H;y++){
+      let b = corner ? LOG : wallM;
+      if(!corner && (y===2||y===3) && ((ez && (x-x0)%3===1) || (ex && (z-z0)%3===1))) b = (r()<0.25 ? LIT : GLASS);
+      T.set(x,y,z,b);
+    }
+  }
+  const dx=x0+Math.floor(w/2);
+  T.set(dx,1,z0,0); T.set(dx,2,z0,0); T.set(dx,3,z0,wallM);
+  for(let k=0;;k++){
+    const za=z0-1+k, zb=z0+d-k, y=H+1+k;
+    if(za>zb) break;
+    for(let x=x0-1;x<=x0+w;x++){ T.set(x,y,za,roofM); T.set(x,y,zb,roofM); }
+    for(let z=za+1;z<zb;z++){ T.set(x0,y,z,wallM); T.set(x0+w-1,y,z,wallM); }
+    if(zb-za<=1) break;
+  }
+  for(let y=H+1;y<=H+Math.ceil(d/2)+2;y++) T.set(x0+w-3,y,z0+2,BRICK);
+  T.g(dx,z0-1,PATH); T.g(dx,z0-2,PATH);
+  for(const fx of [x0+1,x0+2,x0+w-2,x0+w-3]) if(r()<0.7) T.set(fx,1,z0-1,pick(r,[POPPY,DANDELION]));
+}
+function bTower(T,x0,z0,sz,h,style,r){
+  const cx=x0+(sz-1)/2, cz=z0+(sz-1)/2;
+  if(style===2){
+    for(let y=1;y<=h;y++) T.disc(cx,y,cz,sz/2-0.3, y%6===0?CONCRETE:(r()<0.07?LIT:GLASS_BLUE));
+    T.disc(cx,h+1,cz,sz/2-1.6,CONCRETE);
+    for(let y=h+2;y<=h+6;y++) T.set(cx,y,cz,METAL); T.set(cx,h+7,cz,LIT);
+    return;
+  }
+  for(let y=1;y<=h;y++){
+    const inset = style===1 ? (y>h*0.82?3 : y>h*0.6?2 : y>h*0.35?1 : 0) : 0;
+    for(let x=x0+inset;x<x0+sz-inset;x++) for(let z=z0+inset;z<z0+sz-inset;z++){
+      const ex=x===x0+inset||x===x0+sz-1-inset, ez=z===z0+inset||z===z0+sz-1-inset;
+      let b = CONCRETE;
+      if(ex||ez){
+        if(ex&&ez) b = style===1 ? MARBLE : CONCRETE;
+        else if(style===1) b = ((ex?z:x)%2===0) ? MARBLE : (r()<0.12?LIT:GLASS);
+        else b = y%4===0 ? CONCRETE : (r()<0.08?LIT:GLASS_BLUE);
+      }
+      T.set(x,y,z,b);
+    }
+  }
+  if(style===1){ T.fill(x0+4,h+1,z0+4,x0+sz-5,h+2,z0+sz-5,GOLD_BLOCK); for(let y=h+3;y<=h+8;y++) T.set(cx,y,cz,METAL); }
+  else {
+    for(let x=x0;x<x0+sz;x++){ T.set(x,h+1,z0,CONCRETE); T.set(x,h+1,z0+sz-1,CONCRETE); }
+    for(let z=z0;z<z0+sz;z++){ T.set(x0,h+1,z,CONCRETE); T.set(x0+sz-1,h+1,z,CONCRETE); }
+    for(let y=h+1;y<=h+7;y++) T.set(x0+2,y,z0+2,METAL); T.set(x0+2,h+8,z0+2,LIT);
+  }
+  T.set(Math.round(cx),1,z0,0); T.set(Math.round(cx),2,z0,0);
+}
+function bSchool(T,x0,z0,r){
+  const w=24,d=12,H=10, cx=x0+12;
+  for(let x=x0;x<x0+w;x++) for(let z=z0;z<z0+d;z++){
+    const ex=x===x0||x===x0+w-1, ez=z===z0||z===z0+d-1;
+    for(let y=1;y<=H;y++){
+      if(!ex&&!ez){ if(y===5||y===H) T.set(x,y,z,CONCRETE); continue; }
+      const along = ez ? x-x0 : z-z0;
+      let b = BRICK;
+      if((y===2||y===3||y===7||y===8) && along%3!==0) b = r()<0.15 ? LIT : GLASS;
+      if(y===5||y===H) b = CONCRETE;
+      T.set(x,y,z,b);
+    }
+  }
+  for(let x=x0;x<x0+w;x++){ T.set(x,H+1,z0,CONCRETE); T.set(x,H+1,z0+d-1,CONCRETE); }
+  for(let z=z0;z<z0+d;z++){ T.set(x0,H+1,z,CONCRETE); T.set(x0+w-1,H+1,z,CONCRETE); }
+  for(let x=cx-1;x<=cx+1;x++) for(let y=1;y<=3;y++) T.set(x,y,z0,0);
+  for(const px of [cx-3,cx+3]) for(let y=1;y<=4;y++) T.set(px,y,z0-2,CONCRETE);
+  T.fill(cx-4,5,z0-3,cx+4,5,z0-1,CONCRETE); T.gfill(cx-3,z0-3,cx+3,z0-1,CONCRETE);
+  for(let x=cx-3;x<=cx+3;x++) T.set(x,4,z0,WOOL_WHITE);                         // name board
+  T.fill(cx-1,H+1,z0+1,cx+1,H+5,z0+3,BRICK); T.set(cx,H+3,z0+1,GOLD_BLOCK);     // clock tower
+  T.fill(cx-1,H+6,z0+1,cx+1,H+6,z0+3,ROOF_TILE); T.set(cx,H+7,z0+2,ROOF_TILE);
+  const fx=x0-1, fz=z0-2;                                                        // flag
+  for(let y=1;y<=12;y++) T.set(fx,y,fz,METAL);
+  for(let i=1;i<=4;i++){ T.set(fx+i,12,fz,WOOL_RED); T.set(fx+i,11,fz,WOOL_WHITE); T.set(fx+i,10,fz,WOOL_BLUE); }
+  T.gfill(x0+1,z0+d+2,x0+11,z0+d+9,SAND);                                       // playground
+  for(const sx of [x0+14,x0+20]) for(let y=1;y<=4;y++) T.set(sx,y,z0+d+4,METAL);
+  for(let x=x0+14;x<=x0+20;x++) T.set(x,5,z0+d+4,METAL);
+  T.gfill(x0+13,z0+d+7,x0+22,z0+d+12,ROAD); for(let x=x0+13;x<=x0+22;x++) T.g(x,z0+d+9,ROAD_LINE);
+}
+function bChurch(T,x0,z0,r){
+  const w=11,d=18,H=8, cx=x0+5;
+  for(let x=x0;x<x0+w;x++) for(let z=z0;z<z0+d;z++){
+    const ex=x===x0||x===x0+w-1, ez=z===z0||z===z0+d-1;
+    if(!ex&&!ez) continue;
+    for(let y=1;y<=H;y++){
+      let b = STONE_BRICK;
+      if(ex && !ez && (z-z0)%3===1 && y>=3 && y<=6) b = y%2 ? GLASS_BLUE : WOOL_RED;   // stained glass
+      T.set(x,y,z,b);
+    }
+  }
+  for(let k=0;;k++){
+    const xa=x0-1+k, xb=x0+w-k, y=H+1+k;
+    if(xa>xb) break;
+    for(let z=z0-1;z<=z0+d;z++){ T.set(xa,y,z,ROOF_TILE); T.set(xb,y,z,ROOF_TILE); }
+    for(let x=xa+1;x<xb;x++){ T.set(x,y,z0,STONE_BRICK); T.set(x,y,z0+d-1,STONE_BRICK); }
+    if(xb-xa<=1) break;
+  }
+  const ry=H+3, rz=z0+d-1;                                                           // rose window
+  for(let a=-2;a<=2;a++) for(let b=-2;b<=2;b++) if(a*a+b*b<=4.5) T.set(cx+a,ry+b,rz, a===0&&b===0 ? GOLD_BLOCK : (a+b)%2 ? WOOL_RED : GLASS_BLUE);
+  T.fill(cx-2,1,z0-5,cx+2,20,z0-1,STONE_BRICK);                                     // bell tower
+  for(let z=z0-5;z<=z0;z++) for(let y=1;y<=3;y++) T.set(cx,y,z,0);
+  T.fill(cx-1,15,z0-4,cx+1,17,z0-2,0); T.set(cx,16,z0-3,GOLD_BLOCK);
+  for(let y=15;y<=17;y++){ T.set(cx,y,z0-5,0); T.set(cx,y,z0-1,0); T.set(cx-2,y,z0-3,0); T.set(cx+2,y,z0-3,0); }
+  [[2,21],[2,22],[1,23],[1,24],[1,25],[0,26],[0,27],[0,28]].forEach(([hw,y])=>T.fill(cx-hw,y,z0-3-hw,cx+hw,y,z0-3+hw,ROOF_TILE));
+  for(let y=29;y<=32;y++) T.set(cx,y,z0-3,GOLD_BLOCK); T.set(cx-1,31,z0-3,GOLD_BLOCK); T.set(cx+1,31,z0-3,GOLD_BLOCK);
+  T.gfill(cx-1,z0-8,cx+1,z0-6,PATH);
+  for(let i=0;i<9;i++){ const gx=x0-7+(r()*5|0), gz=z0+1+i*2; T.set(gx,1,gz,COBBLE); T.set(gx,2,gz,COBBLE); if(r()<0.6) T.set(gx+1,1,gz,POPPY); }
+}
+function buildTown(seed){
+  const T=makeT(64,104,64,GRASS), r=rng(seed*131+7);
+  T.gfill(28,0,35,63,CONCRETE); T.gfill(0,28,63,35,CONCRETE);
+  T.gfill(29,0,34,63,ROAD); T.gfill(0,29,63,34,ROAD);
+  for(let i=0;i<64;i++){ if(i>=28&&i<=35) continue; if(i%4<2){ T.g(31,i,ROAD_LINE); T.g(i,31,ROAD_LINE); } }
+  for(const i of [4,12,20,43,51,59]) for(const [lx,lz] of [[28,i],[35,i],[i,28],[i,35]]){ for(let y=1;y<=4;y++) T.set(lx,y,lz,METAL); T.set(lx,5,lz,LIT); }
+  const lots=[[0,0],[36,0],[0,36],[36,36]];
+  const kinds=['church','school','houses','towers'];
+  for(let i=kinds.length-1;i>0;i--){ const j=(r()*(i+1))|0; [kinds[i],kinds[j]]=[kinds[j],kinds[i]]; }
+  lots.forEach(([lx,lz],i)=>{
+    const k=kinds[i];
+    if(k==='houses'){ for(const [hx,hz] of [[2,3],[15,3],[2,16],[15,16]]) bHouse(T,lx+hx,lz+hz,10,9,r); }
+    else if(k==='towers'){ [[1,1],[15,1],[1,15],[15,15]].forEach(([tx,tz],n)=>bTower(T,lx+tx,lz+tz,11, 24+((r()*56)|0), (n+seed)%3, r)); }
+    else if(k==='school') bSchool(T,lx+2,lz+3,r);
+    else bChurch(T,lx+12,lz+7,r);
+    if(k!=='towers') for(let t=0;t<3;t++){ const tx=lx+1+((r()*26)|0), tz=lz+((r()*2)|0)*26+1; if(T.top[tx+64*tz]===0 && !T.data[tx+64*(1+104*tz)]){ T.set(tx,1,tz,LOG); T.set(tx,2,tz,LOG); T.fill(tx-1,3,tz-1,tx+1,4,tz+1,LEAVES); T.set(tx,5,tz,LEAVES); } }
+  });
+  return T.finish();
+}
+
+const TEMPLATES = {};
+function getTemplate(type, seed){
+  const key = type + (type==='town' ? seed : '');
+  if(!TEMPLATES[key]) TEMPLATES[key] = type==='eiffel' ? buildEiffel() : type==='burj' ? buildBurj() : type==='taj' ? buildTaj() : buildTown(seed);
+  return TEMPLATES[key];
+}
+// one of everything a short walk from spawn, then more across the endless world
+const SPAWN_SITES = [
+  { type:'town',   ox:22,  oz:22,   seed:1 },
+  { type:'eiffel', ox:-74, oz:-2 },
+  { type:'burj',   ox:32,  oz:-84 },
+  { type:'taj',    ox:-66, oz:-118 }
+];
+const REGION = 240, SITE_M = 5;
+const SITE_CACHE = {};
+function siteFrom(type, ox, oz, seed){
+  const key = type+':'+ox+':'+oz;
+  if(SITE_CACHE[key]) return SITE_CACHE[key];
+  const T = getTemplate(type, seed||0);
+  let sum=0, n=0;
+  for(const fx of [0.25,0.5,0.75]) for(const fz of [0.25,0.5,0.75]){ sum += computeHeight(Math.floor(ox+T.w*fx), Math.floor(oz+T.d*fz)).h; n++; }
+  const base = Math.max(WATER_LEVEL+1, Math.min(Math.round(sum/n), 26, WY-3-T.h));
+  return SITE_CACHE[key] = { type, T, ox, oz, base };
+}
+function regionSite(rx,rz){
+  const mx = rx*REGION + REGION/2, mz = rz*REGION + REGION/2;
+  if(Math.hypot(mx,mz) < 300) return null;
+  const h = hash2(rx*7.13+1.7, rz*3.71+2.9);
+  let type, seed=0;
+  if(h<0.5){ type='town'; seed = Math.floor(hash2(rx+11.3, rz-4.1)*4); }
+  else if(h<0.62) type='eiffel'; else if(h<0.74) type='burj'; else if(h<0.86) type='taj'; else return null;
+  const T = getTemplate(type, seed);
+  const ox = rx*REGION + 12 + Math.floor(hash2(rx*1.9+0.3, rz*5.3)*(REGION-24-T.w));
+  const oz = rz*REGION + 12 + Math.floor(hash2(rx*4.7, rz*2.1+0.7)*(REGION-24-T.d));
+  return siteFrom(type, ox, oz, seed);
+}
+function sitesForChunk(cx,cz){
+  const x0=cx*CX, z0=cz*CZ, x1=x0+CX, z1=z0+CZ, out=[];
+  const hit = s => s.ox-SITE_M < x1 && s.ox+s.T.w+SITE_M > x0 && s.oz-SITE_M < z1 && s.oz+s.T.d+SITE_M > z0;
+  for(const sp of SPAWN_SITES){ const s=siteFrom(sp.type, sp.ox, sp.oz, sp.seed); if(hit(s)) out.push(s); }
+  for(let rx=Math.floor(x0/REGION)-1; rx<=Math.floor(x1/REGION); rx++) for(let rz=Math.floor(z0/REGION)-1; rz<=Math.floor(z1/REGION); rz++){
+    const s = regionSite(rx,rz); if(s && hit(s)) out.push(s);
+  }
+  return out;
+}
+function stampSites(chunk, sites){
+  const x0=chunk.cx*CX, z0=chunk.cz*CZ;
+  for(const s of sites){
+    const T=s.T, base=s.base;
+    for(let lx=0;lx<CX;lx++) for(let lz=0;lz<CZ;lz++){
+      const tx=x0+lx-s.ox, tz=z0+lz-s.oz;
+      if(tx<-SITE_M||tz<-SITE_M||tx>=T.w+SITE_M||tz>=T.d+SITE_M) continue;
+      const inside = tx>=0&&tz>=0&&tx<T.w&&tz<T.d, ti = inside ? tx+T.w*tz : -1;
+      const h0 = chunk.heightMap[lx][lz];
+      const topT = inside ? T.top[ti] : 0;
+      const topY = Math.min(WY-1, Math.max(h0+9, base+topT));
+      for(let y=1;y<=topY;y++){
+        let b = glocal(chunk,lx,y,lz);
+        if(y<base){ if(b===AIR||b===WATER||CROSS.has(b)||b===LEAVES||b===BIRCH_LEAVES||b===LOG||b===BIRCH_LOG) b = y>=base-3 ? DIRT : STONE; }
+        else if(y===base) b = (inside && T.ground[ti]) || T.plaza;
+        else { const ty=y-base; b = (inside && ty<T.h) ? T.data[tx+T.w*(ty+T.h*tz)] : AIR; }
+        clocal(chunk,lx,y,lz,b);
+      }
+      chunk.heightMap[lx][lz] = base + topT;
+    }
+  }
+  if(sites.length) chunk.sites = sites;
+}
 
 function generateChunk(cx,cz){
   const data = new Uint8Array(CX*WY*CZ);
@@ -480,8 +844,12 @@ function generateChunk(cx,cz){
 
   plantTreesInChunk(chunk);
   carveWaterfallsInChunk(chunk);
-  maybeBuildSettlement(chunk);
-  if(!chunk.hasVillage){ if(!maybeBuildFarm(chunk)) maybeBuildLoneHouse(chunk); }
+  const sites = sitesForChunk(cx,cz);
+  if(sites.length) stampSites(chunk, sites);
+  else {
+    maybeBuildSettlement(chunk);
+    if(!chunk.hasVillage){ if(!maybeBuildFarm(chunk)) maybeBuildLoneHouse(chunk); }
+  }
   plantFloraInChunk(chunk);
 
   const key = chunkKey(cx,cz);
@@ -733,20 +1101,21 @@ const tintMats = [];
 const opaqueMat = new THREE.MeshBasicMaterial({ map:atlasTex, vertexColors:true });
 const cutoutMat = new THREE.MeshBasicMaterial({ map:atlasTex, vertexColors:true, alphaTest:0.5, side:THREE.DoubleSide });
 const waterMat  = new THREE.MeshBasicMaterial({ map:atlasTex, vertexColors:true, transparent:true, opacity:0.74, depthWrite:false, side:THREE.DoubleSide });
+const glowMat   = new THREE.MeshBasicMaterial({ map:atlasTex });   // not day-tinted: lit windows glow at night
 tintMats.push(opaqueMat, cutoutMat, waterMat);
 
 function buildChunkMesh(chunk){
   for(const m of chunk.meshes){ scene.remove(m); m.geometry.dispose(); }
   chunk.meshes=[];
-  const groups = { opaque:newArr(), cutout:newArr(), water:newArr() };
+  const groups = { opaque:newArr(), cutout:newArr(), water:newArr(), glow:newArr() };
   let maxY = 0;
-  for(let lx=0; lx<CX; lx++) for(let lz=0; lz<CZ; lz++) maxY = Math.max(maxY, chunk.heightMap[lx][lz]);
-  maxY = Math.min(WY-1, maxY + 14);
+  const data = chunk.data;
+  for(let i=0;i<data.length;i++) if(data[i]){ const yy=Math.floor(i/CX)%WY; if(yy>maxY) maxY=yy; }
   for(let lx=0; lx<CX; lx++) for(let y=0; y<=maxY; y++) for(let lz=0; lz<CZ; lz++){
     const t = chunk.data[li(lx,y,lz)];
     if(t===AIR) continue;
     if(CROSS.has(t)){ pushCross(groups.cutout, chunk, lx,y,lz, t); continue; }
-    const grp = t===WATER ? groups.water : CUTOUT.has(t) ? groups.cutout : groups.opaque;
+    const grp = t===WATER ? groups.water : CUTOUT.has(t) ? groups.cutout : GLOW.has(t) ? groups.glow : groups.opaque;
     for(const dir of DIRS){
       const nb=NEIGHBOR[dir];
       const nt = getL(chunk, lx+nb[0], y+nb[1], lz+nb[2]);
@@ -769,7 +1138,7 @@ function buildChunkMesh(chunk){
     geo.setAttribute('color', new THREE.Float32BufferAttribute(arr.colors,3));
     geo.setIndex(arr.indices);
     geo.computeBoundingSphere();
-    const mesh = new THREE.Mesh(geo, name==='water'?waterMat:name==='cutout'?cutoutMat:opaqueMat);
+    const mesh = new THREE.Mesh(geo, name==='water'?waterMat:name==='cutout'?cutoutMat:name==='glow'?glowMat:opaqueMat);
     if(name==='water') mesh.renderOrder = 2;
     scene.add(mesh);
     chunk.meshes.push(mesh);
@@ -782,12 +1151,12 @@ function buildChunkMesh(chunk){
 const container = document.getElementById('container');
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x78a7ff);
-scene.fog = new THREE.Fog(0xc0d8ff, 34, 116);
+scene.fog = new THREE.Fog(0xc0d8ff, FOG_NEAR, FOG_FAR);
 
 const camera = new THREE.PerspectiveCamera(75, window.innerWidth/window.innerHeight, 0.1, 460);
 scene.add(camera);
 const renderer = new THREE.WebGLRenderer({ antialias:false });
-renderer.setPixelRatio(Math.min(2, window.devicePixelRatio||1));
+renderer.setPixelRatio(Math.min(IS_TOUCH ? 1.5 : 2, window.devicePixelRatio||1));
 renderer.setSize(window.innerWidth, window.innerHeight);
 container.appendChild(renderer.domElement);
 const canvas = renderer.domElement;
@@ -832,7 +1201,7 @@ cloudTex.wrapS = cloudTex.wrapT = THREE.RepeatWrapping;
 const cloudMat = new THREE.MeshBasicMaterial({ map:cloudTex, transparent:true, opacity:0.82, side:THREE.DoubleSide, depthWrite:false });
 tintMats.push(cloudMat);
 const clouds = new THREE.Mesh(new THREE.PlaneGeometry(CLOUD_N*CLOUD_CELL, CLOUD_N*CLOUD_CELL), cloudMat);
-clouds.rotation.x = -Math.PI/2; clouds.position.y = WY + 24; clouds.renderOrder = 1;
+clouds.rotation.x = -Math.PI/2; clouds.position.y = 96; clouds.renderOrder = 1;
 scene.add(clouds);
 let cloudDrift = 0;
 
@@ -862,7 +1231,7 @@ function updateSky(dt){
   }
   skyGeo.attributes.color.needsUpdate = true;
   if(underwater){ scene.fog.color.set('#1d3f7a').multiplyScalar(daylight); scene.fog.near=0.5; scene.fog.far=16; }
-  else { scene.fog.color.copy(tmpHor); scene.fog.near=34; scene.fog.far=116; }
+  else { scene.fog.color.copy(tmpHor); scene.fog.near=FOG_NEAR; scene.fog.far=FOG_FAR; }
   scene.background.copy(tmpHor);
   for(const m of tintMats) m.color.setScalar(daylight);
   const cp = camera.position;
@@ -1212,6 +1581,18 @@ function addEntity(chunk, type, sp, group, extra){
 }
 function spawnChunkEntities(chunk){
   const seed = Math.abs(chunk.cx*7+chunk.cz*13);
+  if(chunk.sites){
+    const base = chunk.sites[0].base, ok=[ROAD,ROAD_LINE,CONCRETE,PATH,MARBLE,GRASS];
+    let n=0;
+    for(let i=0;i<40 && n<2;i++){
+      const lx=Math.floor(hash3(chunk.cx,i,chunk.cz)*CX), lz=Math.floor(hash3(chunk.cz,i+7,chunk.cx)*CZ);
+      if(chunk.heightMap[lx][lz]!==base || !ok.includes(glocal(chunk,lx,base,lz))) continue;
+      const sp={ x:chunk.cx*CX+lx+0.5, y:base+1, z:chunk.cz*CZ+lz+0.5 };
+      addEntity(chunk,'villager',sp,buildVillagerModel(seed+i),{ speed:1.1, tether:{x:sp.x,z:sp.z}, leash:7 });
+      n++;
+    }
+    return;
+  }
   if(chunk.hasVillage && chunk.villageSpawnPoints){
     chunk.villageSpawnPoints.forEach((sp,i)=>addEntity(chunk,'villager',sp,buildVillagerModel(seed+i),{ speed:1.3 }));
     (chunk.marketSpawnPoints||[]).forEach((sp,i)=>addEntity(chunk,'vendor',sp,buildVillagerModel(seed+i+3),{ speed:0.4, stateTimer:1+Math.random()*3, tether:{x:sp.x,z:sp.z}, leash:1.4 }));
@@ -1336,6 +1717,14 @@ document.addEventListener('mousedown', e=>{
 });
 document.addEventListener('contextmenu', e=> e.preventDefault());
 
+function goLandscape(){
+  const el = document.documentElement, req = el.requestFullscreen || el.webkitRequestFullscreen;
+  try{
+    const pr = req && !document.fullscreenElement ? req.call(el) : null;
+    const lock = ()=>{ try{ const l = screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape'); if(l && l.catch) l.catch(()=>{}); }catch(_){} };
+    if(pr && pr.then) pr.then(lock).catch(()=>{}); else lock();
+  }catch(_){}
+}
 function requestLock(){
   if(isMobile) return;
   try{ const p = canvas.requestPointerLock(); if(p && p.catch) p.catch(()=>{}); }catch(err){}
@@ -1515,7 +1904,7 @@ function animate(){
   const dt = Math.min(0.05, clock.getDelta());
   animateWater(dt);
 
-  if(gameStarted && !paused){
+  if(gameStarted && !paused && !window.__vcPortrait){
     updateChunkStreaming(initialLoadDone ? 2 : 40);
     updatePlayer(dt);
     updateTargeting();
@@ -1572,7 +1961,7 @@ document.getElementById('startBtn').addEventListener('click', ()=>{
     while(updateChunkStreaming(60) > 0){}
     const s = findSpawn();
     player.x = s.x; player.y = s.y; player.z = s.z; player.vy = 0;
-    yaw = 0; pitch = 0;
+    yaw = Math.atan2(-(-52 - player.x), -(20 - player.z)); pitch = 0.12;   // face the Eiffel Tower
     spawnBirds(); buildHotbar(); buildHUD();
     document.getElementById('startScreen').classList.add('hidden');
     document.getElementById('hud').classList.remove('hidden');
@@ -1581,6 +1970,7 @@ document.getElementById('startBtn').addEventListener('click', ()=>{
     document.body.classList.add('pet-away');
     gameStarted = true;
     if(!isMobile) requestLock();
+    else goLandscape();
   }, 30);
 });
 document.getElementById('resumeBtn').addEventListener('click', ()=>{
@@ -1593,7 +1983,7 @@ document.getElementById('resumeBtn').addEventListener('click', ()=>{
   const stone = TILE_CANVAS.stone.toDataURL(), cob = TILE_CANVAS.cobble.toDataURL();
   document.getElementById('logoTitle').style.backgroundImage = `url(${cob})`;
   document.getElementById('pauseTitle').style.backgroundImage = `url(${stone})`;
-  const splashes = ['Starring Alex!','Suit and tie!','Now with ores!','Square sun!','100% pixels!','Also try Sketch Ops!'];
+  const splashes = ['Starring Alex!','Suit and tie!','Now with landmarks!','Visit the Taj Mahal!','Climb the Eiffel Tower!','Burj Khalifa above the clouds!','Square sun!','Also try Sketch Ops!'];
   document.getElementById('splash').textContent = splashes[(Math.random()*splashes.length)|0];
 })();
 
@@ -1610,11 +2000,7 @@ window.__vc = { world, player, chunks, scene, camera, start:()=>document.getElem
 // MOBILE SUPPORT
 // =================================================================
 if(isMobile){
-  const landscapeOverlay = document.getElementById('landscapeOverlay');
-  function checkOrientation(){ landscapeOverlay.style.display = window.matchMedia('(orientation: portrait)').matches ? 'flex' : 'none'; }
-  try{ const mql = window.matchMedia('(orientation: portrait)'); if(mql.addEventListener) mql.addEventListener('change', checkOrientation); else mql.addListener(checkOrientation); }catch(e){}
-  window.addEventListener('resize', checkOrientation);
-  checkOrientation();
+  // the #orientationGate at the top of the page handles portrait (and pauses the game)
 
   const joystickArea = document.getElementById('joystickArea'), joystickKnob = document.getElementById('joystickKnob');
   let joyTouchId = null; const joyCenter = {x:0, y:0}; const JOY_RADIUS = 50;
@@ -1669,8 +2055,5 @@ if(isMobile){
 })();
 </script>
 
-    <!-- Alex — walking pixel-art pet (click to chat) -->
-    <link rel="stylesheet" href="pet/pet.css">
-    <script defer src="pet/pet.js"></script>
 </body>
 </html>
