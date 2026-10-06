@@ -1838,16 +1838,30 @@ function updatePlayer(dt){
   const len = Math.hypot(mx,mz); if(len>0){ mx/=len; mz/=len; }
 
   const inWater = world.get(player.x, player.y+0.4, player.z)===WATER;
+  const feetWet = inWater || world.get(player.x, player.y+0.05, player.z)===WATER;
   let speed = keys['shift'] ? SPRINT_SPEED : WALK_SPEED;
   if(inWater) speed *= 0.55;
   const vx = (forward[0]*mz + right[0]*mx) * speed, vz = (forward[2]*mz + right[2]*mx) * speed;
-  const newX = player.x + vx*dt; if(!collidesAt(newX, player.y, player.z)) player.x = newX;
-  const newZ = player.z + vz*dt; if(!collidesAt(player.x, player.y, newZ)) player.z = newZ;
+  let blocked = false, bx = player.x, bz = player.z;
+  const newX = player.x + vx*dt; if(!collidesAt(newX, player.y, player.z)) player.x = newX; else if(vx){ blocked = true; bx = newX; }
+  const newZ = player.z + vz*dt; if(!collidesAt(player.x, player.y, newZ)) player.z = newZ; else if(vz){ blocked = true; bz = newZ; }
 
-  if(inWater){
+  if(feetWet){
+    // swimming: gentle sink, Space to swim up
     player.vy += GRAVITY*0.25*dt;
-    if(keys[' ']) player.vy = Math.min(player.vy + 22*dt, 3.2);
+    if(keys[' ']) player.vy = Math.min(player.vy + 22*dt, 3.6);
     player.vy = Math.max(player.vy, -2.5);
+    // climbing out (Minecraft-style): push into a bank and you swim up its face, then hop
+    // over the edge once the top is in reach — works with just the joystick on phones
+    let stepTop = null;
+    if(blocked) for(let k=1;k<=4;k++){ const ty = Math.floor(player.y) + k; if(!collidesAt(bx, ty + 0.01, bz)){ stepTop = ty; break; } }
+    if(stepTop !== null && stepTop - player.y <= 4.2){
+      const need = stepTop - player.y + 0.12;
+      if(need <= 1.4) player.vy = Math.max(player.vy, Math.sqrt(2 * -GRAVITY * need));   // hop up and over
+      else player.vy = Math.max(player.vy, 3.6);                                          // swim up the bank
+    }
+    // standing in shallow water: Space jumps like on land
+    else if(keys[' '] && player.onGround) player.vy = JUMP_SPEED;
   } else {
     if(keys[' '] && player.onGround){ player.vy = JUMP_SPEED; player.onGround = false; }
     player.vy += GRAVITY*dt;
