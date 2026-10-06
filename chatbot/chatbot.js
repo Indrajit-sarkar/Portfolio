@@ -920,7 +920,7 @@
 
   function boot() {
     if ('requestIdleCallback' in window) {
-      window.requestIdleCallback(init);
+      window.requestIdleCallback(init, { timeout: 2000 });
     } else {
       setTimeout(init, 200);
     }

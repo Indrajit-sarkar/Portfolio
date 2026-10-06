@@ -31,7 +31,11 @@
             align-items: center;
             justify-content: center;
             text-align: center;
-            padding: 1.5rem;
+            padding: 1.5rem 1.5rem calc(1.5rem + 120px);
+        }
+        @media (max-height: 520px) {
+            .scene { padding-bottom: calc(0.75rem + 90px); }
+            .hint { margin-bottom: 1.2rem; }
         }
 
         /* ── stars ── */
@@ -65,75 +69,6 @@
         @keyframes twinkle {
             0%   { opacity: 0.2; }
             100% { opacity: 0.8; }
-        }
-
-        /* ── character wrapper — falling animation ── */
-        .character-zone {
-            position: relative;
-            z-index: 1;
-            width: 120px;
-            height: 200px;
-            margin-bottom: 2rem;
-            animation: falling 4s ease-in-out infinite;
-        }
-
-        @keyframes falling {
-            0%   { transform: translateY(-18px) rotate(-1deg); }
-            25%  { transform: translateY(8px)   rotate(1.5deg);  }
-            50%  { transform: translateY(-6px)  rotate(-1deg); }
-            75%  { transform: translateY(14px)  rotate(4deg);  }
-            100% { transform: translateY(-18px) rotate(-2deg); }
-        }
-
-        /* ── stick figure (SVG) ── */
-        .stickman {
-            width: 120px;
-            height: 200px;
-        }
-
-        /* jetpack flame flicker */
-        .flame {
-            animation: flicker 0.15s ease-in-out infinite alternate;
-            transform-origin: center top;
-        }
-        .flame-outer {
-            animation: flicker-outer 0.2s ease-in-out infinite alternate;
-            transform-origin: center top;
-        }
-
-        @keyframes flicker {
-            0%   { opacity: 1; transform: scaleY(1) scaleX(1); }
-            100% { opacity: 0.6; transform: scaleY(0.65) scaleX(0.9); }
-        }
-        @keyframes flicker-outer {
-            0%   { opacity: 0.6; transform: scaleY(1) scaleX(1); }
-            100% { opacity: 0.2; transform: scaleY(0.5) scaleX(0.85); }
-        }
-
-        /* smoke puffs */
-        .smoke {
-            animation: smoke-rise 1.2s ease-out infinite;
-            opacity: 0;
-        }
-        .smoke:nth-child(2) { animation-delay: 0.4s; }
-        .smoke:nth-child(3) { animation-delay: 0.8s; }
-
-        @keyframes smoke-rise {
-            0%   { opacity: 0.5; transform: translateY(0) scale(0.5); }
-            100% { opacity: 0;   transform: translateY(-30px) scale(1.5); }
-        }
-
-        /* sparks from jetpack */
-        .spark {
-            animation: spark-fall 0.8s ease-out infinite;
-            opacity: 0;
-        }
-        .spark:nth-of-type(2) { animation-delay: 0.25s; }
-        .spark:nth-of-type(3) { animation-delay: 0.55s; }
-
-        @keyframes spark-fall {
-            0%   { opacity: 1;   transform: translateY(0) translateX(0); }
-            100% { opacity: 0;   transform: translateY(20px) translateX(var(--sx, 5px)); }
         }
 
         /* ── 404 text ── */
@@ -253,15 +188,6 @@
 
         /* ── responsive ── */
         @media (max-width: 480px) {
-            .character-zone {
-                width: 90px;
-                height: 155px;
-                margin-bottom: 1.5rem;
-            }
-            .stickman {
-                width: 90px;
-                height: 155px;
-            }
             .hint { padding: 0 0.5rem; }
         }
     </style>
@@ -276,77 +202,9 @@
     </div>
 
     <div class="scene">
-        <!-- Stick figure with sputtering jetpack -->
-        <div class="character-zone" aria-hidden="true">
-            <svg class="stickman" viewBox="0 0 120 200" xmlns="http://www.w3.org/2000/svg">
-                <!-- Head -->
-                <circle cx="60" cy="32" r="14" fill="none" stroke="#f3f2ee" stroke-width="3"/>
-                <!-- Eyes (dots) -->
-                <circle cx="54" cy="30" r="2" fill="#f3f2ee"/>
-                <circle cx="66" cy="30" r="2" fill="#f3f2ee"/>
-                <!-- Mouth (surprised "o") -->
-                <ellipse cx="60" cy="39" rx="4" ry="3" fill="none" stroke="#f3f2ee" stroke-width="1.5"/>
-
-                <!-- Body -->
-                <line x1="60" y1="46" x2="60" y2="100" stroke="#f3f2ee" stroke-width="3" stroke-linecap="round"/>
-
-                <!-- Arms (flailing up) -->
-                <line x1="60" y1="62" x2="36" y2="52" stroke="#f3f2ee" stroke-width="3" stroke-linecap="round"/>
-                <line x1="36" y1="52" x2="28" y2="40" stroke="#f3f2ee" stroke-width="3" stroke-linecap="round"/>
-                <line x1="60" y1="62" x2="84" y2="52" stroke="#f3f2ee" stroke-width="3" stroke-linecap="round"/>
-                <line x1="84" y1="52" x2="92" y2="40" stroke="#f3f2ee" stroke-width="3" stroke-linecap="round"/>
-
-                <!-- Legs (dangling) -->
-                <line x1="60" y1="100" x2="44" y2="130" stroke="#f3f2ee" stroke-width="3" stroke-linecap="round"/>
-                <line x1="44" y1="130" x2="40" y2="148" stroke="#f3f2ee" stroke-width="3" stroke-linecap="round"/>
-                <line x1="60" y1="100" x2="76" y2="130" stroke="#f3f2ee" stroke-width="3" stroke-linecap="round"/>
-                <line x1="76" y1="130" x2="80" y2="148" stroke="#f3f2ee" stroke-width="3" stroke-linecap="round"/>
-
-                <!-- Jetpack body -->
-                <rect x="44" y="58" width="8" height="28" rx="3" fill="#4e4235" stroke="#a78766" stroke-width="1.5"/>
-                <rect x="68" y="58" width="8" height="28" rx="3" fill="#4e4235" stroke="#a78766" stroke-width="1.5"/>
-                <!-- Jetpack connector -->
-                <rect x="48" y="68" width="24" height="6" rx="2" fill="#4e4235" stroke="#a78766" stroke-width="1"/>
-                <!-- Jetpack nozzles -->
-                <rect x="44" y="86" width="8" height="5" rx="1.5" fill="#a78766"/>
-                <rect x="68" y="86" width="8" height="5" rx="1.5" fill="#a78766"/>
-
-                <!-- Left flame -->
-                <g transform="translate(48, 91)">
-                    <ellipse class="flame-outer" cx="0" cy="14" rx="5" ry="20" fill="rgba(192,163,119,0.25)"/>
-                    <ellipse class="flame" cx="0" cy="12" rx="3" ry="16" fill="#c0a377" opacity="0.8"/>
-                    <ellipse class="flame" cx="0" cy="10" rx="1.5" ry="12" fill="#d8c6a4"/>
-                </g>
-                <!-- Right flame -->
-                <g transform="translate(72, 91)">
-                    <ellipse class="flame-outer" cx="0" cy="14" rx="5" ry="20" fill="rgba(192,163,119,0.25)"/>
-                    <ellipse class="flame" cx="0" cy="12" rx="3" ry="16" fill="#c0a377" opacity="0.8"/>
-                    <ellipse class="flame" cx="0" cy="10" rx="1.5" ry="12" fill="#d8c6a4"/>
-                </g>
-
-                <!-- Smoke puffs -->
-                <g transform="translate(48, 110)">
-                    <circle class="smoke" cx="-4" cy="0" r="4" fill="rgba(243,242,238,0.18)"/>
-                    <circle class="smoke" cx="2" cy="-5" r="3" fill="rgba(243,242,238,0.12)"/>
-                    <circle class="smoke" cx="-6" cy="-10" r="5" fill="rgba(243,242,238,0.08)"/>
-                </g>
-                <g transform="translate(72, 110)">
-                    <circle class="smoke" cx="4" cy="0" r="4" fill="rgba(243,242,238,0.18)"/>
-                    <circle class="smoke" cx="-2" cy="-5" r="3" fill="rgba(243,242,238,0.12)"/>
-                    <circle class="smoke" cx="6" cy="-10" r="5" fill="rgba(243,242,238,0.08)"/>
-                </g>
-
-                <!-- Sparks -->
-                <circle class="spark" cx="46" cy="98" r="1.5" fill="#d8c6a4" style="--sx: -8px"/>
-                <circle class="spark" cx="50" cy="100" r="1" fill="#c0a377" style="--sx: -4px"/>
-                <circle class="spark" cx="74" cy="98" r="1.5" fill="#d8c6a4" style="--sx: 8px"/>
-                <circle class="spark" cx="70" cy="100" r="1" fill="#c0a377" style="--sx: 4px"/>
-            </svg>
-        </div>
-
         <div class="code">404</div>
         <p class="subtitle">Page not found</p>
-        <p class="hint">Looks like this page drifted into the void. The jetpack couldn't save it.</p>
+        <p class="hint">Looks like this page drifted into the void. Even my jetpack couldn't save it.</p>
 
         <a href="/" class="btn-back">
             <svg viewBox="0 0 24 24"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
@@ -355,5 +213,10 @@
     </div>
 
     <div class="ground" aria-hidden="true"></div>
+
+    <!-- Pixel Indrajit walks in, finds nothing, and jetpacks away.
+         Absolute paths: this page is served for any missing URL, at any depth. -->
+    <link rel="stylesheet" href="/pet/pet.css">
+    <script defer src="/pet/pet.js" data-mode="404"></script>
 </body>
 </html>

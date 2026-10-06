@@ -526,7 +526,7 @@
                     </div>
                     <span class="card-tag">Action · 2D</span>
                     <h2 class="card-title">Sketch Ops</h2>
-                    <p class="card-desc">2D jetpack combat — Mini Militia-style. Dodge, shoot and survive.</p>
+                    <p class="card-desc">Pixel-art jetpack deathmatch. Grab AK-47s, SCARs, snipers and rockets, and hide in the bushes.</p>
                     <button class="card-play" aria-label="Play Sketch Ops">
                         <svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
                         Play
@@ -594,16 +594,20 @@
                 <div class="rules-section">
                     <h3>Desktop Controls</h3>
                     <div class="control-grid">
-                        <span class="key">WASD / ←↑↓→</span>
+                        <span class="key">A / D</span>
                         <span class="key-action">Move</span>
-                        <span class="key">Click</span>
-                        <span class="key-action">Shoot</span>
-                        <span class="key">Space</span>
+                        <span class="key">W / Space</span>
                         <span class="key-action">Jetpack</span>
-                        <span class="key">R</span>
-                        <span class="key-action">Reload</span>
+                        <span class="key">Mouse · Click</span>
+                        <span class="key-action">Aim · Shoot</span>
+                        <span class="key">1 / 2 · Wheel</span>
+                        <span class="key-action">Switch gun</span>
+                        <span class="key">E · Q</span>
+                        <span class="key-action">Swap pickup · Drop</span>
+                        <span class="key">R · G · F</span>
+                        <span class="key-action">Reload · Grenade · Melee</span>
                         <span class="key">ESC</span>
-                        <span class="key-action">Pause</span>
+                        <span class="key-action">Exit</span>
                     </div>
                 </div>
             </div>
@@ -613,14 +617,18 @@
                 <div class="rules-section">
                     <h3>Touch Controls</h3>
                     <div class="control-grid">
-                        <span class="key">Joystick</span>
-                        <span class="key-action">Movement</span>
-                        <span class="key">Tap</span>
-                        <span class="key-action">Shoot</span>
-                        <span class="key">🚀 Button</span>
+                        <span class="key">Left stick</span>
+                        <span class="key-action">Move (push up to fly)</span>
+                        <span class="key">Right stick</span>
+                        <span class="key-action">Aim &amp; fire</span>
+                        <span class="key">JET</span>
                         <span class="key-action">Jetpack</span>
-                        <span class="key">🔄 Button</span>
-                        <span class="key-action">Reload</span>
+                        <span class="key">SWAP / DROP</span>
+                        <span class="key-action">Take the gun underfoot</span>
+                        <span class="key">NADE · HIT</span>
+                        <span class="key-action">Grenade · Melee</span>
+                        <span class="key">Weapon panel</span>
+                        <span class="key-action">Tap to switch gun</span>
                     </div>
                 </div>
             </div>
@@ -630,7 +638,7 @@
             <div class="rules-section">
                 <h3>Objective</h3>
                 <div class="rules-objective">
-                    <strong>Survive waves of enemies.</strong> Dodge bullets, collect power-ups, and rack up the highest score.
+                    <strong>First to 15 kills wins</strong>, or the top score when the 5-minute clock runs out. You play as Indrajit in his suit against five rivals: IronWall (armor), Striker10 (sportswear), NoCap.exe (Gen Z), Ghost (camo) and Throttle (biker). AK-47s, M4s, SCARs, shotguns, snipers and rocket launchers are scattered across the map, with medkits and explosive barrels. Duck into bushes to hide, or take cover behind crates, sandbags and the bunker.
                 </div>
             </div>
 
@@ -847,5 +855,9 @@
         showControls();
     })();
     </script>
+
+    <!-- Pixel Indrajit — walking pixel-art pet (click to chat) -->
+    <link rel="stylesheet" href="pet/pet.css">
+    <script defer src="pet/pet.js"></script>
 </body>
 </html>

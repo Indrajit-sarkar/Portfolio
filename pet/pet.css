@@ -1,0 +1,157 @@
+/* Pixel Indrajit — walking desk pet (see pet.js) */
+#pixel-pet {
+  position: fixed;
+  cursor: pointer;
+  left: 0;
+  bottom: 14px;
+  z-index: 185;              /* under Alex (190) and the bottom nav (200) */
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  will-change: transform;
+  outline: none;
+}
+#pixel-pet.is-held { cursor: grabbing; }
+#pixel-pet canvas {
+  display: block;
+  image-rendering: pixelated;
+  image-rendering: crisp-edges;
+  transform-origin: 50% 100%;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.28));
+  position: relative;
+  z-index: 1;
+}
+/* the black suit would vanish into the dark theme — give it a soft light rim */
+[data-theme="dark"] #pixel-pet canvas,
+:root:not([data-theme]) #pixel-pet canvas {
+  filter: drop-shadow(0 0 1px rgba(243, 242, 238, 0.55)) drop-shadow(0 6px 10px rgba(0, 0, 0, 0.45));
+}
+#pixel-pet:focus-visible canvas {
+  filter: drop-shadow(0 0 0 var(--khaki)) drop-shadow(0 0 6px var(--khaki));
+}
+.pet-shadow {
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  width: 54%;
+  height: 8px;
+  border-radius: 50%;
+  background: rgba(0, 0, 0, 0.28);
+  filter: blur(1px);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+/* ---- speech bubble: 16-bit dialogue box ---- */
+.pet-bubble {
+  --tail: 50%;
+  position: fixed;
+  left: 0;
+  bottom: 160px;
+  z-index: 186;
+  max-width: min(270px, calc(100vw - 20px));
+  padding: 0.7rem 0.85rem;
+  background: var(--bg-1, #fff);
+  color: var(--ink, #111);
+  border: 2px solid var(--ink, #111);
+  border-radius: 4px;
+  box-shadow: 4px 4px 0 var(--khaki, #9a8059);
+  font-family: var(--font-m, ui-monospace, monospace);
+  font-size: 0.74rem;
+  line-height: 1.5;
+  opacity: 0;
+  transform: translateY(6px) scale(0.96);
+  transform-origin: var(--tail) 100%;
+  pointer-events: none;
+  transition: opacity 0.22s steps(3), transform 0.22s steps(3);
+}
+.pet-bubble.is-open {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.pet-bubble::after {
+  content: '';
+  position: absolute;
+  top: 100%;
+  left: var(--tail);
+  width: 10px;
+  height: 10px;
+  margin-left: -5px;
+  margin-top: -4px;
+  background: inherit;
+  border-right: 2px solid var(--ink, #111);
+  border-bottom: 2px solid var(--ink, #111);
+  transform: rotate(45deg);
+}
+.pet-bubble p { margin: 0; }
+.pet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4rem;
+  margin-top: 0.6rem;
+}
+.pet-actions button {
+  font: inherit;
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  padding: 0.38rem 0.6rem;
+  border: 2px solid var(--ink, #111);
+  border-radius: 3px;
+  background: transparent;
+  color: var(--ink, #111);
+  cursor: pointer;
+  box-shadow: 2px 2px 0 var(--ink, #111);
+  transition: transform 0.1s, box-shadow 0.1s;
+}
+.pet-actions button.is-primary {
+  background: var(--khaki, #9a8059);
+  color: #0b0b0a;
+}
+.pet-actions button:hover { transform: translate(-1px, -1px); box-shadow: 3px 3px 0 var(--ink, #111); }
+.pet-actions button:active { transform: translate(2px, 2px); box-shadow: 0 0 0 var(--ink, #111); }
+.pet-actions button:focus-visible { outline: 2px solid var(--khaki, #9a8059); outline-offset: 2px; }
+
+/* ---- particles ---- */
+.pet-fx {
+  position: fixed;
+  z-index: 187;
+  pointer-events: none;
+  font-family: var(--font-m, monospace);
+  font-weight: 800;
+  font-size: 14px;
+  color: var(--khaki, #c0a377);
+  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.35);
+  animation: petFx 1.6s steps(12) forwards;
+}
+.pet-fx.is-heart { color: #e0566b; font-size: 16px; }
+.pet-fx.is-z { color: var(--ink-2, #888); font-size: 13px; animation-duration: 2.2s; }
+@keyframes petFx {
+  0%   { opacity: 0; transform: translate(0, 0) scale(0.6); }
+  15%  { opacity: 1; }
+  100% { opacity: 0; transform: translate(var(--dx, 0), -56px) scale(1.15); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pet-bubble, .pet-actions button { transition: none; }
+}
+@media print {
+  #pixel-pet, .pet-bubble, .pet-fx { display: none !important; }
+}
+
+/* hidden while a game is running (pointer lock, fullscreen, arcade overlay) */
+#pixel-pet.is-away { opacity: 0; pointer-events: none; transition: opacity 0.3s; }
+
+/* jetpack exhaust on the 404 page */
+.pet-fx.is-smoke {
+  color: rgba(200, 200, 205, 0.55);
+  font-size: 12px;
+  text-shadow: none;
+  animation: petSmoke 0.9s ease-out forwards;
+}
+@keyframes petSmoke {
+  0%   { opacity: 0.8; transform: translate(-50%, 0) scale(0.6); }
+  100% { opacity: 0;   transform: translate(calc(-50% + var(--dx, 0px)), 34px) scale(2.2); }
+}
