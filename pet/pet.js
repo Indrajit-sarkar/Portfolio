@@ -437,6 +437,7 @@
       });
 
       var onResize = function () {
+        self._vw = window.innerWidth; self._vh = window.innerHeight;
         self.applyScale();
         self.measureGround();
         if (MODE === '404') {
@@ -444,8 +445,11 @@
           else if (self.state !== 'fly' && self.state !== 'gone') self.x = self.center();
         } else self.x = self.clampX(self.x);
       };
+      self.onResize = onResize;
+      self._vw = window.innerWidth; self._vh = window.innerHeight;
       window.addEventListener('resize', onResize);
       window.addEventListener('orientationchange', function () { setTimeout(onResize, 250); });
+      if (window.visualViewport) window.visualViewport.addEventListener('resize', onResize);
 
       // step aside while a game is running (pointer lock, fullscreen, the arcade overlay,
       // or a page that flags it with body.pet-away)
@@ -808,6 +812,7 @@
 
     loop: function (now) {
       if (document.hidden) return;
+      if (this.onResize && (window.innerWidth !== this._vw || window.innerHeight !== this._vh)) this.onResize();
       var dt = this.prev ? Math.min(0.05, (now - this.prev) / 1000) : 0.016;
       this.prev = now;
       this.stateT += dt * 1000;
