@@ -84,9 +84,11 @@ const sun = new THREE.DirectionalLight(P.sun, P.sunI);
 sun.position.set(-40, 60, 30);
 sun.castShadow = true;
 sun.shadow.mapSize.set(1024, 1024);
-sun.shadow.camera.left = -80; sun.shadow.camera.right = 80;
-sun.shadow.camera.bottom = -40;
+sun.shadow.camera.left = -48; sun.shadow.camera.right = 48;
+sun.shadow.camera.top = 34; sun.shadow.camera.bottom = -34;
 sun.shadow.camera.far = 200;
+sun.shadow.camera.updateProjectionMatrix();
+const sunOff = new THREE.Vector3(-40, 60, 30);
 sun.shadow.bias = -0.001;
 scene.add(sun.target);
 scene.add(sun);
@@ -112,23 +114,27 @@ function srand() { _seed = (_seed * 16807) % 2147483647; return (_seed - 1) / 21
 const groundMat = mat(P.ground);
 const gGeo = new THREE.PlaneGeometry(ROAD_END + 140, 180, Math.round((ROAD_END + 140) / 4), 36);
 gGeo.rotateX(-Math.PI / 2);
+const GROUND_X0 = ROAD_END / 2 - 30;
+// rolling hills, held flat (just under the kerb) for the first few metres either side of the road
+function terrainY(lx, z) {
+    const t = Math.min(1, Math.max(0, (Math.abs(z) - 7) / 11)), edge = t * t * (3 - 2 * t);
+    return (Math.sin(lx * 0.06) * 1.8 + Math.cos(z * 0.08) * 2.2 + Math.sin(lx * 0.02 + z * 0.03) * 1.2) * edge;
+}
+const groundY = (x, z) => terrainY(x - GROUND_X0, z);
 {
     const pos = gGeo.attributes.position;
-    for (let i = 0; i < pos.count; i++) {
-        const x = pos.getX(i), z = pos.getZ(i);
-        const edge = Math.min(1, Math.abs(z) / 14);
-        pos.setY(i, (Math.sin(x * 0.06) * 1.8 + Math.cos(z * 0.08) * 2.2 + Math.sin(x * 0.02 + z * 0.03) * 1.2) * edge);
-    }
+    for (let i = 0; i < pos.count; i++) pos.setY(i, terrainY(pos.getX(i), pos.getZ(i)));
     gGeo.computeVertexNormals();
 }
 const ground = new THREE.Mesh(gGeo, groundMat);
-ground.position.set(ROAD_END / 2 - 30, 0, 0);
+ground.position.set(GROUND_X0, 0, 0);
 ground.receiveShadow = true;
 scene.add(ground);
 
 /* ===== ROAD + SIDEWALKS ===== */
 const roadMat = mat(P.road);
-const road = new THREE.Mesh(new THREE.BoxGeometry(ROAD_END + 100, 0.42, 7.5), roadMat);
+const ROAD_TOP = 0.42, SIDEWALK_TOP = 0.35;
+const road = new THREE.Mesh(new THREE.BoxGeometry(ROAD_END + 100, ROAD_TOP, 7.5), roadMat);
 road.position.set(ROAD_END / 2 - 30, 0.21, 0);
 road.receiveShadow = true;
 scene.add(road);
@@ -864,36 +870,6 @@ for (let r = 0; r < 2; r++) {
     }
 }
 
-/* Parking lot near MCA building */
-const parkX = STOPS[3].at;
-const carColors = [0x4a4a5a, 0x8a3030, 0xf0f0e0, 0x2a3a5a, 0x5a5a5a];
-_seed = 555;
-for (let i = 0; i < 5; i++) {
-    const car = new THREE.Group();
-    const carBody = new THREE.Mesh(new THREE.BoxGeometry(3.2, 1.2, 1.8), mat(carColors[i % carColors.length]));
-    carBody.position.y = 0.8; car.add(carBody);
-    const roof = new THREE.Mesh(new THREE.BoxGeometry(1.8, 0.8, 1.6), mat(carColors[i % carColors.length]));
-    roof.position.y = 1.7; roof.position.x = -0.2; car.add(roof);
-    // Windshield
-    const windshield = new THREE.Mesh(new THREE.PlaneGeometry(0.05, 1.4), mat(0x88aacc));
-    windshield.position.set(0.8, 1.5, 0); windshield.rotation.z = -0.3; car.add(windshield);
-    // Wheels
-    for (const [wx, wz] of [[-1, 0.85], [-1, -0.85], [1, 0.85], [1, -0.85]]) {
-        const cw = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.3, 0.2, 8), mat(0x1a1a1a));
-        cw.rotation.x = Math.PI / 2;
-        cw.position.set(wx, 0.3, wz); car.add(cw);
-    }
-    // Headlights
-    const hl1 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 6, 4), mat(0xffffcc));
-    hl1.position.set(1.6, 0.7, 0.6); car.add(hl1);
-    const hl2 = new THREE.Mesh(new THREE.SphereGeometry(0.1, 6, 4), mat(0xffffcc));
-    hl2.position.set(1.6, 0.7, -0.6); car.add(hl2);
-    
-    car.position.set(parkX + 18 + i * 4, 0, 14 + (i % 2) * 3);
-    car.rotation.y = Math.PI * 0.5;
-    scene.add(car);
-}
-
 /* ===== SIGNPOSTS ===== */
 const postMat = mat(0x8a7a63), signMat = mat(0xf0e6d2);
 STOPS.forEach((s, i) => {
@@ -1081,8 +1057,8 @@ function autoRickshaw(x, z, ry) {
     const back = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.72, 1.38), M.yellow); back.position.set(-1.3, 1.6, 0); g.add(back);
     const rw = new THREE.Mesh(new THREE.PlaneGeometry(0.5, 0.26), M.glass); rw.position.set(-1.34, 1.66, 0); rw.rotation.y = -Math.PI / 2; g.add(rw);
     for (const sz of [0.69, -0.69]) {
-        const q = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.72, 0.04), M.yellow); q.position.set(-0.98, 1.6, sz); g.add(q);
-        const strap = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.72, 0.05), M.black); strap.position.set(-0.66, 1.6, sz); g.add(strap);
+        const q = new THREE.Mesh(new THREE.BoxGeometry(0.26, 0.72, 0.04), M.yellow); q.position.set(-1.16, 1.6, sz); g.add(q);   // narrow, so the fare shows
+        const strap = new THREE.Mesh(new THREE.BoxGeometry(0.04, 0.72, 0.05), M.black); strap.position.set(-1.02, 1.6, sz); g.add(strap);
     }
     // windscreen pillars, tilted glass and a wiper
     for (const sz of [0.6, -0.6]) limbBetween(new THREE.Vector3(1.4, 1.32, sz), new THREE.Vector3(1.18, 1.98, sz), 0.035, M.black, g);
@@ -1095,12 +1071,13 @@ function autoRickshaw(x, z, ry) {
     for (const sz of [0.48, -0.48]) { const ind = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 6), M.amber); ind.position.set(1.56, 1.2, sz); g.add(ind); }
     // front fork + wheel, rear wheels tucked under the body
     limbBetween(new THREE.Vector3(1.42, 0.62, 0), new THREE.Vector3(1.32, 0.37, 0), 0.05, M.chrome, g);
-    autoWheel(g, 1.32, 0, true);
-    autoWheel(g, -0.82, 0.62, false); autoWheel(g, -0.82, -0.62, false);
-    // seats, handlebar, meter
-    const bench = new THREE.Mesh(new THREE.BoxGeometry(0.6, 0.18, 1.24), M.black); bench.position.set(-0.78, 1.1, 0); g.add(bench);
-    const backrest = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.55, 1.24), M.black); backrest.position.set(-1.15, 1.42, 0); backrest.rotation.z = 0.12; g.add(backrest);
-    const dseat = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.14, 0.46), M.black); dseat.position.set(0.42, 1.08, 0); g.add(dseat);
+    const wheels = [autoWheel(g, 1.32, 0, true), autoWheel(g, -0.82, 0.62, false), autoWheel(g, -0.82, -0.62, false)];
+    // seats (the rear bench sits low enough for a seated passenger to clear the canopy), handlebar, meter
+    const bench = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.16, 1.24), M.black); bench.position.set(-0.8, 0.86, 0); g.add(bench);
+    const benchBase = new THREE.Mesh(new THREE.BoxGeometry(0.5, 0.3, 1.2), M.green); benchBase.position.set(-0.84, 0.66, 0); g.add(benchBase);
+    const backrest = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.7, 1.24), M.black); backrest.position.set(-1.16, 1.25, 0); backrest.rotation.z = 0.12; g.add(backrest);
+    const dseat = new THREE.Mesh(new THREE.BoxGeometry(0.42, 0.14, 0.46), M.black); dseat.position.set(0.42, 0.86, 0); g.add(dseat);
+    const seatAnchor = new THREE.Object3D(); seatAnchor.position.set(-0.86, 0.94, -0.28); g.add(seatAnchor);   // kerb-side half of the bench
     const bar = new THREE.Mesh(new THREE.CylinderGeometry(0.025, 0.025, 0.74, 8), M.chrome); bar.rotation.x = Math.PI / 2; bar.position.set(0.98, 1.42, 0); g.add(bar);
     limbBetween(new THREE.Vector3(1.12, 1.25, 0), new THREE.Vector3(0.98, 1.42, 0), 0.03, M.black, g);
     const meter = new THREE.Mesh(new THREE.BoxGeometry(0.12, 0.14, 0.16), M.black); meter.position.set(1.05, 1.42, -0.3); g.add(meter);
@@ -1112,42 +1089,43 @@ function autoRickshaw(x, z, ry) {
         c.fillStyle = '#111'; fitText(c, plateNo, w / 2, 58, w - 20, 44, 'bold', SANS, 'center');
     });
     plate.position.set(-1.37, 0.66, 0); plate.rotation.y = -Math.PI / 2; g.add(plate);
-    // driver in the khaki uniform
+    // driver in the khaki uniform, sat low enough that his head clears the canopy
+    const drv = new THREE.Group(); drv.position.y = -0.22; g.add(drv);
     const hip = new THREE.Vector3(0.42, 1.18, 0), chest = new THREE.Vector3(0.52, 1.72, 0);
-    limbBetween(hip, chest, 0.2, M.khaki, g).scale.set(1, 1, 1.25);
-    const head = new THREE.Mesh(new THREE.SphereGeometry(0.16, 14, 10), M.skin); head.position.set(0.58, 2.0, 0); g.add(head);
-    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.168, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.42), M.hair); hair.position.copy(head.position); hair.rotation.z = 0.2; g.add(hair);
-    const moust = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.025, 0.12), M.hair); moust.position.set(0.73, 1.95, 0); g.add(moust);
+    limbBetween(hip, chest, 0.22, M.khaki, drv).scale.set(1, 1, 1.3);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.16, 14, 10), M.skin); head.position.set(0.58, 2.0, 0); drv.add(head);
+    const hair = new THREE.Mesh(new THREE.SphereGeometry(0.168, 14, 8, 0, Math.PI * 2, 0, Math.PI * 0.42), M.hair); hair.position.copy(head.position); hair.rotation.z = 0.2; drv.add(hair);
+    const moust = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.025, 0.12), M.hair); moust.position.set(0.73, 1.95, 0); drv.add(moust);
     for (const sz of [0.2, -0.2]) {
-        const sh = new THREE.Vector3(0.55, 1.78, sz), el = new THREE.Vector3(0.74, 1.5, sz * 1.35), hd = new THREE.Vector3(0.98, 1.43, sz * 1.6);
-        limbBetween(sh, el, 0.065, M.khaki, g); limbBetween(el, hd, 0.055, M.skin, g);
-        const kn = new THREE.Vector3(0.78, 1.18, sz * 0.8), ft = new THREE.Vector3(0.88, 0.6, sz * 0.8);
-        limbBetween(new THREE.Vector3(0.42, 1.12, sz * 0.7), kn, 0.08, M.khaki, g); limbBetween(kn, ft, 0.065, M.khaki, g);
+        const sh = new THREE.Vector3(0.55, 1.78, sz), el = new THREE.Vector3(0.74, 1.62, sz * 1.35), hd = new THREE.Vector3(0.98, 1.64, sz * 1.6);
+        limbBetween(sh, el, 0.075, M.khaki, drv); limbBetween(el, hd, 0.06, M.skin, drv);
+        const kn = new THREE.Vector3(0.78, 1.18, sz * 0.8), ft = new THREE.Vector3(0.88, 0.66, sz * 0.8);
+        limbBetween(new THREE.Vector3(0.42, 1.12, sz * 0.7), kn, 0.09, M.khaki, drv); limbBetween(kn, ft, 0.07, M.khaki, drv);
     }
-    g.scale.setScalar(1.42);
-    g.position.set(x, 0.42 - 0.04, z); g.rotation.y = ry;
+    g.scale.setScalar(AUTO_SCALE);
+    g.position.set(x, 0.42 - 0.03, z); g.rotation.y = ry;
+    g.userData = { wheels, wheelR: 0.37 * AUTO_SCALE, seatAnchor, len: 2.9 * AUTO_SCALE };
     scene.add(g);
     return g;
 }
-autoRickshaw(STOPS[0].at + 13, 2.6, Math.PI);
-autoRickshaw(STOPS[1].at - 16, 2.6, 0);
-autoRickshaw(STOPS[2].at + 20, -2.4, Math.PI);
-autoRickshaw(STOPS[3].at - 18, 2.6, 0.05);
+const AUTO_SCALE = 1.3;
 
 /* ===== BENCHES ===== */
 _seed = 33;
+const benchSpots = [];
 for (let i = 0; i < 16; i++) {
     const x = -10 + srand() * (ROAD_END + 20);
     const z = srand() > 0.5 ? -6 : 6;
     const bench = new THREE.Group();
     const seat = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.15, 0.8), mat(0x7a5a3a));
-    seat.position.y = 0.9; bench.add(seat);
-    const leg1 = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.9, 0.6), mat(0x4a4a4a));
-    leg1.position.set(-1, 0.45, 0); bench.add(leg1);
-    const leg2 = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.9, 0.6), mat(0x4a4a4a));
-    leg2.position.set(1, 0.45, 0); bench.add(leg2);
+    seat.position.y = 0.62; bench.add(seat);
+    const leg1 = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.62, 0.6), mat(0x4a4a4a));
+    leg1.position.set(-1, 0.31, 0); bench.add(leg1);
+    const leg2 = new THREE.Mesh(new THREE.BoxGeometry(0.15, 0.62, 0.6), mat(0x4a4a4a));
+    leg2.position.set(1, 0.31, 0); bench.add(leg2);
     const back = new THREE.Mesh(new THREE.BoxGeometry(2.5, 0.8, 0.1), mat(0x7a5a3a));
-    back.position.set(0, 1.3, -0.35); bench.add(back);
+    back.position.set(0, 1.06, -0.35); bench.add(back);
+    benchSpots.push({ x, z });
     bench.position.set(x, 0, z);
     bench.rotation.y = z > 0 ? Math.PI : 0;
     scene.add(bench);
@@ -1358,21 +1336,21 @@ const rider = new THREE.Group();
     const HIP = V(-0.38, 3.98, 0), torsoAng = 0.86;                         // ~49° forward lean
     const SHO = V(HIP.x + Math.cos(torsoAng) * 1.9, HIP.y + Math.sin(torsoAng) * 1.9, 0);
     // torso (wide across the shoulders) + pelvis
-    const torso = seg(0.42, 1.9, SHIRT); place(torso, HIP, SHO); torso.scale.set(1, 1, 1.45);
-    const pelvis = new THREE.Mesh(new THREE.SphereGeometry(0.42, 14, 10), JEANS); pelvis.position.copy(HIP); pelvis.scale.set(1.05, 0.85, 1.3); rider.add(pelvis);
-    const belt = new THREE.Mesh(new THREE.TorusGeometry(0.43, 0.035, 6, 20), mat(0x2a1f18)); belt.position.set(HIP.x + 0.08, HIP.y + 0.2, 0); belt.rotation.set(Math.PI / 2, torsoAng - Math.PI / 2, 0); belt.scale.set(1, 1.3, 1); rider.add(belt);
+    const torso = seg(0.52, 1.9, SHIRT); place(torso, HIP, SHO); torso.scale.set(1, 1, 1.5);
+    const pelvis = new THREE.Mesh(new THREE.SphereGeometry(0.52, 14, 10), JEANS); pelvis.position.copy(HIP); pelvis.scale.set(1.05, 0.85, 1.35); rider.add(pelvis);
+    const belt = new THREE.Mesh(new THREE.TorusGeometry(0.52, 0.04, 6, 20), mat(0x2a1f18)); belt.position.set(HIP.x + 0.08, HIP.y + 0.2, 0); belt.rotation.set(Math.PI / 2, torsoAng - Math.PI / 2, 0); belt.scale.set(1, 1.45, 1); rider.add(belt);
     // shirt placket + rolled sleeves come with the arms; collar at the neck
     const neckBase = V(SHO.x + 0.1, SHO.y + 0.12, 0), headC = V(SHO.x + 0.42, SHO.y + 0.62, 0);
-    const neck = seg(0.15, 0.5, SKIN); place(neck, neckBase, V(headC.x - 0.12, headC.y - 0.3, 0));
-    const collar = new THREE.Mesh(new THREE.TorusGeometry(0.2, 0.05, 6, 16), SHIRT); collar.position.copy(neckBase); collar.rotation.set(Math.PI / 2, 0, -0.5); rider.add(collar);
+    const neck = seg(0.2, 0.5, SKIN); place(neck, neckBase, V(headC.x - 0.12, headC.y - 0.3, 0));
+    const collar = new THREE.Mesh(new THREE.TorusGeometry(0.25, 0.06, 6, 16), SHIRT); collar.position.copy(neckBase); collar.rotation.set(Math.PI / 2, 0, -0.5); rider.add(collar);
     // backpack on the back of the torso
     const tDir = V(Math.cos(torsoAng), Math.sin(torsoAng), 0), tBack = V(-Math.sin(torsoAng), Math.cos(torsoAng), 0);
     const bp = new THREE.Mesh(new THREE.BoxGeometry(0.42, 1.25, 0.95), BAG);
-    bp.position.set(HIP.x + tDir.x * 1.05 + tBack.x * 0.55, HIP.y + tDir.y * 1.05 + tBack.y * 0.55, 0);
+    bp.position.set(HIP.x + tDir.x * 1.05 + tBack.x * 0.68, HIP.y + tDir.y * 1.05 + tBack.y * 0.68, 0);
     bp.rotation.z = torsoAng - Math.PI / 2; bp.castShadow = true; rider.add(bp);
     const bpPocket = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.6, 0.7), mat(0x3a4656));
     bpPocket.position.set(bp.position.x + tBack.x * 0.26, bp.position.y + tBack.y * 0.26 - 0.15, 0); bpPocket.rotation.z = bp.rotation.z; rider.add(bpPocket);
-    for (const sz of [0.36, -0.36]) { const st = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.1, 0.06), BAG); st.position.set(SHO.x - 0.35, SHO.y - 0.35, sz); st.rotation.z = torsoAng - Math.PI / 2 + 0.3; rider.add(st); }
+    for (const sz of [0.42, -0.42]) { const st = new THREE.Mesh(new THREE.BoxGeometry(0.08, 1.1, 0.06), BAG); st.position.set(SHO.x - 0.42, SHO.y - 0.38, sz); st.rotation.z = torsoAng - Math.PI / 2 + 0.3; rider.add(st); }
 
     // head: skin, swept black hair with a quiff, stubble, face
     const head = new THREE.Group(); head.position.copy(headC); head.rotation.z = -0.15; rider.add(head);
@@ -1394,26 +1372,27 @@ const rider = new THREE.Group();
     // arms: shoulder → grip, elbows solved once (the bars don't move)
     const GRIP = [V(1.48, 3.42, 0.27), V(1.48, 3.42, -0.27)];
     for (const k of [0, 1]) {
-        const sz = k === 0 ? 0.6 : -0.6;
+        const sz = k === 0 ? 0.7 : -0.7;
         const sh = V(SHO.x - 0.05, SHO.y - 0.05, sz), hand = GRIP[k];
         const el = solve(sh, hand, 1.12, 1.12, -1);
-        const upper = seg(0.15, 1.12, SHIRT); place(upper, sh, el);
-        const cuff = new THREE.Mesh(new THREE.CylinderGeometry(0.15, 0.15, 0.14, 12), SHIRT);    // rolled sleeve
+        const upper = seg(0.22, 1.12, SHIRT); place(upper, sh, el);
+        const cuff = new THREE.Mesh(new THREE.CylinderGeometry(0.225, 0.225, 0.16, 12), SHIRT);    // rolled sleeve
         place(cuff, V(el.x + (sh.x - el.x) * 0.12, el.y + (sh.y - el.y) * 0.12, el.z + (sh.z - el.z) * 0.12), V(el.x, el.y, el.z)); rider.add(cuff);
-        const fore = seg(0.11, 1.12, SKIN); place(fore, el, hand);
-        const palm = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 8), SKIN); palm.position.copy(hand); palm.scale.set(1.2, 0.85, 1); rider.add(palm);
-        const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.19, 12, 10), SHIRT); shoulder.position.copy(sh); rider.add(shoulder);
+        const fore = seg(0.16, 1.12, SKIN); place(fore, el, hand);
+        const palm = new THREE.Mesh(new THREE.SphereGeometry(0.15, 10, 8), SKIN); palm.position.copy(hand); palm.scale.set(1.2, 0.85, 1); rider.add(palm);
+        const shoulder = new THREE.Mesh(new THREE.SphereGeometry(0.27, 12, 10), SHIRT); shoulder.position.copy(sh); rider.add(shoulder);
     }
 
     // legs: built once, posed each frame from the pedal positions
-    const legs = [0.3, -0.3].map(sz => {
-        const thigh = seg(0.21, 1.65, JEANS), shin = seg(0.16, 1.65, JEANS);
-        const knee = new THREE.Mesh(new THREE.SphereGeometry(0.19, 12, 10), JEANS); rider.add(knee);
+    const legs = [0.38, -0.38].map(sz => {
+        const thigh = seg(0.3, 1.65, JEANS), shin = seg(0.22, 1.65, JEANS);
+        thigh.scale.set(1, 1, 1.08);
+        const knee = new THREE.Mesh(new THREE.SphereGeometry(0.245, 12, 10), JEANS); rider.add(knee);
         const shoe = new THREE.Group();
-        const sb = new THREE.Mesh(new THREE.BoxGeometry(0.62, 0.2, 0.26), SNEAK); sb.position.x = 0.08; shoe.add(sb);
-        const toe = new THREE.Mesh(new THREE.SphereGeometry(0.14, 10, 8), SNEAK); toe.scale.set(1.1, 0.75, 0.95); toe.position.set(0.36, -0.01, 0); shoe.add(toe);
-        const sole = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.06, 0.28), mat(0xb9b9b4)); sole.position.set(0.1, -0.11, 0); shoe.add(sole);
-        const swoosh = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.04, 0.27), mat(0x3a3a3a)); swoosh.position.set(0.05, -0.02, 0); swoosh.rotation.z = 0.25; shoe.add(swoosh);
+        const sb = new THREE.Mesh(new THREE.BoxGeometry(0.66, 0.24, 0.32), SNEAK); sb.position.x = 0.08; shoe.add(sb);
+        const toe = new THREE.Mesh(new THREE.SphereGeometry(0.14, 10, 8), SNEAK); toe.scale.set(1.15, 0.85, 1.15); toe.position.set(0.36, -0.01, 0); shoe.add(toe);
+        const sole = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.07, 0.34), mat(0xb9b9b4)); sole.position.set(0.1, -0.13, 0); shoe.add(sole);
+        const swoosh = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.04, 0.33), mat(0x3a3a3a)); swoosh.position.set(0.05, -0.02, 0); swoosh.rotation.z = 0.25; shoe.add(swoosh);
         rider.add(shoe);
         return { sz, thigh, shin, knee, shoe };
     });
@@ -1421,17 +1400,20 @@ const rider = new THREE.Group();
         legs.forEach((L, i) => {
             const p = pedals[i];
             const hip = V(HIP.x, HIP.y - 0.05, L.sz);
-            const ankle = V(p.x - 0.1, p.y + 0.2, L.sz * 0.75);
+            const ankle = V(p.x - 0.1, p.y + 0.24, L.sz * 0.75);
             const knee = solve(hip, ankle, 1.65, 1.65, +1);
             place(L.thigh, hip, knee); place(L.shin, knee, ankle);
             L.knee.position.copy(knee);
-            L.shoe.position.set(p.x + 0.02, p.y + 0.13, L.sz * 0.75);
+            L.shoe.position.set(p.x + 0.02, p.y + 0.16, L.sz * 0.75);
             L.shoe.rotation.z = -0.1 + Math.sin(Math.atan2(p.y - 1.35, p.x)) * 0.12;
         });
     };
     rider.userData.legs = null;
 }
-rider.scale.setScalar(0.62);
+// 0.52 keeps the hero in proportion with the autos, cars and pedestrians around him
+const RIDER_SCALE = 0.52, RIDER_Z = -3.0;
+rider.scale.setScalar(RIDER_SCALE);
+rider.position.z = RIDER_Z;
 scene.add(rider);
 
 /* ===== AMBIENT LIFE: BIRDS ===== *//* ===== AMBIENT LIFE: BIRDS ===== */
@@ -1467,306 +1449,658 @@ for (let i = 0; i < 18; i++) {
     scene.add(birdGroup);
 }
 
-/* ===== AMBIENT LIFE: DETAILED PEOPLE near stops ===== */
-const walkers = [];
+/* ===== PEOPLE — one shared, jointed rig =====
+   Built in metres (feet at y 0, facing +x, right side +z) and scaled into the world.
+   Hips, knees, ankles, shoulders, elbows and the spine are real pivots, so the same rig
+   walks with a proper gait, stands and chats, sits on a bench, hails an auto and rides
+   in one. Geometry and materials are shared between everyone. */
+const PERSON_SCALE = 1.5;
+const _pmats = new Map();
+function pmat(color, shininess = 5) {
+    const k = color + ':' + shininess;
+    if (!_pmats.has(k)) _pmats.set(k, new THREE.MeshPhongMaterial({ color, specular: 0x222222, shininess }));
+    return _pmats.get(k);
+}
+const PG = {
+    thigh: new THREE.CapsuleGeometry(0.075, 0.36, 5, 10),
+    shin: new THREE.CapsuleGeometry(0.057, 0.36, 5, 10),
+    knee: new THREE.SphereGeometry(0.068, 8, 6),
+    shoe: new THREE.BoxGeometry(0.24, 0.075, 0.105),
+    toe: new THREE.SphereGeometry(0.055, 8, 6),
+    sole: new THREE.BoxGeometry(0.27, 0.026, 0.112),
+    pelvis: new THREE.SphereGeometry(0.15, 12, 8),
+    torso: new THREE.LatheGeometry([
+        new THREE.Vector2(0.001, -0.04), new THREE.Vector2(0.135, -0.03), new THREE.Vector2(0.14, 0.08),
+        new THREE.Vector2(0.15, 0.24), new THREE.Vector2(0.166, 0.37), new THREE.Vector2(0.156, 0.45),
+        new THREE.Vector2(0.1, 0.51), new THREE.Vector2(0.001, 0.53)], 16),
+    kurta: new THREE.LatheGeometry([new THREE.Vector2(0.15, 0.02), new THREE.Vector2(0.18, -0.2), new THREE.Vector2(0.235, -0.5)], 14),
+    upper: new THREE.CapsuleGeometry(0.048, 0.22, 5, 8),
+    fore: new THREE.CapsuleGeometry(0.04, 0.2, 5, 8),
+    hand: new THREE.SphereGeometry(0.046, 8, 6),
+    shoulder: new THREE.SphereGeometry(0.064, 8, 6),
+    neck: new THREE.CylinderGeometry(0.048, 0.056, 0.14, 10),
+    belt: new THREE.TorusGeometry(0.138, 0.012, 4, 18),
+    eyeW: new THREE.SphereGeometry(1, 8, 6), unit: new THREE.SphereGeometry(1, 10, 8)
+};
+const kurtaMats = new Map();
 
-function buildDetailedPerson(opts) {
+function buildPerson(cfg) {
     const o = Object.assign({
-        isChild: false, shirtColor: 0xc0a377, pantsColor: 0x3a4a6a,
-        hairColor: 0x2a1a0a, hairStyle: 'short', hasBackpack: false,
-        hasBag: false, skinTone: 0xe8b98c, shoeColor: 0x2a2220,
-        sleeveLength: 'short' /* 'short' or 'long' */
-    }, opts);
+        child: false, shirt: 0xc0a377, pants: 0x3a4a6a, hair: 0x1a1008, hairStyle: 'short',
+        skin: 0xc8956a, shoes: 0x2a2220, sleeve: 'short', backpack: false, bag: false, kurta: false,
+        female: false, bpColor: 0x3a5577
+    }, cfg);
+    const root = new THREE.Group();
+    const body = new THREE.Group(); root.add(body);
+    const M = { skin: pmat(o.skin, 8), shirt: pmat(o.shirt), pants: pmat(o.pants, 3), hair: pmat(o.hair, 24), shoe: pmat(o.shoes, 14), sole: pmat(0xe6e4de) };
+    const add = (geo, m, x, y, z, parent, shadow) => { const me = new THREE.Mesh(geo, m); me.position.set(x, y, z); if (shadow) me.castShadow = true; parent.add(me); return me; };
 
-    const person = new THREE.Group();
-    const sc = o.isChild ? 0.55 : 1;
-    const headRatio = o.isChild ? 1.3 : 1; // kids have bigger heads
-
-    // Materials
-    const skin = new THREE.MeshPhongMaterial({ color: o.skinTone, specular: 0x664422, shininess: 6, flatShading: false });
-    const shirt = new THREE.MeshPhongMaterial({ color: o.shirtColor, specular: 0x222222, shininess: 4, flatShading: false });
-    const pants = new THREE.MeshPhongMaterial({ color: o.pantsColor, specular: 0x111122, shininess: 3, flatShading: false });
-    const hair = mat(o.hairColor);
-    const shoe = mat(o.shoeColor);
-
-    const baseY = o.isChild ? 0.2 : 0;
-
-    // --- LEGS ---
-    function personLeg(zOff) {
-        const lg = new THREE.Group();
-        const thigh = new THREE.Mesh(new THREE.CapsuleGeometry(0.085 * sc, 0.45 * sc, 6, 8), pants);
-        thigh.position.y = -0.28 * sc; lg.add(thigh);
-        const knee = new THREE.Mesh(new THREE.SphereGeometry(0.07 * sc, 6, 5), pants);
-        knee.position.y = -0.58 * sc; lg.add(knee);
-        const shin = new THREE.Mesh(new THREE.CapsuleGeometry(0.065 * sc, 0.42 * sc, 6, 8), pants);
-        shin.position.y = -0.88 * sc; lg.add(shin);
-        const ankle = new THREE.Mesh(new THREE.SphereGeometry(0.04 * sc, 5, 4), skin);
-        ankle.position.y = -1.14 * sc; lg.add(ankle);
-        // Shoe
-        const shG = new THREE.Group();
-        const shBody = new THREE.Mesh(new THREE.BoxGeometry(0.2 * sc, 0.07 * sc, 0.1 * sc), shoe);
-        shG.add(shBody);
-        const shToe = new THREE.Mesh(new THREE.SphereGeometry(0.05 * sc, 5, 4), shoe);
-        shToe.position.set(0.08 * sc, -0.01 * sc, 0); shToe.scale.set(1.1, 0.7, 1); shG.add(shToe);
-        const shSole = new THREE.Mesh(new THREE.BoxGeometry(0.22 * sc, 0.025 * sc, 0.11 * sc), mat(0xeeeeee));
-        shSole.position.y = -0.04 * sc; shG.add(shSole);
-        shG.position.y = -1.22 * sc;
-        lg.add(shG);
-        lg.position.set(zOff, 0.6 * sc + baseY, 0);
-        return lg;
-    }
-    const pLegR = personLeg(0.09 * sc);
-    const pLegL = personLeg(-0.09 * sc);
-    person.add(pLegR); person.add(pLegL);
-
-    // --- TORSO (organic) ---
-    const tPts = [
-        new THREE.Vector2(0, -0.45 * sc),
-        new THREE.Vector2(0.2 * sc, -0.38 * sc),
-        new THREE.Vector2(0.24 * sc, 0),
-        new THREE.Vector2(0.2 * sc, 0.3 * sc),
-        new THREE.Vector2(0, 0.42 * sc),
-    ];
-    const tGeo = new THREE.LatheGeometry(tPts, 10);
-    const torsoM = new THREE.Mesh(tGeo, shirt);
-    torsoM.position.y = 1.15 * sc + baseY;
-    torsoM.castShadow = true;
-    person.add(torsoM);
-
-    // Belt
-    const pBelt = new THREE.Mesh(new THREE.TorusGeometry(0.22 * sc, 0.02 * sc, 4, 12), mat(0x4a3a2a));
-    pBelt.rotation.x = Math.PI / 2;
-    pBelt.position.y = 0.72 * sc + baseY;
-    person.add(pBelt);
-
-    // --- ARMS ---
-    function personArm(zSign) {
-        const ag = new THREE.Group();
-        const upper = new THREE.Mesh(
-            new THREE.CapsuleGeometry(0.055 * sc, 0.35 * sc, 5, 7),
-            o.sleeveLength === 'long' ? shirt : shirt
-        );
-        upper.position.y = -0.2 * sc; ag.add(upper);
-        const elbow = new THREE.Mesh(new THREE.SphereGeometry(0.04 * sc, 6, 5), skin);
-        elbow.position.y = -0.45 * sc; ag.add(elbow);
-        const fore = new THREE.Mesh(new THREE.CapsuleGeometry(0.04 * sc, 0.32 * sc, 5, 7), skin);
-        fore.position.y = -0.68 * sc; ag.add(fore);
-        const hand = new THREE.Mesh(new THREE.SphereGeometry(0.035 * sc, 6, 5), skin);
-        hand.position.y = -0.88 * sc; hand.scale.set(1, 0.7, 1.1); ag.add(hand);
-        ag.position.set(zSign * 0.25 * sc, 1.42 * sc + baseY, 0);
-        return ag;
-    }
-    const pArmR = personArm(1);
-    const pArmL = personArm(-1);
-    person.add(pArmR); person.add(pArmL);
-
-    // --- NECK ---
-    const pNeck = new THREE.Mesh(new THREE.CylinderGeometry(0.06 * sc, 0.08 * sc, 0.12 * sc, 8), skin);
-    pNeck.position.y = 1.6 * sc + baseY;
-    person.add(pNeck);
-
-    // --- HEAD ---
-    const headG = new THREE.Group();
-    headG.position.y = 1.82 * sc * headRatio + baseY;
-    person.add(headG);
-
-    const hs = 0.22 * sc * headRatio;
-    const pSkull = new THREE.Mesh(new THREE.SphereGeometry(hs, 14, 10), skin);
-    pSkull.scale.set(1, 1.05, 0.95);
-    headG.add(pSkull);
-
-    // Eyes
-    for (const ez of [hs * 0.5, -hs * 0.5]) {
-        const eyeG = new THREE.Group();
-        const ew = new THREE.Mesh(new THREE.SphereGeometry(hs * 0.22, 8, 6), mat(0xfefefe));
-        eyeG.add(ew);
-        const ei = new THREE.Mesh(new THREE.SphereGeometry(hs * 0.14, 6, 5), mat(0x3a2a18));
-        ei.position.x = hs * 0.12; eyeG.add(ei);
-        const ep = new THREE.Mesh(new THREE.SphereGeometry(hs * 0.08, 5, 4), mat(0x050505));
-        ep.position.x = hs * 0.18; eyeG.add(ep);
-        const ecl = new THREE.Mesh(new THREE.SphereGeometry(hs * 0.04, 3, 3), mat(0xffffff));
-        ecl.position.set(hs * 0.19, hs * 0.05, hs * 0.03); eyeG.add(ecl);
-        eyeG.position.set(hs * 0.7, hs * 0.2, ez);
-        headG.add(eyeG);
+    // legs: hip → knee → ankle pivots
+    const legs = [1, -1].map(side => {
+        const hip = new THREE.Group(); hip.position.set(0, 0.93, side * 0.095); body.add(hip);
+        add(PG.thigh, M.pants, 0, -0.22, 0, hip, true);
+        const knee = new THREE.Group(); knee.position.y = -0.44; hip.add(knee);
+        add(PG.knee, M.pants, 0, 0, 0, knee);
+        add(PG.shin, M.pants, 0, -0.215, 0, knee, true);
+        const foot = new THREE.Group(); foot.position.y = -0.43; knee.add(foot);
+        add(PG.shoe, M.shoe, 0.04, 0.0, 0, foot);
+        add(PG.toe, M.shoe, 0.145, -0.012, 0, foot).scale.set(1.1, 0.72, 0.98);
+        add(PG.sole, M.sole, 0.05, -0.047, 0, foot);
+        return { hip, knee, foot };
+    });
+    add(PG.pelvis, M.pants, 0, 0.94, 0, body).scale.set(0.86, 0.66, o.female ? 1.32 : 1.24);
+    if (o.kurta) {
+        if (!kurtaMats.has(o.shirt)) kurtaMats.set(o.shirt, new THREE.MeshPhongMaterial({ color: o.shirt, specular: 0x222222, shininess: 5, side: THREE.DoubleSide }));
+        add(PG.kurta, kurtaMats.get(o.shirt), 0, 0.98, 0, body).scale.set(0.86, 1, 1.24);
     }
 
-    // Eyebrows
-    for (const ez of [hs * 0.5, -hs * 0.5]) {
-        const brow = new THREE.Mesh(new THREE.BoxGeometry(hs * 0.4, hs * 0.07, hs * 0.08), mat(o.hairColor));
-        brow.position.set(hs * 0.65, hs * 0.55, ez);
-        headG.add(brow);
+    // upper body pivots at the hips so the spine can lean (walking, riding, sitting back)
+    const upper = new THREE.Group(); upper.position.y = 0.93; body.add(upper);
+    add(PG.torso, M.shirt, 0, -0.03, 0, upper, true).scale.set(0.8, 1, o.female ? 1.18 : 1.32);
+    if (!o.kurta) {
+        const belt = add(PG.belt, pmat(0x3a2c20), 0, 0.0, 0, upper);
+        belt.rotation.x = Math.PI / 2; belt.scale.set(0.82, o.female ? 1.2 : 1.3, 1);
     }
+    add(PG.neck, M.skin, 0.012, 0.545, 0, upper);
 
-    // Nose
-    const pNose = new THREE.Mesh(new THREE.ConeGeometry(hs * 0.12, hs * 0.25, 6), skin);
-    pNose.rotation.x = -Math.PI / 2;
-    pNose.position.set(hs * 0.95, 0, 0);
-    headG.add(pNose);
+    const shW = o.female ? 0.205 : 0.232;
+    const arms = [1, -1].map(side => {
+        const sh = new THREE.Group(); sh.position.set(0, 0.445, side * shW); upper.add(sh);
+        add(PG.shoulder, M.shirt, 0, 0, 0, sh);
+        add(PG.upper, M.shirt, 0, -0.14, 0, sh, true);
+        const el = new THREE.Group(); el.position.y = -0.28; sh.add(el);
+        add(PG.fore, o.sleeve === 'long' ? M.shirt : M.skin, 0, -0.125, 0, el);
+        add(PG.hand, M.skin, 0, -0.27, 0, el).scale.set(0.85, 1.15, 0.72);
+        return { sh, el };
+    });
 
-    // Mouth
-    const pMouth = new THREE.Mesh(
-        new THREE.TorusGeometry(hs * 0.12, hs * 0.03, 4, 8, Math.PI),
-        new THREE.MeshPhongMaterial({ color: 0xcc8868 })
-    );
-    pMouth.rotation.z = Math.PI;
-    pMouth.position.set(hs * 0.7, -hs * 0.45, 0);
-    headG.add(pMouth);
-
-    // Ears
-    for (const ez of [1, -1]) {
-        const ear = new THREE.Mesh(new THREE.SphereGeometry(hs * 0.2, 6, 5), skin);
-        ear.position.set(-hs * 0.1, 0, ez * hs * 0.92);
-        ear.scale.set(0.5, 0.8, 0.6);
-        headG.add(ear);
+    // head
+    const headG = new THREE.Group(); headG.position.set(0.018, 0.675, 0); upper.add(headG);
+    if (o.child) headG.scale.setScalar(1.28);
+    const hs = 0.112;
+    add(PG.unit, M.skin, 0, 0, 0, headG, true).scale.set(hs, hs * 1.08, hs * 0.94);
+    const white = pmat(0xfafafa), iris = pmat(0x3a2414), dark = pmat(0x0c0806, 40);
+    for (const ez of [hs * 0.42, -hs * 0.42]) {
+        add(PG.eyeW, white, hs * 0.8, hs * 0.12, ez, headG).scale.setScalar(hs * 0.17);
+        add(PG.eyeW, iris, hs * 0.92, hs * 0.12, ez, headG).scale.setScalar(hs * 0.1);
+        add(PG.eyeW, dark, hs * 0.97, hs * 0.12, ez, headG).scale.setScalar(hs * 0.05);
+        add(PG.eyeW, M.hair, hs * 0.86, hs * 0.38, ez, headG).scale.set(hs * 0.06, hs * 0.035, hs * 0.18);
+        add(PG.unit, M.skin, -hs * 0.05, 0, ez > 0 ? hs * 0.93 : -hs * 0.93, headG).scale.set(hs * 0.12, hs * 0.2, hs * 0.08);
     }
-
-    // Hair
+    add(PG.unit, M.skin, hs * 1.0, -hs * 0.1, 0, headG).scale.set(hs * 0.16, hs * 0.2, hs * 0.13);   // nose
+    add(PG.unit, pmat(0x9a5848), hs * 0.88, -hs * 0.5, 0, headG).scale.set(hs * 0.06, hs * 0.04, hs * 0.26);   // mouth
+    const cap = (r, thetaLen) => new THREE.Mesh(new THREE.SphereGeometry(r, 14, 8, 0, Math.PI * 2, 0, thetaLen), M.hair);
+    const hairBits = () => {
+        const top = cap(hs * 1.07, Math.PI * 0.5); top.position.set(-hs * 0.05, hs * 0.06, 0); top.rotation.z = 0.22; headG.add(top);
+        return top;
+    };
     if (o.hairStyle === 'short') {
-        const hTop = new THREE.Mesh(
-            new THREE.SphereGeometry(hs * 1.08, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.5),
-            hair
-        );
-        hTop.position.y = hs * 0.05;
-        headG.add(hTop);
+        hairBits();
     } else if (o.hairStyle === 'long') {
-        const hTop = new THREE.Mesh(
-            new THREE.SphereGeometry(hs * 1.08, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.5),
-            hair
-        );
-        hTop.position.y = hs * 0.05; headG.add(hTop);
-        const hBack = new THREE.Mesh(new THREE.CapsuleGeometry(hs * 0.4, hs * 1.2, 6, 8), hair);
-        hBack.position.set(-hs * 0.2, -hs * 0.4, 0); headG.add(hBack);
-        // Bangs
-        const bangs = new THREE.Mesh(new THREE.BoxGeometry(hs * 0.15, hs * 0.4, hs * 1.4), hair);
-        bangs.position.set(hs * 0.5, hs * 0.35, 0); headG.add(bangs);
+        hairBits();
+        add(PG.unit, M.hair, -hs * 0.45, -hs * 0.65, 0, headG).scale.set(hs * 0.55, hs * 1.3, hs * 0.95);
     } else if (o.hairStyle === 'ponytail') {
-        const hTop = new THREE.Mesh(
-            new THREE.SphereGeometry(hs * 1.06, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.5),
-            hair
-        );
-        hTop.position.y = hs * 0.05; headG.add(hTop);
-        // Ponytail
-        const tail = new THREE.Mesh(new THREE.CapsuleGeometry(hs * 0.12, hs * 1, 5, 6), hair);
-        tail.position.set(-hs * 0.4, -hs * 0.2, 0); tail.rotation.z = 0.5;
-        headG.add(tail);
-        // Hair tie
-        const tie = new THREE.Mesh(new THREE.TorusGeometry(hs * 0.14, hs * 0.03, 4, 8), mat(0xff4466));
-        tie.rotation.x = Math.PI / 2;
-        tie.position.set(-hs * 0.25, hs * 0.1, 0); headG.add(tie);
+        hairBits();
+        const tail = add(PG.unit, M.hair, -hs * 1.15, -hs * 0.35, 0, headG); tail.scale.set(hs * 0.22, hs * 0.75, hs * 0.22); tail.rotation.z = -0.4;
+        add(PG.unit, pmat(0xe0405a), -hs * 0.98, hs * 0.18, 0, headG).scale.setScalar(hs * 0.14);
+    } else if (o.hairStyle === 'plait') {
+        hairBits();
+        for (let k = 0; k < 4; k++) add(PG.unit, M.hair, -hs * (1.0 + k * 0.05), -hs * (0.35 + k * 0.45), 0, headG).scale.set(hs * 0.2, hs * 0.26, hs * 0.2);
+        add(PG.unit, pmat(0xf2f2f2), hs * 0.1, hs * 0.95, hs * 0.5, headG).scale.setScalar(hs * 0.12);   // jasmine
     } else if (o.hairStyle === 'curly') {
-        for (let ci = 0; ci < 16; ci++) {
-            const curl = new THREE.Mesh(new THREE.SphereGeometry(hs * 0.2, 5, 4), hair);
-            const ca = (ci / 16) * Math.PI * 2;
-            const cr = hs * 0.75;
-            curl.position.set(
-                Math.cos(ca) * cr * 0.6,
-                hs * 0.35 + Math.sin(ci * 1.3) * hs * 0.15,
-                Math.sin(ca) * cr
-            );
-            headG.add(curl);
+        for (let ci = 0; ci < 18; ci++) {
+            const ca = (ci / 18) * Math.PI * 2;
+            add(PG.unit, M.hair, Math.cos(ca) * hs * 0.62 - hs * 0.15, hs * 0.5 + Math.sin(ci * 1.3) * hs * 0.16, Math.sin(ca) * hs * 0.82, headG).scale.setScalar(hs * 0.3);
         }
     } else if (o.hairStyle === 'bun') {
-        const hTop = new THREE.Mesh(
-            new THREE.SphereGeometry(hs * 1.06, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.5),
-            hair
-        );
-        hTop.position.y = hs * 0.05; headG.add(hTop);
-        const bun = new THREE.Mesh(new THREE.SphereGeometry(hs * 0.3, 8, 6), hair);
-        bun.position.set(-hs * 0.3, hs * 0.5, 0); headG.add(bun);
+        hairBits();
+        add(PG.unit, M.hair, -hs * 0.65, hs * 0.55, 0, headG).scale.setScalar(hs * 0.38);
+    } else if (o.hairStyle === 'helmet') {
+        const shell = new THREE.Mesh(new THREE.SphereGeometry(hs * 1.3, 16, 10, 0, Math.PI * 2, 0, Math.PI * 0.58), pmat(o.helmet || 0xd6d6d2, 60));
+        shell.position.y = hs * 0.08; shell.rotation.z = 0.15; headG.add(shell);
+        const visor = add(PG.unit, pmat(0x1c2630, 90), hs * 0.95, hs * 0.2, 0, headG); visor.scale.set(hs * 0.4, hs * 0.42, hs * 1.0);
     }
+    if (o.moustache) add(PG.unit, M.hair, hs * 0.93, -hs * 0.33, 0, headG).scale.set(hs * 0.07, hs * 0.05, hs * 0.32);
 
-    // Backpack
-    if (o.hasBackpack) {
-        const bpG = new THREE.Group();
-        const bpPts2 = [
-            new THREE.Vector2(0, -0.25 * sc),
-            new THREE.Vector2(0.15 * sc, -0.2 * sc),
-            new THREE.Vector2(0.18 * sc, 0),
-            new THREE.Vector2(0.14 * sc, 0.2 * sc),
-            new THREE.Vector2(0, 0.25 * sc),
-        ];
-        const bpGeo2 = new THREE.LatheGeometry(bpPts2, 8);
-        const bpMesh = new THREE.Mesh(bpGeo2, mat(0x3a5577));
-        bpMesh.rotation.x = Math.PI / 2;
-        bpG.add(bpMesh);
-        for (const zs of [0.08 * sc, -0.08 * sc]) {
-            const st = new THREE.Mesh(new THREE.BoxGeometry(0.03 * sc, 0.35 * sc, 0.04 * sc), mat(0x2a4466));
-            st.position.set(0.12 * sc, 0.1 * sc, zs); bpG.add(st);
-        }
-        bpG.position.set(-0.18 * sc, 1.15 * sc + baseY, 0);
-        person.add(bpG);
+    if (o.backpack) {
+        const bpM = pmat(o.bpColor, 6);
+        add(new THREE.BoxGeometry(0.15, 0.36, 0.28), bpM, -0.2, 0.25, 0, upper, true);
+        add(new THREE.BoxGeometry(0.05, 0.16, 0.22), pmat(0x2a2f38), -0.29, 0.18, 0, upper);
+        for (const zs of [0.11, -0.11]) add(new THREE.BoxGeometry(0.2, 0.025, 0.035), bpM, -0.06, 0.43, zs, upper).rotation.z = -0.5;
     }
-
-    // Book bag (carried at side)
-    if (o.hasBag) {
-        const bag = new THREE.Group();
-        const bagBody = new THREE.Mesh(new THREE.BoxGeometry(0.2 * sc, 0.28 * sc, 0.06 * sc), mat(0x884422));
-        bag.add(bagBody);
-        const bagFlap = new THREE.Mesh(new THREE.BoxGeometry(0.2 * sc, 0.04 * sc, 0.07 * sc), mat(0x773318));
-        bagFlap.position.y = 0.14 * sc; bag.add(bagFlap);
-        bag.position.set(0.22 * sc, 0.85 * sc + baseY, 0.15 * sc);
-        person.add(bag);
+    if (o.bag) {
+        const bag = add(new THREE.BoxGeometry(0.2, 0.24, 0.07), pmat(0x7a3c1e, 8), 0.02, 0.0, -0.25, upper);
+        bag.rotation.x = 0.08;
+        const strap = add(new THREE.BoxGeometry(0.03, 0.62, 0.02), pmat(0x5a2c14), 0.02, 0.24, 0.0, upper);
+        strap.rotation.x = 0.72;
     }
-
-    person.userData.legGroups = [pLegR, pLegL];
-    person.userData.armGroups = [pArmR, pArmL];
-    return person;
+    root.userData = { legs, arms, body, upper, head: headG, child: o.child };
+    return root;
 }
 
-/* People per stop */
-const peopleConfigs = [
-    // School — uniformed children
-    [
-        { isChild: true, shirtColor: 0xffffff, pantsColor: 0x1e2e4a, hairStyle: 'short', hairColor: 0x1a0a00, hasBackpack: true, skinTone: 0xd4a574 },
-        { isChild: true, shirtColor: 0xffffff, pantsColor: 0x1e2e4a, hairStyle: 'ponytail', hairColor: 0x2a1a0a, hasBag: true, skinTone: 0xe8b98c },
-        { isChild: true, shirtColor: 0xffffff, pantsColor: 0x1e2e4a, hairStyle: 'curly', hairColor: 0x1a0800, hasBackpack: true, skinTone: 0xc08a60 },
-        { isChild: true, shirtColor: 0xffffff, pantsColor: 0x1e2e4a, hairStyle: 'short', hairColor: 0x3a2a1a, skinTone: 0xe0b090, shoeColor: 0x0a0a0a },
-        { isChild: true, shirtColor: 0xffffff, pantsColor: 0x1e2e4a, hairStyle: 'long', hairColor: 0x0a0800, hasBag: true, skinTone: 0xd4a574 },
-        { isChild: true, shirtColor: 0xffffff, pantsColor: 0x1e2e4a, hairStyle: 'bun', hairColor: 0x1a0a00, skinTone: 0xe8c0a0 },
-    ],
-    // PU College
-    [
-        { shirtColor: 0x5577aa, pantsColor: 0x2a2a3a, hairStyle: 'short', hasBackpack: true, skinTone: 0xe8b98c },
-        { shirtColor: 0xaa5555, pantsColor: 0x2a2a3a, hairStyle: 'long', hairColor: 0x4a2a1a, skinTone: 0xd4a574 },
-        { shirtColor: 0x55aa77, pantsColor: 0x3a4a5a, hairStyle: 'ponytail', hairColor: 0x1a0a00, hasBag: true, skinTone: 0xc08a60 },
-        { shirtColor: 0x8866aa, pantsColor: 0x3a3a4a, hairStyle: 'curly', hairColor: 0x2a1a0a, skinTone: 0xe0b090 },
-        { shirtColor: 0xcc9955, pantsColor: 0x2a3a4a, hairStyle: 'bun', hairColor: 0x1a0800, hasBackpack: true, skinTone: 0xd4a070 },
-    ],
-    // BCA
-    [
-        { shirtColor: 0x3388aa, pantsColor: 0x1a1a2a, hairStyle: 'short', hasBackpack: true, skinTone: 0xe8b98c },
-        { shirtColor: 0xcc7744, pantsColor: 0x3a3a5a, hairStyle: 'long', hairColor: 0x3a2a1a, hasBag: true, skinTone: 0xd4a574 },
-        { shirtColor: 0x44aa66, pantsColor: 0x2a2a3a, hairStyle: 'curly', hairColor: 0x0a0800, skinTone: 0xc08a60 },
-        { shirtColor: 0x7766cc, pantsColor: 0x2a2a3a, hairStyle: 'ponytail', hairColor: 0x2a1a0a, hasBackpack: true, skinTone: 0xe0b090 },
-    ],
-    // MCA
-    [
-        { shirtColor: 0x334455, pantsColor: 0x1a1a2a, hairStyle: 'short', hasBackpack: true, skinTone: 0xe8b98c, shoeColor: 0x1a1008 },
-        { shirtColor: 0x886644, pantsColor: 0x2a2a3a, hairStyle: 'bun', hairColor: 0x2a1a0a, hasBag: true, skinTone: 0xd4a574, shoeColor: 0x2a1a10 },
-        { shirtColor: 0x556677, pantsColor: 0x1a1a1a, hairStyle: 'short', hairColor: 0x1a0a00, skinTone: 0xe0b090 },
-        { shirtColor: 0x445566, pantsColor: 0x2a2a3a, hairStyle: 'long', hairColor: 0x3a2a1a, hasBackpack: true, skinTone: 0xc08a60 },
-    ],
-];
+/* poses: hip/knee/shoulder/elbow swing (about z, + = forward), arm abduction, bob, spine lean */
+const STAND = { hR: 0.02, hL: -0.02, kR: -0.04, kL: -0.05, sR: 0.04, sL: -0.03, eR: 0.16, eL: 0.18, aR: 0.07, aL: 0.07, bob: 0, lean: 0.02 };
+const SIT = { hR: 1.52, hL: 1.48, kR: -1.42, kL: -1.5, sR: 0.42, sL: 0.38, eR: 0.95, eL: 1.0, aR: 0.12, aL: 0.12, bob: 0, lean: -0.06 };
+const POSE_KEYS = Object.keys(STAND);
+function poseWalk(phi, amp) {
+    const s = Math.sin(phi), c = Math.cos(phi + 0.5);
+    return {
+        hR: s * 0.44 * amp, hL: -s * 0.44 * amp,
+        kR: -amp * (0.06 + 0.82 * Math.max(0, c)), kL: -amp * (0.06 + 0.82 * Math.max(0, -c)),
+        sR: -s * 0.36 * amp, sL: s * 0.36 * amp,
+        eR: 0.2 + 0.32 * amp * Math.max(0, -s), eL: 0.2 + 0.32 * amp * Math.max(0, s),
+        aR: 0.08, aL: 0.08, bob: 0.018 * amp * Math.cos(2 * phi), lean: 0.02 + 0.05 * amp
+    };
+}
+function blendPose(a, b, t) {
+    const q = {};
+    for (const k of POSE_KEYS) q[k] = a[k] + (b[k] - a[k]) * t;
+    return q;
+}
+function applyPose(p, q) {
+    const u = p.userData, [lR, lL] = u.legs, [aR, aL] = u.arms;
+    lR.hip.rotation.z = q.hR; lL.hip.rotation.z = q.hL;
+    lR.knee.rotation.z = q.kR; lL.knee.rotation.z = q.kL;
+    lR.foot.rotation.z = -(q.hR + q.kR) * 0.85; lL.foot.rotation.z = -(q.hL + q.kL) * 0.85;
+    aR.sh.rotation.z = q.sR; aL.sh.rotation.z = q.sL;
+    aR.sh.rotation.x = -q.aR; aL.sh.rotation.x = q.aL;
+    aR.el.rotation.z = q.eR; aL.el.rotation.z = q.eL;
+    u.body.position.y = q.bob;
+    u.upper.rotation.z = -q.lean;
+}
 
+/* ===== VEHICLES — hatchbacks, sedans, an SUV and a scooter for the traffic ===== */
+const carGlass = new THREE.MeshPhongMaterial({ color: 0x1c2833, specular: 0x9ab0c4, shininess: 95, transparent: true, opacity: 0.82 });
+const carTrim = new THREE.MeshPhongMaterial({ color: 0x1a1a1c, specular: 0x333333, shininess: 20 });
+const carBumper = new THREE.MeshPhongMaterial({ color: 0x2a2a2d, specular: 0x444444, shininess: 15 });
+const carTyre = new THREE.MeshPhongMaterial({ color: 0x161616, specular: 0x202020, shininess: 5 });
+const carRim = new THREE.MeshPhongMaterial({ color: 0xbfc4ca, specular: 0xffffff, shininess: 90 });
+const carHead = new THREE.MeshPhongMaterial({ color: 0xe9eef2, specular: 0xffffff, shininess: 100, emissive: 0x000000 });
+const carTail = new THREE.MeshPhongMaterial({ color: 0xa8151a, specular: 0xff8888, shininess: 80, emissive: 0x000000 });
+const carAmber = new THREE.MeshPhongMaterial({ color: 0xf08a1c, shininess: 60 });
+const vehicleLamps = { head: [carHead], tail: [carTail] };
+const CWG = {
+    tyre: new THREE.CylinderGeometry(0.5, 0.5, 0.4, 22), rim: new THREE.CylinderGeometry(0.31, 0.31, 0.41, 16),
+    hub: new THREE.CylinderGeometry(0.09, 0.09, 0.43, 10), spoke: new THREE.BoxGeometry(0.07, 0.58, 0.04)
+};
+function carWheel(parent, x, z) {
+    const w = new THREE.Group(); w.position.set(x, 0.5, z); parent.add(w);
+    const t = new THREE.Mesh(CWG.tyre, carTyre); t.rotation.x = Math.PI / 2; t.castShadow = true; w.add(t);
+    const r = new THREE.Mesh(CWG.rim, carRim); r.rotation.x = Math.PI / 2; w.add(r);
+    const h = new THREE.Mesh(CWG.hub, carTrim); h.rotation.x = Math.PI / 2; w.add(h);
+    for (let i = 0; i < 3; i++) { const s = new THREE.Mesh(CWG.spoke, carBumper); s.position.z = Math.sign(z) * 0.2; s.rotation.z = i * Math.PI / 3; w.add(s); }
+    return w;
+}
+// thin panel lying along the outline segment a→b, pushed out along its outward normal
+function slab(parent, a, b, off, width, material, inset = 0.9) {
+    const dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy), nx = dy / L, ny = -dx / L;
+    const m = new THREE.Mesh(new THREE.BoxGeometry(L * inset, 0.035, width), material);
+    m.position.set((a[0] + b[0]) / 2 + nx * off, (a[1] + b[1]) / 2 + ny * off, 0);
+    m.rotation.z = Math.atan2(dy, dx); parent.add(m); return m;
+}
+let carPlateN = 0;
+const CAR_KINDS = {
+    hatch: { fx: 1.8, rx: -1.8, len: 5.9, outline: [[3.0, 0.95], [2.92, 1.2], ['q', 2.3, 1.38, 1.3, 1.45], [0.25, 2.2], ['q', -0.6, 2.32, -1.8, 2.28], ['q', -2.45, 2.25, -2.7, 1.75], [-2.9, 1.3], ['q', -2.95, 0.6, -2.85, 0.5]],
+        dlo: [[1.18, 1.56], [0.3, 2.12], [-1.78, 2.17], [-2.52, 1.73], [-2.6, 1.56]], ws: [[1.3, 1.45], [0.25, 2.2]], rg: [[-1.95, 2.27], [-2.68, 1.76]], pillar: -0.6, front: 3.0, back: -2.92, tailY: 1.42 },
+    sedan: { fx: 1.85, rx: -1.95, len: 6.5, outline: [[3.05, 0.95], [2.97, 1.18], ['q', 2.3, 1.36, 1.25, 1.42], [0.15, 2.15], ['q', -0.6, 2.27, -1.25, 2.24], [-2.15, 1.62], ['q', -2.8, 1.6, -3.2, 1.5], [-3.28, 1.0], ['q', -3.25, 0.55, -3.1, 0.5]],
+        dlo: [[1.12, 1.53], [0.2, 2.08], [-1.22, 2.15], [-2.0, 1.6], [-2.05, 1.52]], ws: [[1.25, 1.42], [0.15, 2.15]], rg: [[-1.3, 2.23], [-2.12, 1.63]], pillar: -0.5, front: 3.05, back: -3.28, tailY: 1.3 },
+    suv: { fx: 1.85, rx: -1.85, len: 6.2, outline: [[3.05, 1.05], [3.0, 1.5], ['q', 2.4, 1.68, 1.45, 1.72], [0.55, 2.5], ['q', -0.6, 2.6, -2.55, 2.58], ['q', -2.9, 2.55, -2.98, 2.2], [-3.05, 1.2], ['q', -3.05, 0.6, -2.9, 0.55]],
+        dlo: [[1.35, 1.82], [0.6, 2.42], [-2.5, 2.46], [-2.82, 2.1], [-2.85, 1.84]], ws: [[1.45, 1.72], [0.55, 2.5]], rg: [[-2.85, 2.45], [-3.0, 1.85]], pillar: -0.7, front: 3.05, back: -3.05, tailY: 1.75, ride: 0.06 }
+};
+function buildCar(color, kindName, withDriver = true) {
+    const K = CAR_KINDS[kindName], g = new THREE.Group(), lift = K.ride || 0;
+    const paint = new THREE.MeshPhongMaterial({ color, specular: 0x8a8a8a, shininess: 70 });
+    const s = new THREE.Shape(), ar = 0.68, wy = 0.5, by = 0.5 + lift;
+    s.moveTo(K.back + 0.08, by);
+    s.lineTo(K.rx - ar, by); s.absarc(K.rx, wy, ar, Math.PI, 0, true);
+    s.lineTo(K.fx - ar, by); s.absarc(K.fx, wy, ar, Math.PI, 0, true);
+    s.lineTo(K.front - 0.2, by); s.quadraticCurveTo(K.front, by + 0.05, K.outline[0][0], K.outline[0][1]);
+    for (const p of K.outline.slice(1)) p[0] === 'q' ? s.quadraticCurveTo(p[1], p[2], p[3], p[4]) : s.lineTo(p[0], p[1]);
+    const W = 2.2;
+    const bodyGeo = new THREE.ExtrudeGeometry(s, { depth: W, bevelEnabled: true, bevelThickness: 0.12, bevelSize: 0.12, bevelSegments: 3, curveSegments: 12 });
+    bodyGeo.translate(0, 0, -W / 2);
+    const bodyM = new THREE.Mesh(bodyGeo, paint); bodyM.castShadow = true; bodyM.receiveShadow = true; g.add(bodyM);
+    // side glass (the daylight opening) poking just through the flanks, plus screens front and back
+    const d = new THREE.Shape(); d.moveTo(K.dlo[0][0], K.dlo[0][1]); for (const p of K.dlo.slice(1)) d.lineTo(p[0], p[1]); d.closePath();
+    const dGeo = new THREE.ExtrudeGeometry(d, { depth: W + 0.26, bevelEnabled: false }); dGeo.translate(0, 0, -(W + 0.26) / 2);
+    g.add(new THREE.Mesh(dGeo, carGlass));
+    slab(g, K.ws[0], K.ws[1], 0.13, W - 0.1, carGlass);
+    slab(g, K.rg[0], K.rg[1], 0.13, W - 0.2, carGlass);
+    for (const sz of [1, -1]) {
+        const bp = new THREE.Mesh(new THREE.BoxGeometry(0.12, (K.dlo[2][1] - K.dlo[0][1]) * 1.05, 0.02), carTrim);
+        bp.position.set(K.pillar, (K.dlo[2][1] + K.dlo[0][1]) / 2, sz * (W / 2 + 0.135)); g.add(bp);
+        for (const hx of [K.pillar + 0.55, K.pillar - 0.95]) { const h = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.045, 0.03), carRim); h.position.set(hx, K.dlo[0][1] - 0.14, sz * (W / 2 + 0.13)); g.add(h); }
+        const seam = new THREE.Mesh(new THREE.BoxGeometry(0.018, 0.78, 0.012), carTrim); seam.position.set(K.pillar - 0.03, by + 0.55, sz * (W / 2 + 0.125)); g.add(seam);
+        const mir = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.15, 0.24), paint); mir.position.set(K.ws[0][0] - 0.12, K.ws[0][1] + 0.12, sz * (W / 2 + 0.24)); g.add(mir);
+        const head = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.17, 0.46), carHead); head.position.set(K.front + 0.07, K.outline[0][1] + 0.16, sz * 0.74); g.add(head);
+        const ind = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.07, 0.14), carAmber); ind.position.set(K.front + 0.07, K.outline[0][1] + 0.02, sz * 0.98); g.add(ind);
+        const tail = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.26, 0.34), carTail); tail.position.set(K.back - 0.1, K.tailY - 0.05, sz * 0.86); g.add(tail);
+        // wheels tucked into the arches
+        g.userData.wheels = (g.userData.wheels || []).concat([carWheel(g, K.fx, sz * 0.98), carWheel(g, K.rx, sz * 0.98)]);
+    }
+    const fb = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.34, W + 0.2), carBumper); fb.position.set(K.front + 0.06, by + 0.18, 0); g.add(fb);
+    const rb = new THREE.Mesh(new THREE.BoxGeometry(0.22, 0.34, W + 0.2), carBumper); rb.position.set(K.back - 0.08, by + 0.2, 0); g.add(rb);
+    const grille = new THREE.Mesh(new THREE.BoxGeometry(0.06, 0.2, 1.0), carTrim); grille.position.set(K.front + 0.08, K.outline[0][1] + 0.12, 0); g.add(grille);
+    const plateNo = ['KA 01 MX 2231', 'KA 03 NB 7046', 'KA 05 MK 1180', 'KA 51 AB 9902', 'KA 04 JP 5523', 'KA 02 HD 3417'][carPlateN++ % 6];
+    for (const [px, ry] of [[K.front + 0.18, Math.PI / 2], [K.back - 0.2, -Math.PI / 2]]) {
+        const plate = planeTex(0.78, 0.2, 256, 66, (c, w, h) => {
+            c.fillStyle = '#f4f4ef'; c.fillRect(0, 0, w, h); c.strokeStyle = '#111'; c.lineWidth = 5; c.strokeRect(3, 3, w - 6, h - 6);
+            c.fillStyle = '#111'; fitText(c, plateNo, w / 2, 47, w - 18, 38, 'bold', SANS, 'center');
+        });
+        plate.position.set(px, by + 0.2, 0); plate.rotation.y = ry; g.add(plate);
+    }
+    if (withDriver) {   // right-hand drive: the driver sits on the +z side
+        const shirt = pmat([0xf2f2f2, 0x3a5a8a, 0x8a3a3a, 0x2a2a2a][carPlateN % 4]);
+        const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.26, 0.42, 4, 10), shirt); torso.position.set(K.pillar + 0.15, by + 0.95, 0.5); g.add(torso);
+        const hd = new THREE.Mesh(new THREE.SphereGeometry(0.2, 12, 10), pmat(0xb07a52, 8)); hd.position.set(K.pillar + 0.22, by + 1.48, 0.5); g.add(hd);
+        const hr = new THREE.Mesh(new THREE.SphereGeometry(0.21, 12, 8, 0, Math.PI * 2, 0, Math.PI * 0.5), pmat(0x141010)); hr.position.copy(hd.position); hr.rotation.z = 0.25; g.add(hr);
+    }
+    g.position.y = ROAD_TOP;
+    g.userData.wheelR = 0.5; g.userData.len = K.len;
+    return g;
+}
+
+const SC = 1.5;   // scooter is modelled in metres like the people, then scaled with them
+function buildScooter(color, riderCfg) {
+    const g = new THREE.Group(), inner = new THREE.Group(); inner.scale.setScalar(SC); g.add(inner);
+    const paint = new THREE.MeshPhongMaterial({ color, specular: 0x999999, shininess: 80 });
+    const add = (geo, m, x, y, z) => { const me = new THREE.Mesh(geo, m); me.position.set(x, y, z); inner.add(me); return me; };
+    const wheels = [0.6, -0.6].map(wx => {
+        const w = new THREE.Group(); w.position.set(wx, 0.255, 0); inner.add(w);
+        w.add(new THREE.Mesh(new THREE.TorusGeometry(0.19, 0.065, 8, 18), carTyre));
+        const hub = new THREE.Mesh(new THREE.CylinderGeometry(0.12, 0.12, 0.09, 12), carRim); hub.rotation.x = Math.PI / 2; w.add(hub);
+        for (let i = 0; i < 3; i++) { const s = new THREE.Mesh(new THREE.BoxGeometry(0.03, 0.24, 0.1), carBumper); s.rotation.z = i * Math.PI / 3; w.add(s); }
+        return w;
+    });
+    add(new THREE.CapsuleGeometry(0.2, 0.5, 6, 12), paint, -0.5, 0.56, 0).rotation.z = Math.PI / 2;   // rear body over the engine
+    inner.children[inner.children.length - 1].scale.set(1, 1, 0.82);
+    add(new THREE.CapsuleGeometry(0.12, 0.46, 4, 10), carTrim, -0.46, 0.76, 0).rotation.z = Math.PI / 2;   // seat
+    inner.children[inner.children.length - 1].scale.set(0.55, 1, 1.05);
+    add(new THREE.BoxGeometry(0.46, 0.06, 0.32), carTrim, 0.08, 0.33, 0);                                   // floorboard
+    add(new THREE.BoxGeometry(0.08, 0.72, 0.42), paint, 0.42, 0.68, 0).rotation.z = 0.28;                   // leg shield
+    add(new THREE.BoxGeometry(0.2, 0.14, 0.3), paint, 0.36, 1.06, 0);                                       // handlebar cowl
+    add(new THREE.CylinderGeometry(0.016, 0.016, 0.68, 8), carRim, 0.36, 1.08, 0).rotation.x = Math.PI / 2;
+    for (const sz of [0.3, -0.3]) {
+        add(new THREE.CylinderGeometry(0.022, 0.022, 0.1, 8), carTrim, 0.36, 1.08, sz).rotation.x = Math.PI / 2;
+        add(new THREE.CylinderGeometry(0.006, 0.006, 0.2, 4), carTrim, 0.32, 1.2, sz * 0.85);
+        add(new THREE.SphereGeometry(0.04, 8, 6), carTrim, 0.32, 1.3, sz * 0.85).scale.set(0.4, 1, 1.2);
+    }
+    add(new THREE.SphereGeometry(0.07, 10, 8), carHead, 0.48, 1.04, 0).scale.set(0.6, 1, 1.4);           // headlamp
+    add(new THREE.CylinderGeometry(0.022, 0.022, 0.62, 8), carRim, 0.55, 0.52, 0).rotation.z = 0.2;       // fork
+    const fg = add(new THREE.TorusGeometry(0.25, 0.04, 6, 14, Math.PI * 0.7), paint, 0.6, 0.255, 0); fg.rotation.z = Math.PI * 0.2;
+    add(new THREE.BoxGeometry(0.04, 0.07, 0.16), carTail, -0.88, 0.6, 0);
+    const rider = buildPerson(riderCfg); rider.position.set(-0.26, 0.82 + 0.075 - 0.93, 0); inner.add(rider);
+    applyPose(rider, { hR: 1.5, hL: 1.5, kR: -1.34, kL: -1.34, sR: 0.76, sL: 0.76, eR: 0.22, eL: 0.22, aR: 0.18, aL: 0.18, bob: 0, lean: 0.35 });
+    g.position.y = ROAD_TOP;
+    g.userData = { wheels, wheelR: 0.255 * SC, len: 1.8 * SC };
+    return g;
+}
+
+/* Parked cars by the MCA campus */
+{
+    const parkX = STOPS[3].at;
+    const parked = [[0x4a4a5a, 'sedan'], [0x8a3030, 'hatch'], [0xf0f0e8, 'suv'], [0x2a3a5a, 'hatch'], [0x9a9a9e, 'sedan']];
+    parked.forEach(([c, k], i) => {
+        const car = buildCar(c, k, false);
+        const x = parkX + 18 + i * 4.2, z = 14 + (i % 2) * 2.5;
+        car.position.set(x, groundY(x, z), z); car.rotation.y = Math.PI * 0.5;
+        scene.add(car);
+    });
+}
+
+/* ===== STREET LIFE: pedestrians, bench sitters, chatting groups ===== */
+const people = [];
+function surfaceY(x, z) {
+    const az = Math.abs(z);
+    if (az <= 3.75) return ROAD_TOP;
+    if (az <= 5.9) return SIDEWALK_TOP;
+    return groundY(x, z);
+}
+function spawnPerson(cfg, x, z, extra) {
+    const p = buildPerson(cfg), S = PERSON_SCALE * (cfg.child ? 0.62 : 1);
+    p.scale.setScalar(S);
+    p.position.set(x, surfaceY(x, z), z);
+    scene.add(p);
+    const a = Object.assign({ p, S, mode: 'patrol', phase: srand() * 6.28, yaw: srand() > 0.5 ? 0 : Math.PI, amp: 0, cur: 0,
+        speed: (cfg.child ? 1.15 : 1.2 + srand() * 0.35) * S, pause: srand() * 2, t: srand() * 10, tx: x, tz: z }, extra);
+    p.rotation.y = a.yaw;
+    applyPose(p, STAND);
+    people.push(a);
+    return a;
+}
+/* footprints of everything a pedestrian could walk into (campus fronts, posts, bins, bushes,
+   benches, low canopies), measured once from the scene so walkers stay on clear ground */
+const obstacles = [];
+{
+    const bb = new THREE.Box3();
+    scene.updateMatrixWorld(true);
+    scene.traverse(m => {
+        if (!m.isMesh) return;
+        bb.setFromObject(m);
+        if (bb.max.y < 0.3 || bb.min.y > 2.6 || bb.max.x - bb.min.x > 40) return;
+        if (bb.max.z < -15 || bb.min.z > 15 || (bb.min.z > -3.8 && bb.max.z < 3.8)) return;
+        obstacles.push([bb.min.x, bb.max.x, bb.min.z, bb.max.z]);
+    });
+}
+// clear stretches of x along a z band, within [xa, xb]
+function freeSpans(z0, z1, xa, xb, r = 0.4) {
+    const cut = obstacles.filter(o => o[3] > z0 - r && o[2] < z1 + r && o[1] > xa && o[0] < xb)
+        .map(o => [o[0] - r, o[1] + r]).sort((a, b) => a[0] - b[0]);
+    const out = []; let x = xa;
+    for (const [a, b] of cut) { if (a > x) out.push([x, a]); x = Math.max(x, b); }
+    if (x < xb) out.push([x, xb]);
+    return out;
+}
+function clearSpot(zMin, zMax, xa, xb, minLen) {
+    for (let k = 0; k < 24; k++) {
+        const z = zMin + srand() * (zMax - zMin);
+        const spans = freeSpans(z - 0.15, z + 0.15, xa, xb).filter(sp => sp[1] - sp[0] >= minLen);
+        if (spans.length) { const sp = spans[Math.floor(srand() * spans.length)]; return { z, sp }; }
+    }
+    return null;
+}
+
+const SKINS = [0xc8956a, 0xb07a52, 0x9a6a4a, 0xd4a574, 0x8a5a3c, 0xe0b090];
+const pick = (arr) => arr[Math.floor(srand() * arr.length)];
+_seed = 7301;
+
+// Campus fronts: students in uniform at the school, collegegoers at the rest
+const campusCrowd = [
+    [   // school: white shirts, navy bottoms
+        { child: true, shirt: 0xffffff, pants: 0x1e2e4a, hairStyle: 'short', backpack: true, bpColor: 0xc0392b },
+        { child: true, shirt: 0xffffff, pants: 0x1e2e4a, hairStyle: 'plait', female: true, bag: true },
+        { child: true, shirt: 0xffffff, pants: 0x1e2e4a, hairStyle: 'curly', backpack: true, bpColor: 0x2e86c1 },
+        { child: true, shirt: 0xffffff, pants: 0x1e2e4a, hairStyle: 'short', shoes: 0x0a0a0a },
+        { child: true, shirt: 0xffffff, pants: 0x1e2e4a, hairStyle: 'ponytail', female: true, backpack: true, bpColor: 0x8e44ad },
+        { child: true, shirt: 0xffffff, pants: 0x1e2e4a, hairStyle: 'bun', female: true },
+        { shirt: 0x7a5aa0, pants: 0x7a5aa0, hairStyle: 'bun', female: true, kurta: true, sleeve: 'long', bag: true }   // a teacher
+    ],
+    [
+        { shirt: 0x5577aa, pants: 0x2a2a3a, hairStyle: 'short', backpack: true },
+        { shirt: 0xaa5555, pants: 0x2a2a3a, hairStyle: 'long', female: true, kurta: true, hair: 0x2a160c },
+        { shirt: 0x55aa77, pants: 0x3a4a5a, hairStyle: 'ponytail', female: true, bag: true },
+        { shirt: 0x8866aa, pants: 0x3a3a4a, hairStyle: 'curly' },
+        { shirt: 0xcc9955, pants: 0x2a3a4a, hairStyle: 'short', backpack: true, sleeve: 'long' }
+    ],
+    [
+        { shirt: 0x3388aa, pants: 0x1a1a2a, hairStyle: 'short', backpack: true },
+        { shirt: 0xcc7744, pants: 0x3a3a5a, hairStyle: 'plait', female: true, kurta: true, bag: true },
+        { shirt: 0x44aa66, pants: 0x2a2a3a, hairStyle: 'curly' },
+        { shirt: 0x7766cc, pants: 0x2a2a3a, hairStyle: 'ponytail', female: true, backpack: true }
+    ],
+    [
+        { shirt: 0x334455, pants: 0x1a1a2a, hairStyle: 'short', backpack: true, shoes: 0x1a1008, sleeve: 'long' },
+        { shirt: 0x886644, pants: 0x2a2a3a, hairStyle: 'bun', female: true, bag: true, kurta: true },
+        { shirt: 0x556677, pants: 0x1a1a1a, hairStyle: 'short', moustache: true },
+        { shirt: 0x445566, pants: 0x2a2a3a, hairStyle: 'long', female: true, backpack: true }
+    ]
+];
 STOPS.forEach((s, si) => {
-    const configs = peopleConfigs[si];
-    configs.forEach((cfg, i) => {
-        const person = buildDetailedPerson(cfg);
-        const spread = configs.length > 4 ? 3.5 : 4.5;
-        person.position.set(
-            s.at + (i - Math.floor(configs.length / 2)) * spread,
-            0,
-            srand() > 0.5 ? -(8 + srand() * 5) : (7 + srand() * 4)
-        );
-        person.scale.setScalar(0.85);
-        person.userData.baseX = person.position.x;
-        person.userData.walkRange = 2 + srand() * 3;
-        person.userData.speed = 0.4 + srand() * 0.8;
-        person.userData.phase = srand() * Math.PI * 2;
-        walkers.push(person);
-        scene.add(person);
+    const crowd = campusCrowd[si];
+    let chat = null;
+    crowd.forEach((cfg, i) => {
+        cfg.skin = cfg.skin || pick(SKINS);
+        if (i < 2) {   // the first two at each campus stand together and talk
+            chat = chat || clearSpot(-12, -6.4, s.at - 16, s.at + 16, 3) || { z: -4.8, sp: [s.at - 1, s.at + 3] };
+            const gap = cfg.child ? 1.0 : 1.35, x0 = (chat.sp[0] + chat.sp[1]) / 2 - gap / 2;
+            spawnPerson(cfg, x0 + i * gap, chat.z, { mode: 'chat', yaw: i === 0 ? 0 : Math.PI, gest: srand() * 6 });
+        } else {
+            const spot = clearSpot(-12, -6.4, s.at - 18, s.at + 18, 4) || { z: -4.8, sp: [s.at - 10, s.at + 10] };
+            const [a, b] = spot.sp;
+            spawnPerson(cfg, a + 0.3 + srand() * (b - a - 0.6), spot.z, { mode: 'patrol', xMin: a + 0.3, xMax: b - 0.3, zBand: [spot.z - 0.12, spot.z + 0.12] });
+        }
     });
 });
+
+// Pedestrians on both footpaths along the whole street
+const PED_LOOKS = [
+    { shirt: 0xe8e4d8, pants: 0x2a2a30, hairStyle: 'short', moustache: true, sleeve: 'long' },
+    { shirt: 0xd04a6a, pants: 0xd04a6a, hairStyle: 'plait', female: true, kurta: true, sleeve: 'long', hair: 0x120a06 },
+    { shirt: 0x3a6a4a, pants: 0x4a4038, hairStyle: 'short', bag: true },
+    { shirt: 0xf0c040, pants: 0xf0c040, hairStyle: 'bun', female: true, kurta: true, bag: true },
+    { shirt: 0x5a7ab0, pants: 0x22263a, hairStyle: 'curly', backpack: true, bpColor: 0x202428 },
+    { shirt: 0xffffff, pants: 0x8a7a64, hairStyle: 'short', moustache: true },
+    { shirt: 0x2a8a8a, pants: 0x2a2a3a, hairStyle: 'long', female: true, bag: true },
+    { shirt: 0x9a4a2a, pants: 0x3a3a40, hairStyle: 'short', sleeve: 'long' },
+    { shirt: 0x6a4a8a, pants: 0x6a4a8a, hairStyle: 'ponytail', female: true, kurta: true },
+    { shirt: 0xc8c0a8, pants: 0x30343a, hairStyle: 'short', backpack: true }
+];
+PED_LOOKS.forEach((cfg, i) => {
+    cfg.skin = pick(SKINS);
+    const x = -6 + (i + srand() * 0.6) * (ROAD_END + 10) / PED_LOOKS.length;
+    const near = i % 2 === 0;
+    const band = near ? [4.15, 4.5] : [-5.3, -4.3];
+    const spans = freeSpans(band[0], band[1], x - 16, x + 16, 0.35).filter(sp => sp[1] - sp[0] > 4);
+    const sp = spans.sort((p, q) => Math.min(Math.abs(p[0] - x), Math.abs(p[1] - x)) - Math.min(Math.abs(q[0] - x), Math.abs(q[1] - x)))[0] || [x - 6, x + 6];
+    const sx = Math.min(sp[1] - 0.5, Math.max(sp[0] + 0.5, x));
+    spawnPerson(cfg, sx, (band[0] + band[1]) / 2, { mode: 'patrol', xMin: sp[0] + 0.3, xMax: sp[1] - 0.3, zBand: band });
+});
+
+// A few people taking a break on the benches
+benchSpots.slice(0, 4).forEach((b, i) => {
+    const cfg = [PED_LOOKS[5], campusCrowd[1][1], PED_LOOKS[4], PED_LOOKS[3]][i];
+    const zSit = b.z > 0 ? b.z - 0.08 : b.z + 0.08;
+    const a = spawnPerson(Object.assign({}, cfg, { skin: pick(SKINS) }), b.x + (i % 2 ? 0.6 : -0.5), zSit, { mode: 'sit', yaw: b.z > 0 ? Math.PI / 2 : -Math.PI / 2 });
+    a.p.position.y = 0.695 + (0.075 - 0.93) * a.S;
+});
+
+/* the person who hails an auto, walks over, climbs in and is driven away */
+const passenger = spawnPerson({ shirt: 0x2d6a8f, pants: 0x262a33, hairStyle: 'short', backpack: true, bpColor: 0x8a2c2c, skin: 0xb07a52, sleeve: 'long' },
+    0, 4.45, { mode: 'passenger', state: 'wait' });
+
+/* ===== TRAFFIC ===== India drives on the left: eastbound (+x) on the far side, westbound nearer the camera */
+const LANE_E = -1.75, LANE_W = 1.8, CURB_W = 2.62;
+const traffic = [];
+function addTraffic(obj, dir, cruise, x) {
+    const lane = dir > 0 ? LANE_E : LANE_W;
+    const v = { obj, dir, cruise, v: cruise, x, z: lane, lane, len: obj.userData.len, wheels: obj.userData.wheels, wheelR: obj.userData.wheelR };
+    obj.position.x = x; obj.position.z = lane; obj.rotation.y = dir > 0 ? 0 : Math.PI;
+    scene.add(obj); traffic.push(v);
+    return v;
+}
+addTraffic(buildCar(0xf2f2ee, 'hatch'), 1, 10.5, -32);
+addTraffic(autoRickshaw(0, 0, 0), 1, 7, 18);
+addTraffic(buildCar(0x9b1c22, 'sedan'), 1, 11.5, 46);
+addTraffic(buildScooter(0x2f5fa8, { shirt: 0xe0d6c0, pants: 0x30343c, hairStyle: 'helmet', helmet: 0xc0392b, skin: 0xb07a52, sleeve: 'long' }), 1, 8.5, -8);
+addTraffic(buildCar(0x2b3a55, 'suv'), -1, 10, 70);
+addTraffic(buildCar(0xb8bcc0, 'hatch'), -1, 11, 8);
+addTraffic(autoRickshaw(0, 0, 0), -1, 7.5, 38);
+addTraffic(buildScooter(0xe8e2d0, { shirt: 0xd04a6a, pants: 0xd04a6a, kurta: true, female: true, hairStyle: 'helmet', helmet: 0x222222, skin: 0xc8956a, sleeve: 'long' }), -1, 8, 92);
+const hailVeh = addTraffic(autoRickshaw(0, 0, 0), -1, 7, 60);
+// two autos waiting for fares at a stand off the road
+for (const [x, z, ry] of [[STOPS[1].at - 16, 7.4, Math.PI / 2 + 0.35], [STOPS[1].at - 12.4, 7.6, Math.PI / 2 + 0.3]]) {
+    const a = autoRickshaw(x, z, ry); a.position.y = groundY(x, z) - 0.03; scene.add(a);
+}
+
+const hail = { state: 'approach', pickX: 30, timer: 0 };
+const _seatW = new THREE.Vector3();
+// pick a kerb spot the chase camera can actually see (no roadside tree in the way)
+const nearTreeBoxes = treeGroups.filter(t => t.position.z > 5).map(t => new THREE.Box3().setFromObject(t));
+const _ray = new THREE.Ray(), _hit = new THREE.Vector3(), _from = new THREE.Vector3(), _to = new THREE.Vector3();
+function inView(px, rx) {
+    _from.set(rx - 15, 10, 30);
+    for (const [dx, y, z] of [[0, 1.6, 4.45], [-0.75, 1.6, CURB_W], [-2.2, 1.2, CURB_W]]) {
+        _to.set(px + dx, y, z).sub(_from);
+        const len = _to.length(); _ray.set(_from, _to.normalize());
+        if (nearTreeBoxes.some(b => _ray.intersectBox(b, _hit) && _hit.distanceTo(_from) < len)) return false;
+    }
+    return true;
+}
+function resetHail(rx) {
+    let px = rx + 9;
+    for (let k = 0; k < 16; k++) { px = rx + 5 + Math.random() * 9; if (inView(px, rx)) break; }
+    hail.pickX = px;
+    hail.state = 'approach'; hail.timer = 0;
+    hailVeh.x = Math.max(hail.pickX + 52, rx + 70); hailVeh.z = LANE_W; hailVeh.v = hailVeh.cruise;
+    const pa = passenger;
+    pa.state = 'wait'; pa.yaw = Math.PI / 2; pa.amp = 0; pa.cur = 0;
+    pa.p.position.set(hail.pickX - 0.5, SIDEWALK_TOP, 4.45);
+}
+hailVeh.ctrl = (v, dt, rx) => {
+    const stopX = hail.pickX - 0.75;
+    if (hail.state === 'approach') {
+        if (hail.pickX < rx - 20 || hail.pickX > rx + 48) { if (v.x > rx + 60 || v.x < rx - 50) resetHail(rx); }
+        else if (v.x - stopX < 24) hail.state = 'brake';
+        return { target: v.cruise, tz: LANE_W };
+    }
+    if (hail.state === 'brake') {
+        const d = v.x - stopX;
+        if (d < 0.06) { v.v = 0; v.x = stopX; hail.state = 'board'; passenger.state = 'walk'; return { target: 0, tz: CURB_W }; }
+        return { target: Math.min(v.cruise, Math.sqrt(2 * 3.4 * d) + 0.2), tz: d < 18 ? CURB_W : LANE_W };
+    }
+    if (hail.state === 'board') {
+        if (stopX < rx - 60 || stopX > rx + 80) { resetHail(rx); return { target: v.cruise, tz: LANE_W }; }
+        if (passenger.state === 'seated') { hail.timer += dt; if (hail.timer > 1.3) hail.state = 'depart'; }
+        return { target: 0, tz: CURB_W };
+    }
+    if (v.x < rx - 55 || v.x > rx + 110) resetHail(rx);   // depart: drive on, then the scene resets out of view
+    return { target: v.cruise, tz: Math.abs(v.x - stopX) > 1.5 ? LANE_W : CURB_W };
+};
+
+function respawn(v, x) {
+    for (let k = 0; k < 8; k++) {   // never drop it onto another vehicle in the same lane
+        if (!traffic.some(o => o !== v && o.dir === v.dir && Math.abs(o.x - x) < (o.len + v.len) / 2 + 5)) break;
+        x += v.dir > 0 ? -10 : 10;
+    }
+    v.x = x; v.z = v.lane; v.v = v.cruise;
+}
+function updateTraffic(dt, rx) {
+    const lo = rx - 52, hi = rx + 68;
+    const hailStopped = hail.state === 'brake' || hail.state === 'board';
+    for (const v of traffic) {
+        let target = v.cruise, tz = v.lane;
+        if (v.ctrl) ({ target, tz } = v.ctrl(v, dt, rx));
+        else if (v.dir > 0 && (v.x > hi || v.x < lo - 45)) respawn(v, lo - Math.random() * 25);
+        else if (v.dir < 0 && (v.x < lo || v.x > hi + 45)) respawn(v, hi + Math.random() * 25);
+        // keep a safe gap to whoever is ahead in the same lane
+        for (const o of traffic) {
+            if (o === v || o.dir !== v.dir || Math.abs(o.z - v.z) > 1.6) continue;
+            const gap = v.dir * (o.x - v.x) - (v.len + o.len) / 2;
+            if (gap > -0.5 && gap < 10) target = Math.min(target, o.v + (gap - 2.5) * 0.9);
+        }
+        // give the cyclist room when overtaking; swing wide of the auto stopped at the kerb
+        if (!v.ctrl && v.dir > 0 && v.x > rx - v.len / 2 - 6 && v.x < rx + v.len / 2 + 3) tz = LANE_E + 0.95;
+        if (!v.ctrl && v.dir < 0 && hailStopped && v.x > hailVeh.x - 3 && v.x - hailVeh.x < 18) tz = 0.65;
+        target = Math.max(0, target);
+        const acc = target > v.v ? 3.2 : 9;
+        v.v += Math.max(-acc * dt, Math.min(acc * dt, target - v.v));
+        const z0 = v.z;
+        v.z += (tz - v.z) * Math.min(1, dt * 2.2);
+        v.x += v.dir * v.v * dt;
+        const dz = (v.z - z0) / Math.max(dt, 1e-4);
+        v.obj.position.x = v.x; v.obj.position.z = v.z;
+        v.obj.rotation.y = Math.atan2(-dz, v.dir * Math.max(v.v, 0.6));
+        for (const w of v.wheels) w.rotation.z -= v.v * dt / v.wheelR;
+    }
+}
+
+/* walk a person toward (tx, tz); returns true on arrival */
+function stepToward(a, tx, tz, dt) {
+    const pos = a.p.position, dx = tx - pos.x, dz = tz - pos.z, d = Math.hypot(dx, dz);
+    if (d < 0.06) { a.cur = 0; return true; }
+    let dy = Math.atan2(-dz, dx) - a.yaw; dy = Math.atan2(Math.sin(dy), Math.cos(dy));
+    a.yaw += dy * Math.min(1, dt * 6);
+    const v = Math.min(d / Math.max(dt, 1e-4), a.speed * Math.max(0, Math.cos(dy)) * Math.min(1, d / 0.5 + 0.35));
+    a.cur = v;
+    pos.x += dx / d * v * dt; pos.z += dz / d * v * dt;
+    return false;
+}
+const ease = (t) => t * t * (3 - 2 * t);
+function gait(a, dt) {   // stride matched to ground speed, so feet don't skate
+    a.amp += (Math.min(1, a.cur / (a.speed * 0.8)) - a.amp) * Math.min(1, dt * 6);
+    a.phase += (a.cur * dt / a.S) / 1.36 * Math.PI * 2;
+    return blendPose(STAND, poseWalk(a.phase, 1), a.amp);
+}
+function updatePeople(dt, rx) {
+    for (const a of people) {
+        const pos = a.p.position;
+        a.t += dt;
+        if (a.mode !== 'passenger' && Math.abs(pos.x - rx) > 70) continue;   // off screen: skip the work
+        let q;
+        const look = a.p.userData.head;
+        if (a.mode === 'patrol') {
+            if (a.pause > 0) {
+                a.pause -= dt; a.cur = 0;
+                if (a.pause <= 0) {
+                    let nx = pos.x;
+                    for (let k = 0; k < 6 && Math.abs(nx - pos.x) < 2.5; k++) nx = a.xMin + Math.random() * (a.xMax - a.xMin);
+                    a.tx = nx; a.tz = a.zBand[0] + Math.random() * (a.zBand[1] - a.zBand[0]);
+                }
+                look.rotation.y = Math.sin(a.t * 0.8) * 0.5;
+            } else {
+                look.rotation.y *= 0.9;
+                if (stepToward(a, a.tx, a.tz, dt)) a.pause = 0.6 + Math.random() * 3.2;
+            }
+            q = gait(a, dt);
+            pos.y = surfaceY(pos.x, pos.z);
+        } else if (a.mode === 'chat') {
+            const g = Math.max(0, Math.sin(a.t * 0.9 + a.gest));
+            q = Object.assign({}, STAND, { sR: 0.25 + g * 0.5, eR: 0.4 + g * 0.9, aR: 0.12, lean: 0.03 + Math.sin(a.t * 0.5) * 0.02 });
+            look.rotation.z = Math.sin(a.t * 1.7 + a.gest) * 0.06;
+            look.rotation.y = Math.sin(a.t * 0.4 + a.gest) * 0.25;
+        } else if (a.mode === 'sit') {
+            q = Object.assign({}, SIT, { eR: 1.0 + Math.sin(a.t * 0.6) * 0.1 });
+            look.rotation.y = Math.sin(a.t * 0.3 + a.phase) * 0.6;
+        } else {   // the auto passenger
+            if (a.state === 'wait') {
+                a.yaw += (Math.PI / 2 - a.yaw) * Math.min(1, dt * 4);
+                const coming = (hail.state === 'approach' || hail.state === 'brake') && hailVeh.x - hail.pickX < 40;
+                look.rotation.y += ((coming ? -0.85 : Math.sin(a.t * 0.5) * 0.4) - look.rotation.y) * Math.min(1, dt * 3);
+                q = coming && hail.state === 'approach'
+                    ? Object.assign({}, STAND, { sR: 2.45, eR: 0.35, aR: 0.28 + Math.sin(a.t * 8) * 0.18 })   // waves the auto down
+                    : STAND;
+            } else if (a.state === 'walk') {
+                look.rotation.y *= 0.9;
+                hailVeh.obj.updateMatrixWorld();
+                hailVeh.obj.userData.seatAnchor.getWorldPosition(_seatW);
+                if (stepToward(a, _seatW.x, CURB_W + 1.25, dt)) { a.state = 'step'; a.k = 0; a.from = pos.clone(); a.yaw0 = a.yaw; }
+                q = gait(a, dt);
+                pos.y = surfaceY(pos.x, pos.z);
+            } else {
+                hailVeh.obj.updateMatrixWorld();
+                hailVeh.obj.userData.seatAnchor.getWorldPosition(_seatW);
+                _seatW.y += (0.075 - 0.93) * a.S;
+                if (a.state === 'step') {
+                    a.k = Math.min(1, a.k + dt / 0.9);
+                    const e = ease(a.k);
+                    pos.lerpVectors(a.from, _seatW, e); pos.y += Math.sin(Math.PI * a.k) * 0.35;
+                    a.yaw = a.yaw0 + (Math.PI - a.yaw0) * e;
+                    q = blendPose(STAND, SIT, e);
+                    if (a.k >= 1) a.state = 'seated';
+                } else {
+                    pos.copy(_seatW);
+                    a.yaw = hailVeh.obj.rotation.y;
+                    q = SIT;
+                }
+                look.rotation.y = Math.sin(a.t * 0.4) * 0.3;
+            }
+        }
+        a.p.rotation.y = a.yaw;
+        applyPose(a.p, q);
+    }
+}
+resetHail(0);
+updateTraffic(0.0001, 0);
 
 /* ===== AMBIENT: FIREFLIES (night only) ===== */
 const fireflyGeo = new THREE.SphereGeometry(0.08, 4, 3);
@@ -1829,7 +2163,9 @@ function applyTheme() {
     scene.fog = new THREE.Fog(P.fog, 60, 240);
     hemi.color.setHex(P.hemi); hemi.groundColor.setHex(P.hemiG); hemi.intensity = P.ambI;
     sun.color.setHex(P.sun); sun.intensity = P.sunI;
-    sun.position.set(dark ? 40 : -40, dark ? 70 : 60, dark ? -20 : 30);
+    sunOff.set(dark ? 40 : -40, dark ? 70 : 60, dark ? -20 : 30);
+    for (const m of vehicleLamps.head) m.emissive.setHex(dark ? 0xfff1c8 : 0x000000);
+    for (const m of vehicleLamps.tail) m.emissive.setHex(dark ? 0x7a0a0a : 0x000000);
     groundMat.color.setHex(P.ground);
     roofMat.color.setHex(P.roof);
     lamp.intensity = dark ? 55 : 0;
@@ -1899,8 +2235,8 @@ function drawFrame() {
         peR.position.set(pedals[0].x, pedals[0].y, 0.22); peL.position.set(pedals[1].x, pedals[1].y, -0.22);
         if (rider.userData.pose) rider.userData.pose(pedals);
     }
-    // Gentle rider bob (subtle up/down from pedaling)
-    rider.position.y = 0.15 + Math.abs(Math.sin(x * 1.6)) * 0.04;
+    // Tyres rest on the road surface (top at y 0.42); a hair of squash so they read as loaded
+    rider.position.y = ROAD_TOP + 0.2 * RIDER_SCALE - 0.012;
 
     lamp.position.set(x, 9, 6);
 
@@ -1910,10 +2246,9 @@ function drawFrame() {
     cam.lookAt(x + 3, 3.5 + camSway * 0.1, -2);
 
     // Shadow camera follows rider
-    sun.target.position.set(x, 0, 0);
+    sun.position.set(x + 8 + sunOff.x, sunOff.y, sunOff.z);
+    sun.target.position.set(x + 8, 0, 0);
     sun.target.updateMatrixWorld();
-    sun.shadow.camera.left = x - 40;
-    sun.shadow.camera.right = x + 40;
 
     // Animate birds
     if (!reduced) {
@@ -1929,28 +2264,10 @@ function drawFrame() {
             if (b.position.x < -30) b.position.x = ROAD_END + 30;
         }
 
-        // Animate walkers
-        for (const w of walkers) {
-            const d = w.userData;
-            w.position.x = d.baseX + Math.sin(animTime * d.speed + d.phase) * d.walkRange;
-            // Segmented leg swing
-            if (d.legGroups || w.userData.legGroups) {
-                const legs = d.legGroups || w.userData.legGroups;
-                const lswing = Math.sin(animTime * d.speed * 3 + d.phase);
-                if (legs[0]) legs[0].rotation.x = lswing * 0.35;
-                if (legs[1]) legs[1].rotation.x = -lswing * 0.35;
-            }
-            // Arm swing (opposite to legs)
-            if (d.armGroups || w.userData.armGroups) {
-                const arms = d.armGroups || w.userData.armGroups;
-                const aswing = Math.sin(animTime * d.speed * 3 + d.phase);
-                if (arms[0]) arms[0].rotation.x = -aswing * 0.25;
-                if (arms[1]) arms[1].rotation.x = aswing * 0.25;
-            }
-            // Face walking direction
-            const vx = Math.cos(animTime * d.speed + d.phase) * d.walkRange * d.speed;
-            w.rotation.y = vx > 0 ? 0 : Math.PI;
-        }
+        // Street life: traffic and pedestrians (dt clamped so a hidden tab doesn't teleport them)
+        const ldt = Math.min(dt, 0.05);
+        updateTraffic(ldt, x);
+        updatePeople(ldt, x);
 
         // Animate fireflies
         if (dark) {
@@ -2021,6 +2338,8 @@ function animate() {
 
 addEventListener('scroll', onScroll, { passive: true });
 addEventListener('resize', () => { layout(); onScroll(); }, { passive: true });
+// the stage can still be unsized when this module first runs; re-layout as soon as it gets a size
+if ('ResizeObserver' in window) new ResizeObserver(() => { layout(); drawFrame(); }).observe(stage);
 
 new MutationObserver(applyTheme).observe(document.documentElement, {
     attributes: true, attributeFilter: ['data-theme']
