@@ -338,7 +338,7 @@
                     </p>
                 </div>
                 <div class="hobby-media car-stage" id="carStage">
-                    <canvas id="carCanvas" aria-label="Interactive 3D Ferrari SF90 Stradale — drag to spin"></canvas>
+                    <canvas id="carCanvas" aria-label="Interactive 3D vehicle model — drag to spin"></canvas>
                     <div class="garage-fallback" aria-hidden="true"></div>
                     <p class="drag-hint" id="dragHint">Drag to spin — scroll to roll</p>
                     <div class="car-select-cue" id="carSelectCue">Swipe left / right to change car</div>
@@ -349,12 +349,14 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
                     </button>
                     <div class="car-nav">
-                        <span class="car-name" id="carName">Ferrari SF90 Stradale</span>
+                        <span class="car-name" id="carName">Lamborghini Aventador</span>
                         <div class="car-dots" id="carDots" role="tablist" aria-label="Select car">
-                            <button class="is-active" data-idx="0" aria-label="Ferrari SF90 Stradale"></button>
-                            <button data-idx="1" aria-label="Rolls-Royce Ghost"></button>
+                            <button class="is-active" data-idx="0" aria-label="Lamborghini Aventador"></button>
+                            <button data-idx="1" aria-label="Rolls-Royce Phantom"></button>
                             <button data-idx="2" aria-label="Range Rover L405"></button>
                             <button data-idx="3" aria-label="Ducati Panigale V4 SP"></button>
+                            <button data-idx="4" aria-label="Bentley Flying Spur"></button>
+                            <button data-idx="5" aria-label="Kawasaki Ninja H2"></button>
                         </div>
                     </div>
                 </div>
@@ -436,13 +438,13 @@
                 <div class="hobby-media game-preview-container" id="planeSpotContainer">
                     <video id="planeVid1" class="game-loop-video"
                         src="assets/opt/plane-spotting.mp4"
-                        autoplay muted playsinline preload="metadata"
-                        aria-label="Plane spotting footage 1"></video>
+                        muted playsinline preload="metadata"
+                        aria-label="Plane spotting footage 1 (A380)"></video>
                     <video id="planeVid2" class="game-loop-video"
                         src="assets/opt/plane-spotting-2.mp4"
                         muted playsinline preload="metadata"
                         style="display:none;"
-                        aria-label="Plane spotting footage 2"></video>
+                        aria-label="Plane spotting footage 2 (A380)"></video>
                     <a href="https://www.flightradar24.com" target="_blank" rel="noopener"
                        class="game-play-btn" id="flightradarBtn" aria-label="Open FlightRadar24">
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
@@ -486,14 +488,24 @@
         var v1 = document.getElementById('planeVid1');
         var v2 = document.getElementById('planeVid2');
         if (!v1 || !v2) return;
+        // Two A380 clips. Which one plays first is randomised on every visit;
+        // when a clip ends, the other one plays, so they alternate one after another.
         function swap(from, to) {
+            try { from.pause(); } catch (e) {}
             from.style.display = 'none';
             to.style.display = '';
             to.currentTime = 0;
-            to.play();
+            var pr = to.play(); if (pr && pr.catch) pr.catch(function(){});
         }
         v1.addEventListener('ended', function() { swap(v1, v2); });
         v2.addEventListener('ended', function() { swap(v2, v1); });
+        var first  = Math.random() < 0.5 ? v1 : v2;
+        var second = (first === v1) ? v2 : v1;
+        second.style.display = 'none';
+        first.style.display = '';
+        var tryPlay = function(){ var pr = first.play(); if (pr && pr.catch) pr.catch(function(){}); };
+        first.addEventListener('canplay', tryPlay, { once: true });
+        tryPlay();
     })();
     </script>
 
@@ -1032,7 +1044,7 @@
         });
     </script>
 
-    <!-- ---------- Self-hosted 3D car carousel (Ferrari SF90 Stradale, Rolls-Royce Ghost, Range Rover L405, Ducati Panigale V4 SP, Bentley Flying Spur) ---------- -->
+    <!-- ---------- Self-hosted 3D vehicle carousel (Lamborghini Aventador, Rolls-Royce Phantom, Range Rover L405, Ducati Panigale V4 SP, Bentley Flying Spur, Kawasaki Ninja H2) ---------- -->
     <script type="importmap">
     {
         "imports": {
@@ -1053,14 +1065,18 @@
 
         // Each car: efficient binary for http(s); base64 data-URI fallback for file://
         const CARS = [
-            { name: 'Ferrari SF90 Stradale', bin: 'assets/models/ferrari-sf90-stradale.glb',
-              dataFile: 'assets/models/ferrari-sf90-stradale-data.js', glob: '__SF90_GLB__' },
-            { name: 'Rolls-Royce Ghost', bin: 'assets/models/rolls-royce-ghost.glb',
-              dataFile: 'assets/models/rolls-royce-ghost-data.js', glob: '__ROLLSGHOST_GLB__' },
+            { name: 'Lamborghini Aventador', bin: 'assets/models/lamborghini-aventador.glb',
+              dataFile: 'assets/models/lamborghini-aventador-data.js', glob: '__LAMBO_GLB__' },
+            { name: 'Rolls-Royce Phantom', bin: 'assets/models/rolls-royce-phantom.glb',
+              dataFile: 'assets/models/rolls-royce-phantom-data.js', glob: '__ROLLSPHANTOM_GLB__' },
             { name: 'Range Rover L405', bin: 'assets/models/range-rover-l405.glb',
               dataFile: 'assets/models/range-rover-l405-data.js', glob: '__RANGEROVER_GLB__' },
             { name: 'Ducati Panigale V4 SP', bin: 'assets/models/ducati-panigale-v4-sp.glb',
               dataFile: 'assets/models/ducati-panigale-v4-sp-data.js', glob: '__DUCATI_GLB__', size: 0.55 },
+            { name: 'Bentley Flying Spur', bin: 'assets/models/bentley-flying-spur.glb',
+              dataFile: 'assets/models/bentley-flying-spur-data.js', glob: '__BENTLEY_GLB__' },
+            { name: 'Kawasaki Ninja H2', bin: 'assets/models/kawasaki-ninja-h2.glb',
+              dataFile: 'assets/models/kawasaki-ninja-h2-data.js', glob: '__KAWASAKI_GLB__', size: 0.55 },
         ];
 
         const io = new IntersectionObserver((entries) => {

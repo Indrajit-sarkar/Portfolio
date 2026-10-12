@@ -6,6 +6,12 @@
       "runtimeExecutable": "python",
       "runtimeArgs": ["-m", "http.server", "8321", "--directory", "C:/Users/isarkar2/Downloads/Portfolio-main"],
       "port": 8321
+    },
+    {
+      "name": "autoflow-demo",
+      "runtimeExecutable": "C:\\Users\\isarkar2\\Downloads\\Autoflow demo\\.venv\\Scripts\\python.exe",
+      "runtimeArgs": ["-m", "uvicorn", "--app-dir", "C:\\Users\\isarkar2\\Downloads\\Autoflow demo", "app.agents:app", "--port", "8000"],
+      "port": 8000
     }
   ]
 }
