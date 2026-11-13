@@ -441,15 +441,30 @@
                         muted playsinline preload="metadata"
                         aria-label="Plane spotting footage 1 (Starlux A350-1000)"></video>
                     <video id="planeVid2" class="game-loop-video"
+                        src="assets/opt/plane-spotting-a380-1.mp4"
+                        muted playsinline preload="metadata"
+                        style="display:none;"
+                        aria-label="Plane spotting footage 2 (Emirates A380)"></video>
+                    <video id="planeVid3" class="game-loop-video"
                         src="assets/opt/plane-spotting-a350-2.mp4"
                         muted playsinline preload="metadata"
                         style="display:none;"
-                        aria-label="Plane spotting footage 2 (Starlux A350 at Narita)"></video>
-                    <video id="planeVid3" class="game-loop-video"
+                        aria-label="Plane spotting footage 3 (Starlux A350 at Narita)"></video>
+                    <video id="planeVid4" class="game-loop-video"
+                        src="assets/opt/plane-spotting-a380-2.mp4"
+                        muted playsinline preload="metadata"
+                        style="display:none;"
+                        aria-label="Plane spotting footage 4 (Qatar Airways A380)"></video>
+                    <video id="planeVid5" class="game-loop-video"
                         src="assets/opt/plane-spotting-a350-3.mp4"
                         muted playsinline preload="metadata"
                         style="display:none;"
-                        aria-label="Plane spotting footage 3 (Qatar Airways A350)"></video>
+                        aria-label="Plane spotting footage 5 (Qatar Airways A350)"></video>
+                    <video id="planeVid6" class="game-loop-video"
+                        src="assets/opt/plane-spotting-a380-3.mp4"
+                        muted playsinline preload="metadata"
+                        style="display:none;"
+                        aria-label="Plane spotting footage 6 (Airbus A380 tribute)"></video>
                     <a href="https://www.flightradar24.com" target="_blank" rel="noopener"
                        class="game-play-btn" id="flightradarBtn" aria-label="Open FlightRadar24">
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
@@ -490,10 +505,10 @@
     <script>
     // Plane Spotting: alternate between two videos in a loop
     (function() {
-        var vids = [1, 2, 3].map(function(i){ return document.getElementById('planeVid' + i); })
+        var vids = [1, 2, 3, 4, 5, 6].map(function(i){ return document.getElementById('planeVid' + i); })
                              .filter(Boolean);
         if (!vids.length) return;
-        // A350 clips play one after another in a loop; the starting clip is random on every visit.
+        // A350 and A380 clips alternate (A350, A380, A350, ...) in a loop; the starting clip is random on every visit.
         var cur = Math.floor(Math.random() * vids.length);
         function show(i) {
             vids.forEach(function(v, j){
