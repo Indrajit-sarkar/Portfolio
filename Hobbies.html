@@ -478,10 +478,14 @@
                     </p>
                 </div>
                 <div class="hobby-media" style="aspect-ratio: auto; overflow: hidden; background: #000;">
-                    <video style="width: 100%; height: 100%; object-fit: contain;"
-                        src="assets/opt/superyacht.mp4"
-                        autoplay loop muted playsinline preload="metadata"
-                        aria-label="Superyacht footage on loop"></video>
+                    <video id="yachtVid1" style="width: 100%; height: 100%; object-fit: contain;"
+                        src="assets/opt/superyacht-1.mp4"
+                        muted playsinline preload="metadata"
+                        aria-label="Superyacht footage 1"></video>
+                    <video id="yachtVid2" style="width: 100%; height: 100%; object-fit: contain; display:none;"
+                        src="assets/opt/superyacht-2.mp4"
+                        muted playsinline preload="metadata"
+                        aria-label="Superyacht footage 2"></video>
                 </div>
             </section>
         </div>
@@ -510,6 +514,28 @@
         var first = vids[cur];
         first.addEventListener('canplay', function(){ if (first.paused && first.style.display !== 'none') { var pr = first.play(); if (pr && pr.catch) pr.catch(function(){}); } }, { once: true });
         show(cur);
+    })();
+    (function() {
+        var y1 = document.getElementById('yachtVid1');
+        var y2 = document.getElementById('yachtVid2');
+        if (!y1 || !y2) return;
+        // Two superyacht clips alternate; which plays first is random on every visit.
+        function swap(from, to) {
+            try { from.pause(); } catch (e) {}
+            from.style.display = 'none';
+            to.style.display = '';
+            to.currentTime = 0;
+            var pr = to.play(); if (pr && pr.catch) pr.catch(function(){});
+        }
+        y1.addEventListener('ended', function() { swap(y1, y2); });
+        y2.addEventListener('ended', function() { swap(y2, y1); });
+        var first  = Math.random() < 0.5 ? y1 : y2;
+        var second = (first === y1) ? y2 : y1;
+        second.style.display = 'none';
+        first.style.display = '';
+        var tryPlay = function(){ var pr = first.play(); if (pr && pr.catch) pr.catch(function(){}); };
+        first.addEventListener('canplay', tryPlay, { once: true });
+        tryPlay();
     })();
     </script>
 
