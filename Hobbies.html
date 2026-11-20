@@ -1137,8 +1137,8 @@
               dataFile: 'assets/models/range-rover-sv-ultra-data.js', glob: '__RRSVULTRA_GLB__' },
             { name: 'Rolls-Royce Ghost', bin: 'assets/models/rolls-royce-ghost-classic.glb',
               dataFile: 'assets/models/rolls-royce-ghost-classic-data.js', glob: '__ROLLSGHOSTCLASSIC_GLB__' },
-            { name: 'Bentley Continental GT Speed', bin: 'assets/models/bentley-continental-gt-speed.glb',
-              dataFile: 'assets/models/bentley-continental-gt-speed-data.js', glob: '__BENTLEYGTS_GLB__' },
+            { name: 'Bentley Continental GT Speed', bin: 'assets/models/bentley-continental-gt-speed-v3.glb',
+              dataFile: 'assets/models/bentley-continental-gt-speed-v3-data.js', glob: '__BENTLEYGTS3_GLB__' },
             { name: 'Ferrari 488 GTB', bin: 'assets/models/ferrari-488-gtb.glb',
               dataFile: 'assets/models/ferrari-488-gtb-data.js', glob: '__F488GTB_GLB__' },
             { name: 'McLaren 750S', bin: 'assets/models/mclaren-750s.glb',
@@ -1247,6 +1247,10 @@
                     // precise=true measures actual vertices, not each mesh's bounding box.
                     // Some models (e.g. the Ghost's speedo needle) have a bbox far bigger than
                     // their geometry, which shrank the car and lifted it off the pedestal.
+                    // Apply every node's own transform before measuring. Some models (e.g. the
+                    // Bentley) store their Z-up -> Y-up rotation on each part; measuring before
+                    // that is applied makes the car look tall and lifts it off the pedestal.
+                    model.updateMatrixWorld(true);
                     const box = new THREE.Box3().setFromObject(model, true);
                     const size = box.getSize(new THREE.Vector3());
                     const center = box.getCenter(new THREE.Vector3());
