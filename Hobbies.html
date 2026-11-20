@@ -349,18 +349,15 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
                     </button>
                     <div class="car-nav">
-                        <span class="car-name" id="carName">Mercedes-AMG G63</span>
+                        <span class="car-name" id="carName">Range Rover SV Ultra LWB V8</span>
                         <div class="car-dots" id="carDots" role="tablist" aria-label="Select car">
-                            <button class="is-active" data-idx="0" aria-label="Mercedes-AMG G63"></button>
-                            <button data-idx="1" aria-label="Aston Martin DBX"></button>
-                            <button data-idx="2" aria-label="Range Rover SV Ultra LWB V8"></button>
-                            <button data-idx="3" aria-label="Rolls-Royce Ghost"></button>
-                            <button data-idx="4" aria-label="Bentley Continental GT Speed"></button>
-                            <button data-idx="5" aria-label="Ferrari 488 GTB"></button>
-                            <button data-idx="6" aria-label="McLaren 750S"></button>
-                            <button data-idx="7" aria-label="Honda CBR1000RR-R Fireblade SP"></button>
-                            <button data-idx="8" aria-label="Ducati Panigale V4 S"></button>
-                            <button data-idx="9" aria-label="Aprilia RSV4 1100 Factory"></button>
+                            <button class="is-active" data-idx="0" aria-label="Range Rover SV Ultra LWB V8"></button>
+                            <button data-idx="1" aria-label="Rolls-Royce Ghost"></button>
+                            <button data-idx="2" aria-label="Bentley Continental GT Speed"></button>
+                            <button data-idx="3" aria-label="Lamborghini Aventador"></button>
+                            <button data-idx="4" aria-label="Honda CBR1000RR-R Fireblade SP"></button>
+                            <button data-idx="5" aria-label="Ducati Panigale V4 S"></button>
+                            <button data-idx="6" aria-label="Aprilia RSV4 1100 Factory"></button>
                         </div>
                     </div>
                 </div>
@@ -1108,7 +1105,7 @@
         });
     </script>
 
-    <!-- ---------- Self-hosted 3D vehicle carousel (Mercedes-AMG G63, Aston Martin DBX, Range Rover SV Ultra LWB V8, Rolls-Royce Ghost, Bentley Continental GT Speed, Ferrari 488 GTB, McLaren 750S, Honda CBR1000RR-R Fireblade SP, Ducati Panigale V4 S, Aprilia RSV4 1100 Factory) ---------- -->
+    <!-- ---------- Self-hosted 3D vehicle carousel (Range Rover SV Ultra LWB V8, Rolls-Royce Ghost, Bentley Continental GT Speed, Lamborghini Aventador, Honda CBR1000RR-R Fireblade SP, Ducati Panigale V4 S, Aprilia RSV4 1100 Factory) ---------- -->
     <script type="importmap">
     {
         "imports": {
@@ -1129,20 +1126,14 @@
 
         // Each car: efficient binary for http(s); base64 data-URI fallback for file://
         const CARS = [
-            { name: 'Mercedes-AMG G63', bin: 'assets/models/mercedes-amg-g63.glb',
-              dataFile: 'assets/models/mercedes-amg-g63-data.js', glob: '__G63_GLB__' },
-            { name: 'Aston Martin DBX', bin: 'assets/models/aston-martin-dbx.glb',
-              dataFile: 'assets/models/aston-martin-dbx-data.js', glob: '__DBX_GLB__' },
             { name: 'Range Rover SV Ultra LWB V8', bin: 'assets/models/range-rover-sv-ultra.glb',
               dataFile: 'assets/models/range-rover-sv-ultra-data.js', glob: '__RRSVULTRA_GLB__' },
             { name: 'Rolls-Royce Ghost', bin: 'assets/models/rolls-royce-ghost-classic.glb',
               dataFile: 'assets/models/rolls-royce-ghost-classic-data.js', glob: '__ROLLSGHOSTCLASSIC_GLB__' },
             { name: 'Bentley Continental GT Speed', bin: 'assets/models/bentley-continental-gt-speed-v3.glb',
               dataFile: 'assets/models/bentley-continental-gt-speed-v3-data.js', glob: '__BENTLEYGTS3_GLB__' },
-            { name: 'Ferrari 488 GTB', bin: 'assets/models/ferrari-488-gtb.glb',
-              dataFile: 'assets/models/ferrari-488-gtb-data.js', glob: '__F488GTB_GLB__' },
-            { name: 'McLaren 750S', bin: 'assets/models/mclaren-750s.glb',
-              dataFile: 'assets/models/mclaren-750s-data.js', glob: '__MCLAREN750S_GLB__' },
+            { name: 'Lamborghini Aventador', bin: 'assets/models/lamborghini-aventador.glb',
+              dataFile: 'assets/models/lamborghini-aventador-data.js', glob: '__LAMBO_GLB__' },
             { name: 'Honda CBR1000RR-R Fireblade SP', bin: 'assets/models/honda-cbr1000rr.glb',
               dataFile: 'assets/models/honda-cbr1000rr-data.js', glob: '__HONDACBR_GLB__', size: 0.55 },
             { name: 'Ducati Panigale V4 S', bin: 'assets/models/ducati-panigale-v4s.glb',
