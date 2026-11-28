@@ -349,13 +349,12 @@
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>
                     </button>
                     <div class="car-nav">
-                        <span class="car-name" id="carName">Range Rover SV Ultra LWB V8</span>
+                        <span class="car-name" id="carName">Mercedes-AMG G63</span>
                         <div class="car-dots" id="carDots" role="tablist" aria-label="Select car">
-                            <button class="is-active" data-idx="0" aria-label="Range Rover SV Ultra LWB V8"></button>
-                            <button data-idx="1" aria-label="Rolls-Royce Ghost"></button>
-                            <button data-idx="2" aria-label="Lamborghini Aventador"></button>
+                            <button class="is-active" data-idx="0" aria-label="Mercedes-AMG G63"></button>
+                            <button data-idx="1" aria-label="Bentley Continental GT Speed"></button>
+                            <button data-idx="2" aria-label="Audi R8 V10 Plus"></button>
                             <button data-idx="3" aria-label="Suzuki Hayabusa"></button>
-                            <button data-idx="4" aria-label="Ducati Panigale V4 S"></button>
                         </div>
                     </div>
                 </div>
@@ -1103,7 +1102,7 @@
         });
     </script>
 
-    <!-- ---------- Self-hosted 3D vehicle carousel (Range Rover SV Ultra LWB V8, Rolls-Royce Ghost, Lamborghini Aventador, Suzuki Hayabusa, Ducati Panigale V4 S) ---------- -->
+    <!-- ---------- Self-hosted 3D vehicle carousel (Mercedes-AMG G63, Bentley Continental GT Speed, Audi R8 V10 Plus, Suzuki Hayabusa) ---------- -->
     <script type="importmap">
     {
         "imports": {
@@ -1124,16 +1123,14 @@
 
         // Each car: efficient binary for http(s); base64 data-URI fallback for file://
         const CARS = [
-            { name: 'Range Rover SV Ultra LWB V8', bin: 'assets/models/range-rover-sv-ultra.glb',
-              dataFile: 'assets/models/range-rover-sv-ultra-data.js', glob: '__RRSVULTRA_GLB__' },
-            { name: 'Rolls-Royce Ghost', bin: 'assets/models/rolls-royce-ghost-classic.glb',
-              dataFile: 'assets/models/rolls-royce-ghost-classic-data.js', glob: '__ROLLSGHOSTCLASSIC_GLB__' },
-            { name: 'Lamborghini Aventador', bin: 'assets/models/lamborghini-aventador.glb',
-              dataFile: 'assets/models/lamborghini-aventador-data.js', glob: '__LAMBO_GLB__' },
+            { name: 'Mercedes-AMG G63', bin: 'assets/models/mercedes-amg-g63.glb',
+              dataFile: 'assets/models/mercedes-amg-g63-data.js', glob: '__G63_GLB__' },
+            { name: 'Bentley Continental GT Speed', bin: 'assets/models/bentley-continental-gt-speed-v4.glb',
+              dataFile: 'assets/models/bentley-continental-gt-speed-v4-data.js', glob: '__BENTLEYGTS4_GLB__' },
+            { name: 'Audi R8 V10 Plus', bin: 'assets/models/audi-r8-v10-plus.glb',
+              dataFile: 'assets/models/audi-r8-v10-plus-data.js', glob: '__AUDIR8_GLB__' },
             { name: 'Suzuki Hayabusa', bin: 'assets/models/suzuki-hayabusa-v2.glb',
               dataFile: 'assets/models/suzuki-hayabusa-v2-data.js', glob: '__HAYABUSA2_GLB__', size: 0.55 },
-            { name: 'Ducati Panigale V4 S', bin: 'assets/models/ducati-panigale-v4s.glb',
-              dataFile: 'assets/models/ducati-panigale-v4s-data.js', glob: '__PANIGALEV4S_GLB__', size: 0.55 },
         ];
 
         const io = new IntersectionObserver((entries) => {
