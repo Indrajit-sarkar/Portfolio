@@ -436,8 +436,13 @@
                 <div class="hobby-media game-preview-container" id="planeSpotContainer">
                     <video id="planeVid1" class="game-loop-video"
                         src="assets/opt/plane-clip-qatar.mp4"
-                        autoplay loop muted playsinline preload="auto"
-                        aria-label="Plane spotting footage (Qatar Airways take-off)"></video>
+                        muted playsinline preload="auto"
+                        aria-label="Plane spotting footage 1 (Qatar Airways take-off)"></video>
+                    <video id="planeVid2" class="game-loop-video"
+                        src="assets/opt/plane-clip-emirates.mp4"
+                        muted playsinline preload="none"
+                        style="display:none;"
+                        aria-label="Plane spotting footage 2 (Emirates take-off)"></video>
                     <a href="https://www.flightradar24.com" target="_blank" rel="noopener"
                        class="game-play-btn" id="flightradarBtn" aria-label="Open FlightRadar24">
                         <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
@@ -482,12 +487,36 @@
     <script>
     // Plane Spotting: alternate between two videos in a loop
     (function() {
-        var v1 = document.getElementById('planeVid1');
-        if (!v1) return;
-        // Single plane clip on loop; nudge autoplay if the browser deferred it.
-        var tryPlay = function(){ var pr = v1.play(); if (pr && pr.catch) pr.catch(function(){}); };
-        v1.addEventListener('canplay', tryPlay, { once: true });
-        tryPlay();
+        var vids = [1, 2].map(function(i){ return document.getElementById('planeVid' + i); })
+                         .filter(Boolean);
+        if (!vids.length) return;
+        // Plane clips play one after another in a loop. The order is reshuffled
+        // on every page load (Fisher-Yates), so each visit can start on a different clip.
+        var order = vids.slice();
+        for (var k = order.length - 1; k > 0; k--) {
+            var r = Math.floor(Math.random() * (k + 1));
+            var tmp = order[k]; order[k] = order[r]; order[r] = tmp;
+        }
+        var cur = 0;
+        function preloadNext() {
+            var nxt = order[(cur + 1) % order.length];
+            if (nxt.preload !== 'auto') { nxt.preload = 'auto'; try { nxt.load(); } catch (e) {} }
+        }
+        function show(i) {
+            order.forEach(function(v, j){
+                if (j !== i) { try { v.pause(); } catch (e) {} v.style.display = 'none'; }
+            });
+            var v = order[i];
+            if (v.preload !== 'auto') v.preload = 'auto';
+            v.style.display = '';
+            try { v.currentTime = 0; } catch (e) {}
+            var pr = v.play(); if (pr && pr.catch) pr.catch(function(){});
+            preloadNext();
+        }
+        order.forEach(function(v, j){
+            v.addEventListener('ended', function(){ cur = (j + 1) % order.length; show(cur); });
+        });
+        show(cur);
     })();
     (function() {
         var y1 = document.getElementById('yachtVid1');
